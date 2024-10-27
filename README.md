@@ -9,6 +9,7 @@ If you need to compile yourself, modify main.js and Tools/menu.js to convert ref
 /****** 当前模式为开发模式模式(The current mode is development mode) ******/
 const menu_tool = require('./Tools/menu').default;
 // const menu_tool = require('../Tools.asar/menu').default;
+
 /****** 当前模式为日常模式(The current mode is Everyday mode) ******/
 // const menu_tool = require('./Tools/menu').default;
 const menu_tool = require('../Tools.asar/menu').default;
