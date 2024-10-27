@@ -1,0 +1,41 @@
+<!-- 修改自https://github.com/zserge/awfice#drawing-app---327-bytes -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>画图板</title>
+</head>
+
+<body>
+    <canvas id=v></canvas>
+    <script>
+        // 初始化文档对象和画布
+        d = document;
+        d.body.style.margin = 0;
+        P = "onpointer";
+        c = v.getContext(`2d`);
+        v.width = innerWidth;
+        v.height = innerHeight;
+        c.lineWidth = 2;
+        f = 0;
+        // 处理指针按下事件
+        d[P + "down"] = e => {
+            f = e.pointerId + 1;
+            e.preventDefault();
+            c.beginPath();
+            c.moveTo(e.x, e.y);
+        };
+        // 处理指针移动事件
+        d[P + "move"] = e => {
+            if (f == e.pointerId + 1) {
+                c.lineTo(e.x, e.y);
+                c.stroke();
+            }
+        };
+        // 处理指针抬起事件
+        d[P + "up"] = _ => f = 0;
+    </script>
+</body>
+
+</html>
