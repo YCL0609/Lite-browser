@@ -4,7 +4,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>画图板</title>
+    <title>画图板 - 注意: 更改窗口大小会清空画板!</title>
+    <style>
+        body {
+            overflow: hidden
+        }
+    </style>
 </head>
 
 <body>
@@ -35,6 +40,13 @@
         };
         // 处理指针抬起事件
         d[P + "up"] = _ => f = 0;
+
+        onresize = (event) => {
+            if (confirm("是否改变画板大小至窗口大小\n!!!这将清空画板!!!")) {
+                v.width = innerWidth;
+                v.height = innerHeight
+            }
+        };
     </script>
 </body>
 
