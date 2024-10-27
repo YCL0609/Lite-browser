@@ -45,10 +45,24 @@ const menu_page = [{
     label: '开关右键菜单',
     accelerator: 'F7',
     click: () => {
+      if (!ismenudown) {
+        ismenudown = true;
+        const index1 = menu.findIndex(item => item.label === '控制...');
+        if (index1 !== -1) {
+          const index2 = menu[index1].submenu.findIndex(item => item.label === '关闭菜单(全局)');
+          if (index2 !== -1) {
+            menu[index1].submenu.splice(index2, 1);
+          }
+        }
+        const newmenu = Menu.buildFromTemplate(menu);
+        Menu.setApplicationMenu(newmenu);
+      }
+
       const contextMenu = Menu.buildFromTemplate(
         menu_edit
           .concat(menu_tool)
           .concat(menu_page)
+          .concat({ label: '关闭菜单栏(全局)', click: () => { Menu.setApplicationMenu(null) } })
       );
       BrowserWindow.getFocusedWindow().webContents.on('context-menu', (e) => {
         e.preventDefault();
@@ -95,6 +109,12 @@ const menu_page = [{
   }
 }];
 
+/* 一个特殊的bug,当操作过右键菜单后从菜单栏点击隐藏菜单栏会引起程序崩溃 */
+let ismenudown = false;
+let menu = menu_edit
+  .concat(menu_tool)
+  .concat(menu_page);
+
 app.setPath('userData', process.cwd() + "\\resources\\Data");// 用户配置文件夹
 app.whenReady().then(() => {
   const win = new BrowserWindow({
@@ -106,11 +126,7 @@ app.whenReady().then(() => {
   win.loadFile('index.html');
 
   // 标题栏菜单
-  const titleMenu = Menu.buildFromTemplate(
-    menu_edit
-      .concat(menu_tool)
-      .concat(menu_page)
-  )
+  const titleMenu = Menu.buildFromTemplate(menu);
   Menu.setApplicationMenu(titleMenu);
 })
 app.on('window-all-closed', () => app.quit());
