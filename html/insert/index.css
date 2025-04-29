@@ -1,0 +1,123 @@
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 370px;
+    margin: 0;
+}
+
+.container {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+}
+
+h2 {
+    margin: 0;
+    padding: 0;
+    text-align: center
+}
+
+b {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+}
+
+a {
+    color: #0066cc
+}
+
+.box {
+    flex-grow: 1;
+    margin: 10px auto;
+    min-width: 370px;
+    max-width: 500px;
+    border-radius: 5px;
+    border: 2px solid black;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    height: 35px;
+    border-bottom: 2px solid black;
+    display: flex;
+    justify-content: space-between;
+}
+
+.title a {
+    line-height: 35px;
+    margin-left: 10px;
+    color: #000;
+}
+
+.title .svg {
+    height: 35px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.title svg:last-child {
+    margin-right: 5px;
+}
+
+.title svg:hover {
+    transform: scale(1.2);
+}
+
+.list {
+    flex-grow: 1;
+    overflow-y: auto;
+    user-select: none;
+    padding: 5px;
+}
+
+.list div {
+    height: 30px;
+    cursor: pointer;
+    line-height: 30px;
+    border-radius: 5px;
+}
+
+.list div a {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.list div:hover {
+    background-color: #6d72da;
+    color: #fff;
+}
+
+.list div[data-isselent="1"] {
+    background-color: #005fc4;
+    color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #222;
+        color: #fff
+    }
+
+    a {
+        color: #7fffd4
+    }
+
+    .box,
+    .title,
+    .list div:hover,
+    .list div[data-isselent="1"] {
+        border-color: gray;
+    }
+
+    .title a {
+        line-height: 35px;
+        margin-left: 10px;
+        color: #fff;
+    }
+
+}

@@ -40,13 +40,11 @@
         };
         // 处理指针抬起事件
         d[P + "up"] = _ => f = 0;
-
-        onresize = (event) => {
-            if (confirm("是否改变画板大小至窗口大小\n!!!这将清空画板!!!")) {
-                v.width = innerWidth;
-                v.height = innerHeight
-            }
-        };
+        // 窗口大小改变事件
+        onresize = _ => { 
+            v.width = innerWidth; 
+            v.height = innerHeight 
+        }
     </script>
 </body>
 

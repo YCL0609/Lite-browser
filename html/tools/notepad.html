@@ -13,6 +13,11 @@
             word-break: break-all
         }
     </style>
+    <script>
+        if (!localStorage.body) localStorage.body = '';
+        onload = _ => document.body.innerHTML = localStorage.body;
+        oninput = _ => localStorage.body = document.body.innerHTML;
+    </script>
 </head>
 
 <body contenteditable>

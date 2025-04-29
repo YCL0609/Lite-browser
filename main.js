@@ -1,132 +1,167 @@
-const { app, BrowserWindow, Menu } = require('electron');
-const menu_tool = require('./Tools/menu').default;
-// const menu_tool = require('../Tools.asar/menu').default;
+const { app, ipcMain, dialog, shell, session, BrowserWindow, Menu } = require('electron');
+const fs = require('fs');
+const windowMap = new Map();
+const path = require("path");
+const MenuList = require('./menu');
+const Menuobj = Menu.buildFromTemplate(MenuList);
+const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.join(__dirname, 'resources',);
+app.setPath('userData', path.join(DataPath, 'userData'));
 
-// 菜单-编辑
-const menu_edit = [{
-  label: '编辑...',
-  submenu: [{
-    label: '撤销',
-    accelerator: 'Ctrl+Z',
-    role: 'undo'
-  }, {
-    label: '重做',
-    accelerator: 'Ctrl+Y',
-    role: 'redo'
-  }, {
-    label: '全选',
-    accelerator: 'Ctrl+A',
-    role: 'selectall'
-  }, {
-    type: 'separator'
-  }, {
-    label: '剪切',
-    accelerator: 'Ctrl+X',
-    role: 'cut'
-  }, {
-    label: '复制',
-    accelerator: 'Ctrl+C',
-    role: 'copy'
-  }, {
-    label: '粘贴',
-    accelerator: 'Ctrl+V',
-    role: 'paste'
-  }, {
-    label: '粘贴为纯文本',
-    accelerator: 'CmdOrCtrl+Shift+V',
-    role: 'pasteAndMatchStyle'
-  }]
-}]
-
-// 菜单-页面
-const menu_page = [{
-  label: '控制...',
-  submenu: [{
-    label: '开关右键菜单',
-    accelerator: 'F7',
-    click: () => {
-      if (!ismenudown) {
-        ismenudown = true;
-        const index1 = menu.findIndex(item => item.label === '控制...');
-        if (index1 !== -1) {
-          const index2 = menu[index1].submenu.findIndex(item => item.label === '关闭菜单(全局)');
-          if (index2 !== -1) {
-            menu[index1].submenu.splice(index2, 1);
-          }
-        }
-        const newmenu = Menu.buildFromTemplate(menu);
-        Menu.setApplicationMenu(newmenu);
-      }
-
-      const contextMenu = Menu.buildFromTemplate(
-        menu_edit
-          .concat(menu_tool)
-          .concat(menu_page)
-          .concat({ label: '关闭菜单栏(全局)', click: () => { Menu.setApplicationMenu(null) } })
-      );
-      BrowserWindow.getFocusedWindow().webContents.on('context-menu', (e) => {
-        e.preventDefault();
-        contextMenu.popup(contextMenu);
-      });
-    }
-  }, {
-    label: '显示当前网址',
-    accelerator: 'F10',
-    click: () => {
-      const url = BrowserWindow.getFocusedWindow().webContents.getURL();
-      const newwin = new BrowserWindow({ width: 500, height: 200 });
-      newwin.setMenu(null);
-      newwin.loadURL('data:text/html,<meta charset="UTF-8"><title>当前网址</title><body style=word-wrap:break-word;word-break:break-all>' + url)
-    }
-  }, {
-    label: '全屏',
-    accelerator: 'F11',
-    role: 'toggleFullScreen'
-
-  }, {
-    label: '开发者工具',
-    accelerator: 'F12',
-    role: 'toggleDevTools'
-  }, {
-    label: '关闭菜单(全局)',
-    click: () => { Menu.setApplicationMenu(null) }
-  }]
-}, {
-  label: '刷新(F5)',
-  accelerator: 'F5',
-  role: 'reload'
-}, {
-  label: '忽略缓存刷新(shift+F5)',
-  accelerator: 'shift+F5',
-  role: 'forceReload'
-}, {
-  label: '在独立线程中打开(F9)',
-  accelerator: 'F9',
-  click: () => {
-    const url = BrowserWindow.getFocusedWindow().webContents.getURL();
-    const newwin = new BrowserWindow({ width: 1024, height: 600 });
-    newwin.loadURL(url);
-  }
-}];
-
-/* 一个特殊的bug,当操作过右键菜单后从菜单栏点击隐藏菜单栏会引起程序崩溃 */
-let ismenudown = false;
-let menu = menu_edit
-  .concat(menu_tool)
-  .concat(menu_page);
-
-app.setPath('userData', process.cwd() + "\\resources\\Data");// 用户配置文件夹
 app.whenReady().then(() => {
+  global.insertSession = session.fromPartition('persist:jsinsert');
+  session.defaultSession.setPreloads([path.join(__dirname, 'html', 'preload.js')])
   const win = new BrowserWindow({
     width: 1024,
     height: 600,
     minWidth: 1024,
-    minHeight: 600
+    minHeight: 600,
   })
-  win.loadFile('index.html');
+  win.loadFile(path.join(__dirname, 'html', 'index.html'));
+  Menu.setApplicationMenu(Menuobj);
+});
 
-  // 标题栏菜单
-  const titleMenu = Menu.buildFromTemplate(menu);
-  Menu.setApplicationMenu(titleMenu);
-})
 app.on('window-all-closed', () => app.quit());
+
+ipcMain.on('show-context-menu', (x, y) => Menuobj.popup({ window: BrowserWindow.getFocusedWindow(), x, y }));
+
+
+
+// 书签事件
+ipcMain.handle('bookmarks-get', () => {
+  const filePath = path.join(DataPath, 'bookmarks.json')
+  try {
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf-8')
+    } else {
+      fs.writeFileSync(filePath, '{}');
+      return "{}"
+    }
+  } catch (err) {
+    dialog.showErrorBox('读取书签错误', err.stack)
+  }
+});
+
+// JS插入事件
+ipcMain.on('insertjs-register-window', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && !win.isDestroyed()) {
+    windowMap.set(win.id, win);
+    win.on('closed', () => windowMap.delete(win.id))
+  }
+});
+
+ipcMain.handle('insertjs-get-jslist', async () => {
+  let json;
+  const startat = performance.now();
+  try {
+    const dir = path.join(DataPath, 'insertjs');
+    await fs.promises.mkdir(dir, { recursive: true });
+    const files = await fs.promises.readdir(dir);
+    const statsPromises = files.map(file => fs.promises.stat(path.join(dir, file)));
+    const stats = await Promise.all(statsPromises);
+    const list = files.map((file, index) => {
+      const stat = stats[index];
+      if (!stat.isDirectory() && path.extname(file).toLowerCase() === ".js") {
+        return {
+          name: file,
+          time: stat.mtime.getTime()
+        };
+      }
+      return null;
+    }).filter(Boolean);
+    json = {
+      time: { start: Date.now(), used: performance.now() - startat },
+      error: -1,
+      list: list
+    }
+  } catch (error) {
+    json = {
+      time: { start: Date.now(), used: performance.now() - startat },
+      error: error.stack,
+      list: []
+    }
+  }
+  return json
+});
+
+ipcMain.on('insertjs-add-js', async (event) => {
+  try {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const targetDir = path.join(DataPath, 'insertjs');
+    const copiedFiles = [];
+    // 文件处理
+    const result = await dialog.showOpenDialog(win, {
+      title: '选择JavaScript文件',
+      properties: ['openFile', 'multiSelections'],
+      filters: [
+        { name: 'JavaScript', extensions: ['js'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+    if (result.canceled || result.filePaths.length === 0) {
+      return { success: false, message: '用户取消了选择' };
+    }
+    for (const sourcePath of result.filePaths) {
+      const fileName = path.basename(sourcePath);
+      const targetPath = path.join(targetDir, fileName);
+      try {
+        // 检查文件是否已存在
+        try {
+          await fs.promises.access(targetPath);
+          // 文件已存在，添加时间戳避免覆盖
+          const ext = path.extname(fileName);
+          const name = path.basename(fileName, ext);
+          const timestamp = Date.now();
+          const newFileName = `${name}_${timestamp}${ext}`;
+          const newTargetPath = path.join(targetDir, newFileName);
+          await fs.promises.copyFile(sourcePath, newTargetPath);
+          copiedFiles.push(newFileName);
+        } catch {
+          // 文件不存在，直接复制
+          await fs.promises.copyFile(sourcePath, targetPath);
+          copiedFiles.push(fileName);
+        }
+      } catch (err) {
+        dialog.showErrorBox('文件复制错误', err.stack);
+      }
+    }
+    win.reload();
+  } catch (err) {
+    dialog.showErrorBox('添加JavaScript文件错误', err.stack);
+  }
+});
+
+ipcMain.on('insertjs-remove-js', async (event, name) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  try {
+    const jsPath = path.join(DataPath, 'insertjs');
+    const filePath = path.join(jsPath, name);
+    await fs.promises.unlink(filePath);
+    win.reload();
+  } catch (err) {
+    dialog.showErrorBox('删除JavaScript文件错误', err.stack);
+  }
+});
+
+ipcMain.on('insertjs-open-dir', async () => {
+  try {
+    const dirpath = path.join(DataPath, 'insertjs')
+    await fs.promises.mkdir(dirpath, { recursive: true });
+    shell.openPath(dirpath)
+  } catch (err) {
+    dialog.showErrorBox('打开文件目录错误', err.stack);
+  }
+});
+
+ipcMain.on('insertjs-insert-js', async (event, winid, jsname) => {
+  try {
+    const mainWindow = BrowserWindow.fromId(winid);
+    const childwin = BrowserWindow.fromWebContents(event.sender);
+    const filepath = path.join(DataPath, 'insertjs', jsname)
+    const content = fs.readFileSync(filepath, 'utf-8');
+    mainWindow.webContents.executeJavaScript(content);
+    childwin.close();
+  } catch (err) {
+    dialog.showErrorBox('脚本注入错误', err.stack);
+  }
+})
