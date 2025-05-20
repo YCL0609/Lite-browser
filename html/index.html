@@ -10,12 +10,93 @@
 
 <body>
     <div class="main">
-        <h1>简易浏览器</h1>
+        <h1 color="color:#60eeeec5">简易浏览器</h1>
         <!-- 搜索引擎 -->
         <input id="word" placeholder="请输入需查询的内容或要访问的网址">
         <!-- 书签 -->
-        <div class="bookmark">ssssssssssssssssssss
+        <div class="box" style="background-color: #60eeeec5">
+            <div class="title" style="color: #000">
+                <a>本地书签</a>
+                <div class="svg">
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                        onclick="bookmark.edit(0)">">
+                        <path
+                            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                            fill="currentColor" />
+                    </svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                        onclick="Poop(1)">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
+                    </svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                        onclick="Poop(2)">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                            fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+            <div id="bookmark"></div>
+        </div>
+    </div>
+    <div class="setting" onclick="Poop(0)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14 21h-4l-.551-2.48a6.991 6.991 0 0 1-1.819-1.05l-2.424.763-2-3.464 1.872-1.718a7.055 7.055 0 0 1 0-2.1L3.206 9.232l2-3.464 2.424.763A6.992 6.992 0 0 1 9.45 5.48L10 3h4l.551 2.48a6.992 6.992 0 0 1 1.819 1.05l2.424-.763 2 3.464-1.872 1.718a7.05 7.05 0 0 1 0 2.1l1.872 1.718-2 3.464-2.424-.763a6.99 6.99 0 0 1-1.819 1.052L14 21z" />
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+        </svg>
+    </div>
+    <div id="poop" style="display: none">
+        <!-- 设置页面 -->
+        <div class="poop-div" id="poop-setting" style="display: none">
+            <a class="setting-title">主页面设置</a>
+            <hr width="90%">
+            <div class="setting-index">
+                <div style="width: 50%">
+                    <a>搜索引擎:</a>
+                    <select id="search-engine">
+                        <option value="0">Bing</option>
+                        <option value="1">Google</option>
+                        <option value="2">Baidu</option>
+                        <option value="-1">自定义...</option>
+                    </select>
+                    <input type="text" id="search-url" placeholder="搜索url, 使用%s代替搜索词" style="width: 90%" disabled />
+                </div>
+                <div style="width: 50%">
+                    <a>主样式颜色:</a>
+                    <input type="color" id="color-main" value="#60eeee" /><br>
+                    <a>副样式颜色:</a>
+                    <input type="color" id="color-text" value="#000000" /><br>
+                    <a>背景图片:</a>
+                    <input type="file" accept="image/*" style="width: 155px" onchange="changeBackground(this)" />
+                </div>
+            </div>
+            <div class="setting-fooder">
+                <button onclick="changeSetting()">确认</button>
+                <button onclick="Poop()">取消</button>
+            </div>
+        </div>
+        <!-- 书签添加页面 -->
+        <div class="poop-div" id="poop-add" style="display: none">
+            <div style="margin: 10px;">
+                <a>书签名称:</a>
+                <input type="text" id="bookmark-name" placeholder="输入书签名称" /><br>
+                <a>书签网址:</a>
+                <input type="text" id="bookmark-url" placeholder="以 [协议头]:// 开头" /><br>
+                <button id="bookmark-add-btn" class="setting-button" onclick="bookmark.add()">添加</button>
+                <button onclick="Poop()">取消</button>
 
+            </div>
+        </div>
+        <!-- 删除书签页面 -->
+        <div class="poop-div" id="poop-del" style="display: none">
+            <div style="margin: 10px;">
+                <a>选择要操作的书签:</a>
+                <select id="bookmark-del">
+                    <option value="-1" style="display: none" selected></option>
+                </select><br>
+                <button id="bookmark-del-btn" class="setting-button" onclick="bookmark.delete()">删除</button>
+                <button onclick="Poop()">取消</button>
+            </div>
         </div>
     </div>
     <script type="text/javascript" src="index.js"></script>

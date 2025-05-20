@@ -6,7 +6,7 @@ GetList();
 async function GetList() {
     const list = await window.litebrowser.getList();
     const date = new Date(list.time.start);
-    const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+    const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
     document.getElementById('time').innerText = time;
     document.getElementById('used').innerText = Math.round(list.time.used * 100) / 100 + 'ms';
     // 处理错误

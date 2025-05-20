@@ -1,8 +1,9 @@
-const { app, ipcMain, dialog, shell, session, BrowserWindow, Menu } = require('electron');
+const { app, ipcMain, dialog, shell, session, BrowserWindow, Menu, ipcRenderer } = require('electron');
 const fs = require('fs');
 const windowMap = new Map();
 const path = require("path");
 const MenuList = require('./menu');
+const { pathToFileURL } = require('url')
 const Menuobj = Menu.buildFromTemplate(MenuList);
 const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.join(__dirname, 'resources',);
 app.setPath('userData', path.join(DataPath, 'userData'));
@@ -15,7 +16,10 @@ app.whenReady().then(() => {
     height: 600,
     minWidth: 1024,
     minHeight: 600,
-  })
+    webPreferences: {
+      preload: path.join(__dirname, 'html', 'preload-main.js')
+    }
+  });
   win.loadFile(path.join(__dirname, 'html', 'index.html'));
   Menu.setApplicationMenu(Menuobj);
 });
@@ -24,24 +28,31 @@ app.on('window-all-closed', () => app.quit());
 
 ipcMain.on('show-context-menu', (x, y) => Menuobj.popup({ window: BrowserWindow.getFocusedWindow(), x, y }));
 
-
-
 // 书签事件
-ipcMain.handle('bookmarks-get', () => {
-  const filePath = path.join(DataPath, 'bookmarks.json')
+ipcMain.handle('bookmarks-get', () => getJson('bookmarks.json', '书签文件读取错误'));
+
+ipcMain.on('bookmarks-add', (_, name, url, time) => {
   try {
-    if (fs.existsSync(filePath)) {
-      return fs.readFileSync(filePath, 'utf-8')
-    } else {
-      fs.writeFileSync(filePath, '{}');
-      return "{}"
-    }
+    const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
+    data[time] = { title: name, url: url };
+    fs.writeFileSync(path.join(DataPath, 'bookmarks.json'), JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
-    dialog.showErrorBox('读取书签错误', err.stack)
+    dialog.showErrorBox('书签添加错误', err.stack);
+  }
+});
+
+ipcMain.on('bookmarks-del', (_, id) => {
+  try {
+    const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
+    delete data[id];
+    fs.writeFileSync(path.join(DataPath, 'bookmarks.json'), JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    dialog.showErrorBox('书签删除错误', err.stack);
   }
 });
 
 // JS插入事件
+/**绑定请求过多，可能内存泄漏**//////////////////////////////////////////////////
 ipcMain.on('insertjs-register-window', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (win && !win.isDestroyed()) {
@@ -153,7 +164,7 @@ ipcMain.on('insertjs-open-dir', async () => {
   }
 });
 
-ipcMain.on('insertjs-insert-js', async (event, winid, jsname) => {
+ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
   try {
     const mainWindow = BrowserWindow.fromId(winid);
     const childwin = BrowserWindow.fromWebContents(event.sender);
@@ -165,3 +176,93 @@ ipcMain.on('insertjs-insert-js', async (event, winid, jsname) => {
     dialog.showErrorBox('脚本注入错误', err.stack);
   }
 })
+
+// 主页面设置
+ipcMain.handle('setting-get', (_, isimg) => {
+  const data = getJson('setting.json', '配置文件读取错误', true);
+  if (!isimg) return data;
+  const filePath = path.join(DataPath, JSON.parse(data).theme.background)
+  return pathToFileURL(filePath).href;
+});
+
+ipcMain.on('setting-change', (_, json) => {
+  try {
+    const data = JSON.parse(getJson('setting.json', '配置文件读取错误', true));
+    const colon = (data.theme.background == null) ? '' : '"';
+    const bgname = colon + data.theme.background + colon;
+    const setting = json.replace(/@@/g, bgname);
+    fs.writeFileSync(path.join(DataPath, 'setting.json'), setting);
+  } catch (err) {
+    dialog.showErrorBox('配置修改错误', err.stack)
+  }
+});
+
+ipcMain.on('setting-change-image', async (_, type, base64) => {
+  try {
+    const mime = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg',
+      'image/bmp': 'bmp',
+      'image/tiff': 'tiff',
+      'image/x-icon': 'ico',
+      'image/avif': 'avif',
+      'image/apng': 'apng',
+      'image/heic': 'heic',
+      'image/heif': 'heif',
+      'image/x-xbitmap': 'xbm'
+    };
+    const extension = mime[type];
+    if (!extension) throw new Error('未知MIME类型: ' + mimeType);
+    const buffer = Buffer.from(base64, 'base64');
+    const output = `background.${extension}`
+    fs.writeFileSync(path.join(DataPath, output), buffer);
+    // 更新配置文件
+    const json = JSON.parse(getJson('setting.json', '配置文件读取错误', true));
+    if (json.theme.background != null) {
+      try {
+        fs.unlinkSync(path.join(DataPath, json.theme.background))
+      } catch (err) {
+        dialog.showMessageBox({
+          type: 'warning',
+          title: '旧图片删除警告',
+          message: '旧图片删除失败, 可尝试手动删除\n文件路径:' + path.join(DataPath, json.theme.background),
+          defaultId: 0,
+          cancelId: 0,
+          buttons: ['确定', '详细信息']
+        })
+          .then(cho => {
+            if (cho.response == 1) {
+              dialog.showMessageBox({
+                type: 'info',
+                title: '详细信息',
+                message: err.stack
+              })
+            }
+          })
+      }
+    }
+    json.theme.background = output
+    fs.writeFileSync(path.join(DataPath, 'setting.json'), JSON.stringify(json));
+  } catch (err) {
+    dialog.showErrorBox('图片保存错误', err.stack);
+  }
+})
+
+function getJson(name, errtext, issetting = false) {
+  const filePath = path.join(DataPath, name)
+  const defaultdata = issetting ? `{"search":{"id":1,"url":""},"theme":{"color":{"main":"#60eeee","text":"#000000"},"background":null}}` : '{}';
+  try {
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf-8')
+    } else {
+      fs.writeFileSync(filePath, defaultdata);
+      return defaultdata
+    }
+  } catch (err) {
+    dialog.showErrorBox(errtext, err.stack)
+    throw err
+  }
+}

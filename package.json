@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "electron": "^33.4.9",
+    "electron": "^36.2.0",
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
@@ -8,7 +8,7 @@
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron . --trace-warnings"
   },
   "author": "YCL",
   "license": "MIT",
