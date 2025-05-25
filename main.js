@@ -4,34 +4,37 @@ const windowMap = new Map();
 const path = require("path");
 const MenuList = require('./menu');
 const { pathToFileURL } = require('url')
-const Menuobj = Menu.buildFromTemplate(MenuList);
-const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.join(__dirname, 'resources',);
+const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.resolve(path.join(__dirname, '..'));
+const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
 app.setPath('userData', path.join(DataPath, 'userData'));
-
 app.whenReady().then(() => {
   global.insertSession = session.fromPartition('persist:jsinsert');
-  session.defaultSession.setPreloads([path.join(__dirname, 'html', 'preload.js')])
+  session.defaultSession.setPreloads([path.join(__dirname, 'html', 'preload.js')]);
   const win = new BrowserWindow({
+    icon: icon,
     width: 1024,
     height: 600,
     minWidth: 1024,
-    minHeight: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'html', 'preload-main.js')
-    }
+    minHeight: 600
   });
   win.loadFile(path.join(__dirname, 'html', 'index.html'));
+  const Menuobj = Menu.buildFromTemplate(MenuList);
   Menu.setApplicationMenu(Menuobj);
 });
 
 app.on('window-all-closed', () => app.quit());
 
-ipcMain.on('show-context-menu', (x, y) => Menuobj.popup({ window: BrowserWindow.getFocusedWindow(), x, y }));
+ipcMain.on('show-context-menu', (x, y) => {
+  const win = BrowserWindow.getFocusedWindow();
+  const Menuobj = Menu.buildFromTemplate([...MenuList, { label: '关闭菜单栏', click: () => win.setMenu(null) }]);
+  Menuobj.popup({ window: win, x, y })
+});
 
 // 书签事件
-ipcMain.handle('bookmarks-get', () => getJson('bookmarks.json', '书签文件读取错误'));
+ipcMain.handle('bookmarks-get', (event) => (event.sender.id == 1) ? getJson('bookmarks.json', '书签文件读取错误') : null);
 
-ipcMain.on('bookmarks-add', (_, name, url, time) => {
+ipcMain.on('bookmarks-add', (event, name, url, time) => {
+  if (event.sender.id != 1) return;
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
     data[time] = { title: name, url: url };
@@ -41,7 +44,9 @@ ipcMain.on('bookmarks-add', (_, name, url, time) => {
   }
 });
 
-ipcMain.on('bookmarks-del', (_, id) => {
+ipcMain.on('bookmarks-del', (event, id) => {
+  if (event.sender.id != 1) return;
+  console.log('bookmarks-del', id);
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
     delete data[id];
@@ -52,12 +57,11 @@ ipcMain.on('bookmarks-del', (_, id) => {
 });
 
 // JS插入事件
-/**绑定请求过多，可能内存泄漏**//////////////////////////////////////////////////
 ipcMain.on('insertjs-register-window', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (win && !win.isDestroyed()) {
     windowMap.set(win.id, win);
-    win.on('closed', () => windowMap.delete(win.id))
+    win.once('closed', () => windowMap.delete(win.id))
   }
 });
 
@@ -178,14 +182,16 @@ ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
 })
 
 // 主页面设置
-ipcMain.handle('setting-get', (_, isimg) => {
+ipcMain.handle('setting-get', (event, isimg) => {
+  if (event.sender.id != 1) return;
   const data = getJson('setting.json', '配置文件读取错误', true);
   if (!isimg) return data;
   const filePath = path.join(DataPath, JSON.parse(data).theme.background)
   return pathToFileURL(filePath).href;
 });
 
-ipcMain.on('setting-change', (_, json) => {
+ipcMain.on('setting-change', (event, json) => {
+  if (event.sender.id != 1) return;
   try {
     const data = JSON.parse(getJson('setting.json', '配置文件读取错误', true));
     const colon = (data.theme.background == null) ? '' : '"';
@@ -197,7 +203,8 @@ ipcMain.on('setting-change', (_, json) => {
   }
 });
 
-ipcMain.on('setting-change-image', async (_, type, base64) => {
+ipcMain.on('setting-change-image', async (event, type, base64) => {
+  if (event.sender.id != 1) return;
   try {
     const mime = {
       'image/jpeg': 'jpg',

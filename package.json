@@ -4,23 +4,21 @@
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
-  "version": "3.0.0",
+  "version": "2.0.0",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "scripts": {
-    "start": "electron . --trace-warnings"
+    "start": "electron . --trace-warnings --gtk-version=3"
   },
   "author": "YCL",
   "license": "MIT",
   "build": {
     "appId": "com.ycl.browser",
     "productName": "lite-browser",
-    "icon": "icons/icon",
     "files": [
       "**/*",
       "!node_modules/**/*",
       "!dist/**/*",
-      "!icons/**/*",
       "!resources/**/*",
       "!npm-cache/**/*",
       "!.git/**/*",
@@ -30,6 +28,7 @@
     ],
     "asar": true,
     "win": {
+      "icon": "icons/icon.ico",
       "target": [
         {
           "target": "zip",
@@ -41,6 +40,7 @@
       ]
     },
     "linux": {
+      "icon": "icons/icon.png",
       "target": [
         {
           "target": "AppImage",

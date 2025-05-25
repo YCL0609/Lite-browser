@@ -70,7 +70,7 @@
                     <input type="file" accept="image/*" style="width: 155px" onchange="changeBackground(this)" />
                 </div>
             </div>
-            <div class="setting-fooder">
+            <div class="poop-fooder">
                 <button onclick="changeSetting()">确认</button>
                 <button onclick="Poop()">取消</button>
             </div>
@@ -82,9 +82,10 @@
                 <input type="text" id="bookmark-name" placeholder="输入书签名称" /><br>
                 <a>书签网址:</a>
                 <input type="text" id="bookmark-url" placeholder="以 [协议头]:// 开头" /><br>
-                <button id="bookmark-add-btn" class="setting-button" onclick="bookmark.add()">添加</button>
-                <button onclick="Poop()">取消</button>
-
+                <div class="poop-fooder">
+                    <button id="bookmark-add-btn" onclick="bookmark.add(Date.now())">添加</button>
+                    <button id="cancel-btn0" onclick="Poop()">取消</button>
+                </div>
             </div>
         </div>
         <!-- 删除书签页面 -->
@@ -94,8 +95,10 @@
                 <select id="bookmark-del">
                     <option value="-1" style="display: none" selected></option>
                 </select><br>
-                <button id="bookmark-del-btn" class="setting-button" onclick="bookmark.delete()">删除</button>
-                <button onclick="Poop()">取消</button>
+                <div class="poop-fooder">
+                    <button id="bookmark-del-btn" onclick="bookmark.delete()">删除</button>
+                    <button id="cancel-btn1" onclick="Poop()">取消</button>
+                </div>
             </div>
         </div>
     </div>

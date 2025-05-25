@@ -34,8 +34,6 @@ litebrowser.getSetting(false)
             .then(imgurl => document.body.style.backgroundImage = `url('${imgurl}')`);
     });
 
-Poop(0)///////////////////////////////////
-
 // 输入框回车
 document.getElementById('word').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') urljump();
@@ -86,9 +84,9 @@ function changeSetting() {
             "background": @@
         }
     }`;
-    console.log(json);
-    // litebrowser.setSetting(json);
+    litebrowser.setSetting(json);
     applyColor(settings[2], settings[3]);
+    Poop()
 }
 
 // 更换背景
@@ -114,7 +112,6 @@ function Poop(id = -1) {
             poop.style.display = "block";
             setting.style.display = "block";
             break;
-
         case 1: // 添加
             poop.style.display = "block";
             add.style.display = "block";
@@ -123,7 +120,6 @@ function Poop(id = -1) {
             poop.style.display = "block";
             del.style.display = "block";
             break;
-
         default:
             poop.style.display = "none";
             setting.style.display = "none";
@@ -132,23 +128,22 @@ function Poop(id = -1) {
             break;
     }
 }
-
 // 书签事件
 window.bookmark = class bookmark {
 
-    static delete() { // 删除书签
+    static delete(useipc = true) { // 删除书签
         const select = document.getElementById('bookmark-del');
         if (select.value == -1) return
         document.getElementById(`bookmark-${select.value}`).innerHTML = '';
+        useipc ? litebrowser.delBookmark(select.value) : null;
         select.remove(select.selectedIndex);
         Poop(-1)
     }
 
-    static add() { // 添加书签
+    static add(time = 0) { // 添加书签
         const url = document.getElementById('bookmark-url').value;
         const name = document.getElementById('bookmark-name').value;
         if (url == '' || name == '') return;
-        const time = Date.now();
         const div = document.createElement('div');
         div.innerHTML = `<a href="#" id="bookmark-${time}" onclick="window.open('${url}')">${name}</a>`;
         document.getElementById('bookmark').appendChild(div);
@@ -159,33 +154,47 @@ window.bookmark = class bookmark {
         litebrowser.addBookmark(name, url, time);
         Poop(-1);
     }
-
-    static edit(process) { // 修改书签
+    
+    static edit(process = -1) { // 修改书签
+        const select = document.getElementById('bookmark-del');
         const delbtn = document.getElementById('bookmark-del-btn');
         const addbtn = document.getElementById('bookmark-add-btn');
+        const cancelbtn0 = document.getElementById('cancel-btn0');
+        const cancelbtn1 = document.getElementById('cancel-btn1');
         switch (process) {
+            case -1:
+                delbtn.innerText = '删除';
+                delbtn.onclick = () => bookmark.delete();
+                addbtn.innerText = '添加';
+                addbtn.onclick = () => bookmark.add(Date.now());
+                cancelbtn0.onclick = () => Poop();
+                cancelbtn1.onclick = () => Poop();
+                Poop();
+                break;
             case 0: // 选择要修改的书签
                 delbtn.innerText = '选择';
                 delbtn.onclick = () => bookmark.edit(1);
+                cancelbtn1.onclick = () => bookmark.edit(-1);
                 Poop(2);
                 break;
             case 1: // 加载书签
-                const select = document.getElementById('bookmark-del');
-                if (select.value == -1) return;
+                if (select.value == -1) bookmark.edit(-1);
                 Poop(-1)
                 addbtn.innerText = '修改';
                 addbtn.onclick = () => bookmark.edit(2);
+                cancelbtn0.onclick = () => bookmark.edit(-1);
                 document.getElementById('bookmark-name').value = bookmark_list[select.value].title;
                 document.getElementById('bookmark-url').value = bookmark_list[select.value].url;
                 Poop(1);
                 break;
             case 2: // 修改书签
                 Poop(-1);
-                bookmark.add();
+                bookmark.add(select.value);
+                bookmark.delete(false);
                 delbtn.innerText = '删除';
                 delbtn.onclick = () => bookmark.delete();
                 addbtn.innerText = '添加';
-                addbtn.onclick = () => bookmark.add();
+                addbtn.onclick = () => bookmark.add(Date.now());
                 break;
             default: return
         }

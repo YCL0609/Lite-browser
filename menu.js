@@ -1,6 +1,7 @@
-const { shell, ipcMain, Menu, BrowserWindow } = require('electron');
+const { shell, ipcMain, BrowserWindow } = require('electron');
 const path = require('path');
 const htmlPath = path.join(__dirname, 'html');
+const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32')? 'ico' : 'png' }`);
 
 // 菜单项目
 module.exports = [{
@@ -9,7 +10,7 @@ module.exports = [{
     label: '笔记本',
     accelerator: 'Alt+1',
     click: () => {
-      const newwin = new BrowserWindow({ width: 300, height: 300 });
+      const newwin = new BrowserWindow({ width: 300, height: 300, icon: icon });
       newwin.setMenu(null);
       newwin.loadURL(path.join(htmlPath, 'tools', 'notepad.html'))
     }
@@ -17,7 +18,7 @@ module.exports = [{
     label: '画图板',
     accelerator: 'Alt+2',
     click: () => {
-      const newwin = new BrowserWindow({ width: 1024, height: 600 });
+      const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
       newwin.setMenu(null);
       newwin.loadURL(path.join(htmlPath, 'tools', 'paint.html'))
     }
@@ -25,7 +26,7 @@ module.exports = [{
     label: '电子表格',
     accelerator: 'Alt+3',
     click: () => {
-      const newwin = new BrowserWindow({ width: 1024, height: 600 });
+      const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
       newwin.setMenu(null);
       newwin.loadURL(path.join(htmlPath, 'tools', 'excel.html'))
     }
@@ -33,7 +34,7 @@ module.exports = [{
     label: '代码编辑器',
     accelerator: 'Alt+4',
     click: () => {
-      const newwin = new BrowserWindow({ width: 1024, height: 600 });
+      const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
       newwin.setMenu(null);
       newwin.loadURL(path.join(htmlPath, 'tools', 'code.html'))
     }
@@ -42,29 +43,29 @@ module.exports = [{
   label: '编辑...',
   submenu: [{
     label: '撤销',
-    accelerator: 'Ctrl+Z',
+    accelerator: 'CmdOrCtrl+Z',
     role: 'undo'
   }, {
     label: '重做',
-    accelerator: 'Ctrl+Y',
+    accelerator: 'CmdOrCtrl+Y',
     role: 'redo'
   }, {
     label: '全选',
-    accelerator: 'Ctrl+A',
+    accelerator: 'CmdOrCtrl+A',
     role: 'selectall'
   }, {
     type: 'separator'
   }, {
     label: '剪切',
-    accelerator: 'Ctrl+X',
+    accelerator: 'CmdOrCtrl+X',
     role: 'cut'
   }, {
     label: '复制',
-    accelerator: 'Ctrl+C',
+    accelerator: 'CmdOrCtrl+C',
     role: 'copy'
   }, {
     label: '粘贴',
-    accelerator: 'Ctrl+V',
+    accelerator: 'CmdOrCtrl+V',
     role: 'paste'
   }, {
     label: '粘贴为纯文本',
@@ -117,17 +118,18 @@ module.exports = [{
   accelerator: 'shift+F5',
   role: 'forceReload'
 }, {
-  label: '注入JavaScript文件',
+  label: '注入JavaScript文件(F1)',
+  accelerator: 'F1',
   click: insertJS
 }
 ];
 
-
-
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();
+  mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()')
   const childWindow = new BrowserWindow({
     parent: mainWindow,
+    icon: icon,
     width: 500,
     height: 500,
     webPreferences: {
@@ -140,4 +142,4 @@ function insertJS() {
   childWindow.setMenu(null);
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
   ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data));
-};
+}

@@ -104,6 +104,11 @@ body {
     width: 50%;
 }
 
+.poop-fooder {
+    margin: 10px 0;
+    text-align: center;
+}
+
 .setting-title {
     display: block;
     text-align: center;
@@ -121,11 +126,6 @@ body {
 
 .setting-index div * {
     margin-top: 10px;
-}
-
-.setting-fooder {
-    margin: 10px 0;
-    text-align: center;
 }
 
 .setting-button {
