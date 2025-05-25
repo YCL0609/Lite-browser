@@ -1,5 +1,5 @@
 # Lite Browser
-中文版本: [README.md](README.md)
+中文版本: [README.md](README.md)<br>
 An electron-based browser for lightweight web environments or partial web debugging needs. <br>
 The default background image for the main page [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 ## Runtime Data
