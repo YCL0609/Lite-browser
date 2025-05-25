@@ -1,4 +1,5 @@
-# Lite-browser
+# Lite Browser
+English Version: [README_EN.md](README_EN.md)
 一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器，基于electron。<br>
 主页面默认背景图片[Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 ## 运行时数据
