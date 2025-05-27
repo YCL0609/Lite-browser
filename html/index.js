@@ -86,6 +86,7 @@ function changeSetting() {
     }`;
     litebrowser.setSetting(json);
     applyColor(settings[2], settings[3]);
+    search_url = settings[1];
     Poop()
 }
 
