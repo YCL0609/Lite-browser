@@ -78,7 +78,7 @@ bookmarks.json 文件结构:
 }
 ```
 ## 页面js插入
-用户自定义js文件存储在DATA_DIR/insertjs目录下，文件名必须为*.js，通过点击菜单中的"注入JavaScript文件(F1)"或按下F1键，即可选择要插入的js文件。<br><br>
+用户自定义js文件存储在DATA_DIR/insertjs目录下，文件名必须为*.js，通过点击菜单中的"控制..."==>"注入JavaScript文件"或按下F1键，即可选择要插入的js文件。<br><br>
 插入js文件时程序会首先通过executeJavaScriptInIsolatedWorld在当前焦点窗口执行预加载脚本中暴露的litebrowser.registerWindow()方法向渲染进程中注册一个window对象，然后等待并通过executeJavaScript将用户选择的js文件插入到当前焦点窗口中。
 ```javascript
 function insertJS() {

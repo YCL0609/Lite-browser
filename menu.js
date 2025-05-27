@@ -75,6 +75,20 @@ module.exports = [{
 }, {
   label: '控制...',
   submenu: [{
+    label: '后退',
+    accelerator: 'Alt+Left',
+    click: () => BrowserWindow.getFocusedWindow().webContents.executeJavaScript('history.back()')
+  }, {
+    label: '刷新(F5)',
+    accelerator: 'F5',
+    role: 'reload'
+  }, {
+    label: '前进',
+    accelerator: 'Alt+Right',
+    click: () => BrowserWindow.getFocusedWindow().webContents.executeJavaScript('history.forward()')
+  }, {
+    type: 'separator'
+  }, {
     label: '全屏',
     accelerator: 'F11',
     role: 'toggleFullScreen'
@@ -92,14 +106,6 @@ module.exports = [{
       shell.openExternal(url);
     }
   }, {
-    label: '在独立线程中打开',
-    accelerator: 'F9',
-    click: () => {
-      const url = BrowserWindow.getFocusedWindow().webContents.getURL();
-      const newwin = new BrowserWindow({ width: 1024, height: 600 });
-      newwin.loadURL(url);
-    }
-  }, {
     label: '显示当前网址',
     accelerator: 'F10',
     click: () => {
@@ -108,21 +114,24 @@ module.exports = [{
       newwin.setMenu(null);
       newwin.loadURL('data:text/html,<meta charset="UTF-8"><title>当前网址</title><body style=word-wrap:break-word;word-break:break-all>' + url)
     }
+  }, {
+    label: '注入JavaScript文件',
+    accelerator: 'F1',
+    click: insertJS
   }]
-}, {
-  label: '刷新(F5)',
-  accelerator: 'F5',
-  role: 'reload'
 }, {
   label: '忽略缓存刷新(shift+F5)',
   accelerator: 'shift+F5',
   role: 'forceReload'
 }, {
-  label: '注入JavaScript文件(F1)',
-  accelerator: 'F1',
-  click: insertJS
-}
-];
+  label: '在独立线程中打开(F9)',
+  accelerator: 'F9',
+  click: () => {
+    const url = BrowserWindow.getFocusedWindow().webContents.getURL();
+    const newwin = new BrowserWindow({ width: 1024, height: 600 });
+    newwin.loadURL(url);
+  }
+}];
 
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();

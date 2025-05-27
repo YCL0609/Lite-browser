@@ -78,7 +78,7 @@ bookmarks.json File Structure:
 }
 ```
 ## Page js insertion
-The user-defined js file is stored in the DATA_DIR/insertjs directory, the file name must be *.js, and you can select the js file to be inserted by clicking "Inject JavaScript File (F1)" in the menu or pressing the F1 key. <br><br>
+The user-defined js file is stored in the DATA_DIR/insertjs directory, the file name must be *.js, and you can select the js file to be inserted by clicking "控制..."==>"注入JavaScript文件" in the menu or pressing the F1 key. <br><br>
 When inserting a js file, the program first registers a window object with the rendering process via the litebrowser.registerWindow() method exposed in the executeJavaScriptInIsolatedWorld preload script in the current focus window, and then waits for the user-selected js file to be inserted into the current focus window via executeJavaScript.
 ```javascript
 function insertJS() {
