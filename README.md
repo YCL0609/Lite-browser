@@ -1,10 +1,10 @@
 # Lite Browser
-English Version: [README_EN.md](README_EN.md)<br>
-一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器，基于electron。<br>
+English Version: [README_EN.md](README_EN.md)<br><br>
+一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器基于electron。<br>
 主页面默认背景图片[Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 ## 运行时数据
 DATA_DIR默认为可执行文件目录下的resources文件夹，可通过LITE_BROWSER_DATA_PATH环境变量覆盖。<br>
-运行时的electron数据默认存储为：DATA_DIR/userData文件夹，用户自定义js文件存储在，DATA_DIR/insertjs文件夹，其他文件默认存储为：DATA_DIR文件夹。
+运行时的electron网页数据默认存储在DATA_DIR/userData/文件夹，用户自定义js文件存储在DATA_DIR/insertjs/文件夹，其他文件默认存储在DATA_DIR/文件夹。
 ## 主页面设置
 主页面设置文件存储在DATA_DIR/setting.json中。<br>
 更改或读取设置通过页面js调用预加载脚本中暴露的ipc模块发送给渲染进程。
@@ -16,7 +16,7 @@ contextBridge.exposeInMainWorld('litebrowser', {
   imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64) // 获取或设置图片
 })
 ```
-渲染进程会首先检测请求是否来自Window ID为0的页面(主页面)，若不是主页面则返回，其他情况出现运行错误会弹出提示窗口。
+渲染进程会首先检测请求是否来自Window ID为1的页面(主页面)，若不是主页面则返回，其他情况出现运行错误会弹出提示窗口。
 ```javascript
 ipcMain.on('setting-change', (event, json) => {
   if (event.sender.id != 1) return; // 检测是否来自主页面
@@ -95,7 +95,7 @@ function insertJS() {
   ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // 监听并注入用户选择的js文件内容
 }
 ```
-js文件选择子窗口被加载时会读取父窗口的id并通过预加载脚本暴露的ipc通信获取可用文件列表，此页面用户通过点击选择并可以修改或删除，双击指定条目后会向父窗口发送文件内容，并注入到页面中执行。
+js文件选择子窗口被加载时会读取父窗口的id并通过预加载脚本暴露的ipc通信获取可用文件列表，此页面用户通过单击可选择要修改或删除的脚本，双击js条目后会向父窗口发送文件内容，并由父窗口注入到页面中执行。
 ```javascript
 /* js插入子窗口预加载脚本 */
 

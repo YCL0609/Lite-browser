@@ -1,10 +1,10 @@
 # Lite Browser
-中文版本: [README.md](README.md)<br>
+中文版本: [README.md](README.md)<br><br>
 An electron-based browser for lightweight web environments or partial web debugging needs. <br>
 The default background image for the main page [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 ## Runtime Data
 DATA_DIR defaults to the resources folder in the executable file directory, which can be overridden by LITE_BROWSER_DATA_PATH environment variables. <br>
-By default, the electron data at runtime is stored in the DATA_DIR/userData folder, the user-defined js files are stored in the DATA_DIR/insertjs folder, and other files are stored in the DATA_DIR folder by default.
+By default, the runtime electron web page data is stored in the DATA_DIR/userData/ folder, the user-defined js files are stored in the DATA_DIR/insertjs/ folder, and the other files are stored in the DATA_DIR/ folder by default.
 ## Main Page Setup
 The main page setup file is stored in the DATA_DIR/setting.json. <br>
 Changing or reading settings is sent to the rendering process via the IPC module exposed in the preload script via the page js call.
@@ -55,7 +55,7 @@ contextBridge.exposeInMainWorld('litebrowser', {
   // ....
 })
 ```
-As with the main page setting modification, the rendering process will first detect whether the request is from a page with Window ID 0 (main page), and return if it is not the main page.
+As with the main page setting modification, the rendering process will first detect whether the request is from a page with Window ID 1 (main page), and return if it is not the main page.
 ```javascript
 ipcMain.on('bookmarks-add', (event, name, url, time) => {
   if (event.sender.id != 1) return; // Detect if it's from the main page
@@ -95,7 +95,7 @@ function insertJS() {
   ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // Listen to and inject the content of the JS file selected by the user
 }
 ```
-When the JS file selection subwindow is loaded, it will read the ID of the parent window and obtain the list of available files through the IPC communication exposed by the preload script, the user of this page can modify or delete by clicking on the selected item, and after double-clicking the specified entry, the file content will be sent to the parent window and injected into the page for execution.
+When the JS file selection child window is loaded, it will read the ID of the parent window and obtain the list of available files through the IPC communication exposed by the preload script, the user of this page can select the script to modify or delete by clicking on it, and after double-clicking the JS entry, the file content will be sent to the parent window, and the parent window will inject it into the page for execution.
 ```javascript
 /* js insert subwindow preload script */
 
