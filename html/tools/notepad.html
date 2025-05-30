@@ -12,6 +12,13 @@
             word-wrap: break-word;
             word-break: break-all
         }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #333;
+                color: white;
+            }
+        }
     </style>
     <script>
         if (!localStorage.body) localStorage.body = '';

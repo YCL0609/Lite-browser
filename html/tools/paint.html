@@ -9,6 +9,13 @@
         body {
             overflow: hidden
         }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #333;
+                color: white;
+            }
+        }
     </style>
 </head>
 
@@ -41,9 +48,9 @@
         // 处理指针抬起事件
         d[P + "up"] = _ => f = 0;
         // 窗口大小改变事件
-        onresize = _ => { 
-            v.width = innerWidth; 
-            v.height = innerHeight 
+        onresize = _ => {
+            v.width = innerWidth;
+            v.height = innerHeight
         }
     </script>
 </body>

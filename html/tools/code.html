@@ -20,11 +20,20 @@
             font-size: 18px;
             padding: 0.5em
         }
+
+        @media (prefers-color-scheme: dark) {
+            body,
+            textarea {
+                background: #333;
+                color: white;
+            }
+        }
     </style>
 </head>
 
 <body oninput="i.srcdoc=h.value+'<style>'+c.value+'</style><script>'+j.value+'</script>'">
-    <textarea placeholder="HTML" id="h"></textarea><textarea placeholder="CSS" id="c"></textarea><textarea placeholder="JS" id="j"></textarea>
+    <textarea placeholder="HTML" id="h"></textarea><textarea placeholder="CSS" id="c"></textarea><textarea
+        placeholder="JS" id="j"></textarea>
     <iframe id="i"></iframe>
     <script>
         document.querySelectorAll("textarea").forEach((t) =>

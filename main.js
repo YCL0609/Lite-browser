@@ -6,9 +6,10 @@ const MenuList = require('./menu');
 const { pathToFileURL } = require('url')
 const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.resolve(path.join(__dirname, '..'));
 const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
+
 app.setPath('userData', path.join(DataPath, 'userData'));
 app.whenReady().then(() => {
-  global.insertSession = session.fromPartition('persist:jsinsert');
+  global.nomenuSession = session.fromPartition('persist:nomenu');
   session.defaultSession.setPreloads([path.join(__dirname, 'html', 'preload.js')]);
   const win = new BrowserWindow({
     icon: icon,
@@ -24,6 +25,7 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => app.quit());
 
+// 右键菜单
 ipcMain.on('show-context-menu', (x, y) => {
   const win = BrowserWindow.getFocusedWindow();
   const Menuobj = Menu.buildFromTemplate([...MenuList, { label: '关闭菜单栏', click: () => win.setMenu(null) }]);
@@ -34,7 +36,7 @@ ipcMain.on('show-context-menu', (x, y) => {
 ipcMain.handle('bookmarks-get', (event) => (event.sender.id == 1) ? getJson('bookmarks.json', '书签文件读取错误') : null);
 
 ipcMain.on('bookmarks-add', (event, name, url, time) => {
-  if (event.sender.id != 1) return;
+  if (event.sender.id != 1) return; // 判断是否为主页面
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
     data[time] = { title: name, url: url };
@@ -45,7 +47,7 @@ ipcMain.on('bookmarks-add', (event, name, url, time) => {
 });
 
 ipcMain.on('bookmarks-del', (event, id) => {
-  if (event.sender.id != 1) return;
+  if (event.sender.id != 1) return; // 判断是否为主页面
   console.log('bookmarks-del', id);
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
@@ -60,8 +62,8 @@ ipcMain.on('bookmarks-del', (event, id) => {
 ipcMain.on('insertjs-register-window', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (win && !win.isDestroyed()) {
-    windowMap.set(win.id, win);
-    win.once('closed', () => windowMap.delete(win.id))
+    windowMap.set(win.id, win); // 保存窗口对象
+    win.once('closed', () => windowMap.delete(win.id)) // 窗口销毁时删除保存的对象
   }
 });
 
@@ -171,19 +173,20 @@ ipcMain.on('insertjs-open-dir', async () => {
 ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
   try {
     const mainWindow = BrowserWindow.fromId(winid);
-    const childwin = BrowserWindow.fromWebContents(event.sender);
-    const filepath = path.join(DataPath, 'insertjs', jsname)
+    const filepath = path.join(DataPath, 'insertjs', jsname);
     const content = fs.readFileSync(filepath, 'utf-8');
-    mainWindow.webContents.executeJavaScript(content);
-    childwin.close();
+    mainWindow.webContents.executeJavaScript(content); // 插入脚本
+    // 关闭子窗口
+    const childwin = BrowserWindow.fromWebContents(event.sender);
+    if (childwin && !childwin.isDestroyed()) childwin.close();
   } catch (err) {
     dialog.showErrorBox('脚本注入错误', err.stack);
   }
-})
+});
 
 // 主页面设置
 ipcMain.handle('setting-get', (event, isimg) => {
-  if (event.sender.id != 1) return;
+  if (event.sender.id != 1) return; // 判断是否为主页面
   const data = getJson('setting.json', '配置文件读取错误', true);
   if (!isimg) return data;
   const filePath = path.join(DataPath, JSON.parse(data).theme.background)
@@ -191,7 +194,7 @@ ipcMain.handle('setting-get', (event, isimg) => {
 });
 
 ipcMain.on('setting-change', (event, json) => {
-  if (event.sender.id != 1) return;
+  if (event.sender.id != 1) return; // 判断是否为主页面
   try {
     const data = JSON.parse(getJson('setting.json', '配置文件读取错误', true));
     const colon = (data.theme.background == null) ? '' : '"';
@@ -204,7 +207,7 @@ ipcMain.on('setting-change', (event, json) => {
 });
 
 ipcMain.on('setting-change-image', async (event, type, base64) => {
-  if (event.sender.id != 1) return;
+  if (event.sender.id != 1) return; // 判断是否为主页面
   try {
     const mime = {
       'image/jpeg': 'jpg',

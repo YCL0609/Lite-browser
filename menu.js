@@ -1,7 +1,8 @@
-const { shell, ipcMain, BrowserWindow } = require('electron');
+const { shell, BrowserWindow } = require('electron');
 const path = require('path');
 const htmlPath = path.join(__dirname, 'html');
-const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32')? 'ico' : 'png' }`);
+const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
+const { pathToFileURL } = require('url'); // 使用 pathToFileURL 将路径转换为 file:// 协议
 
 // 菜单项目
 module.exports = [{
@@ -12,7 +13,7 @@ module.exports = [{
     click: () => {
       const newwin = new BrowserWindow({ width: 300, height: 300, icon: icon });
       newwin.setMenu(null);
-      newwin.loadURL(path.join(htmlPath, 'tools', 'notepad.html'))
+      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'notepad.html')).href);
     }
   }, {
     label: '画图板',
@@ -20,7 +21,7 @@ module.exports = [{
     click: () => {
       const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
       newwin.setMenu(null);
-      newwin.loadURL(path.join(htmlPath, 'tools', 'paint.html'))
+      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'paint.html')).href);
     }
   }, {
     label: '电子表格',
@@ -28,7 +29,7 @@ module.exports = [{
     click: () => {
       const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
       newwin.setMenu(null);
-      newwin.loadURL(path.join(htmlPath, 'tools', 'excel.html'))
+      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'excel.html')).href);
     }
   }, {
     label: '代码编辑器',
@@ -36,7 +37,7 @@ module.exports = [{
     click: () => {
       const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
       newwin.setMenu(null);
-      newwin.loadURL(path.join(htmlPath, 'tools', 'code.html'))
+      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'code.html')).href);
     }
   }]
 }, {
@@ -135,7 +136,13 @@ module.exports = [{
 
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();
-  mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()')
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    dialog.showErrorBox('错误', '当前没有可用的浏览器窗口');
+    return;
+  }
+
+  mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()');
+
   const childWindow = new BrowserWindow({
     parent: mainWindow,
     icon: icon,
@@ -148,7 +155,7 @@ function insertJS() {
       preload: path.join(htmlPath, 'insert', 'preload.js')
     }
   });
+
   childWindow.setMenu(null);
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
-  ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data));
 }
