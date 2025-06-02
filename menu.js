@@ -156,11 +156,11 @@ function insertJS() {
     }
   });
 
-  childWindow.setMenu(Menu.buildFromTemplate ([{
-    label: '开发者工具',
-    accelerator: 'F12',
-    role: 'toggleDevTools'
-  }]));
-  // childWindow.setMenu(null);
+  // childWindow.setMenu(Menu.buildFromTemplate ([{
+  //   label: '开发者工具',
+  //   accelerator: 'F12',
+  //   role: 'toggleDevTools'
+  // }]));
+  childWindow.setMenu(null);
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
 }
