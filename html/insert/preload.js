@@ -7,7 +7,7 @@ if (arg) parentID = parseInt(arg.split('=')[1], 10)
 contextBridge.exposeInMainWorld('litebrowser', {
     parentID: parentID,
     getList: () => {
-        if (parentID === null || typeof parentID !== 'number') return Promise.resolve({ error: "窗口参数'--parent-window-id'无效或不存在, 无法获取 JS 列表!", list: [] });
+        if (parentID === null || typeof parentID !== 'number') return Promise.resolve({ time: { start: Date.now(), used: 0 }, error: "错误:窗口参数'--parent-window-id'无效或不存在!", list: [] });
         return ipcRenderer.invoke('insertjs-get-jslist');
     },
     addJS: () => ipcRenderer.send('insertjs-add-js'),

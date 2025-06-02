@@ -10,25 +10,60 @@ const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 
 app.setPath('userData', path.join(DataPath, 'userData'));
 app.whenReady().then(() => {
   global.nomenuSession = session.fromPartition('persist:nomenu');
-  session.defaultSession.setPreloads([path.join(__dirname, 'html', 'preload.js')]);
+  session.defaultSession.registerPreloadScript({
+    type: 'frame',
+    filePath: path.join(__dirname, 'html', 'preload.js')
+  });
   const win = new BrowserWindow({
     icon: icon,
     width: 1024,
     height: 600,
     minWidth: 1024,
-    minHeight: 600
+    minHeight: 600,
+    webPreferences: {
+      session: session.fromPartition('persist:main'),
+      contextIsolation: true,
+      preload: path.join(__dirname, 'html', 'preload-main.js')
+    }
   });
   win.loadFile(path.join(__dirname, 'html', 'index.html'));
   const Menuobj = Menu.buildFromTemplate(MenuList);
   Menu.setApplicationMenu(Menuobj);
-});
-
+})
 app.on('window-all-closed', () => app.quit());
 
+// 新建窗口事件
+ipcMain.on('new-window', (_, url) => {
+  const newwin = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      session: session.defaultSession,
+    },
+  });
+  newwin.loadURL(url);
+});
+
+ipcMain.on('new-window-nomenu', (_, url) => {
+  const newwin = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      session: session.defaultSession,
+    },
+  });
+  newwin.loadURL(url);
+});
+
 // 右键菜单
-ipcMain.on('show-context-menu', (x, y) => {
+ipcMain.on('show-context-menu', (_, x, y) => {
   const win = BrowserWindow.getFocusedWindow();
-  const Menuobj = Menu.buildFromTemplate([...MenuList, { label: '关闭菜单栏', click: () => win.setMenu(null) }]);
+  const Menuobj = Menu.buildFromTemplate([...MenuList, {
+    label: '关闭菜单栏',
+    click: () => win.setMenu(null)
+  }, {
+    label: '关闭右键菜单', click: () => win.webContents.executeJavaScript('window.litebrowser.disableContextMenu()')
+  }]);
   Menuobj.popup({ window: win, x, y })
 });
 
@@ -48,7 +83,6 @@ ipcMain.on('bookmarks-add', (event, name, url, time) => {
 
 ipcMain.on('bookmarks-del', (event, id) => {
   if (event.sender.id != 1) return; // 判断是否为主页面
-  console.log('bookmarks-del', id);
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
     delete data[id];
@@ -170,7 +204,7 @@ ipcMain.on('insertjs-open-dir', async () => {
   }
 });
 
-ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
+ipcMain.on('insertjs-insert-js', (_, winid, jsname) => {
   try {
     const mainWindow = BrowserWindow.fromId(winid);
     const filepath = path.join(DataPath, 'insertjs', jsname);

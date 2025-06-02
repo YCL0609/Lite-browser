@@ -8,7 +8,7 @@ litebrowser.getBookmarks()
         Object.keys(List).map(i => {
             // 主页面
             const div = document.createElement('div');
-            div.innerHTML = `<a href="#" id="bookmark-${i}" onclick="window.open('${List[i].url}')">${List[i].title}</a>`;
+            div.innerHTML = `<a href="#" id="bookmark-${i}" onclick="litebrowser.newWindow('${List[i].url}')">${List[i].title}</a>`;
             document.getElementById('bookmark').appendChild(div);
             // 删除页面
             const option = document.createElement('option');
@@ -17,6 +17,7 @@ litebrowser.getBookmarks()
             document.getElementById('bookmark-del').appendChild(option)
         })
     });
+
 litebrowser.getSetting(false)
     .then(json => {
         const setting = JSON.parse(json);
@@ -36,7 +37,17 @@ litebrowser.getSetting(false)
 
 // 输入框回车
 document.getElementById('word').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') urljump();
+    if (e.key === 'Enter') {
+        const input = document.getElementById('word').value;
+        if (typeof input === 'string' && input.trim() === '') return; // 防止输入为空
+        const pattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//;
+        if (pattern.test(input)) {
+            litebrowser.newWindow(input)
+        } else {
+            const url = search_url.replace('%s', encodeURIComponent(input));
+            litebrowser.newWindow(url)
+        }
+    }
 });
 
 // 搜索引擎下拉框
@@ -45,19 +56,6 @@ document.getElementById('search-engine').addEventListener('change', (event) => {
     url.disabled = event.target.value != -1;
     url.value = event.target.value == -1 ? "" : default_url[event.target.value]
 });
-
-// 搜索跳转
-function urljump() {
-    const input = document.getElementById('word').value;
-    if (typeof input === 'string' && input.trim() === '') return; // 防止输入为空
-    const pattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//;
-    if (pattern.test(input)) {
-        window.open(input)
-    } else {
-        const url = search_url.replace('%s', encodeURIComponent(input));
-        window.open(url)
-    }
-}
 
 // 应用颜色设置
 function applyColor(main, text) {
@@ -146,7 +144,7 @@ window.bookmark = class bookmark {
         const name = document.getElementById('bookmark-name').value;
         if (url == '' || name == '') return;
         const div = document.createElement('div');
-        div.innerHTML = `<a href="#" id="bookmark-${time}" onclick="window.open('${url}')">${name}</a>`;
+        div.innerHTML = `<a href="#" id="bookmark-${time}" onclick="litebrowser.newWindow('${url}')">${name}</a>`;
         document.getElementById('bookmark').appendChild(div);
         const option = document.createElement('option');
         option.value = time;
@@ -155,7 +153,7 @@ window.bookmark = class bookmark {
         litebrowser.addBookmark(name, url, time);
         Poop(-1);
     }
-    
+
     static edit(process = -1) { // 修改书签
         const select = document.getElementById('bookmark-del');
         const delbtn = document.getElementById('bookmark-del-btn');

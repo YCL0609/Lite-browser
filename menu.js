@@ -1,4 +1,4 @@
-const { shell, BrowserWindow } = require('electron');
+const { shell, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const htmlPath = path.join(__dirname, 'html');
 const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
@@ -150,12 +150,17 @@ function insertJS() {
     height: 500,
     webPreferences: {
       additionalArguments: [`--parent-window-id=${mainWindow.id}`],
-      session: global.insertSession,
+      session: global.nomenuSession,
       contextIsolation: true,
       preload: path.join(htmlPath, 'insert', 'preload.js')
     }
   });
 
-  childWindow.setMenu(null);
+  childWindow.setMenu(Menu.buildFromTemplate ([{
+    label: '开发者工具',
+    accelerator: 'F12',
+    role: 'toggleDevTools'
+  }]));
+  // childWindow.setMenu(null);
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
 }
