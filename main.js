@@ -204,7 +204,7 @@ ipcMain.on('insertjs-open-dir', async () => {
   }
 });
 
-ipcMain.on('insertjs-insert-js', (_, winid, jsname) => {
+ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
   try {
     const mainWindow = BrowserWindow.fromId(winid);
     const filepath = path.join(DataPath, 'insertjs', jsname);
