@@ -1,4 +1,4 @@
-const { shell, BrowserWindow, Menu } = require('electron');
+const { shell, BrowserWindow, Menu, dialog } = require('electron');
 const path = require('path');
 const htmlPath = path.join(__dirname, 'html');
 const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
@@ -141,7 +141,7 @@ function insertJS() {
     return;
   }
 
-  mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()');
+  mainWindow.webContents.executeJavaScript('litebrowser.registerWindow()');
 
   const childWindow = new BrowserWindow({
     parent: mainWindow,
@@ -155,12 +155,11 @@ function insertJS() {
       preload: path.join(htmlPath, 'insert', 'preload.js')
     }
   });
-
+  childWindow.setMenu(null);
   // childWindow.setMenu(Menu.buildFromTemplate ([{
   //   label: '开发者工具',
   //   accelerator: 'F12',
   //   role: 'toggleDevTools'
   // }]));
-  childWindow.setMenu(null);
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
 }

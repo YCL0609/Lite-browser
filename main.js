@@ -1,20 +1,44 @@
 const { app, ipcMain, dialog, shell, session, BrowserWindow, Menu, ipcRenderer } = require('electron');
+let mainWin = null;
 const fs = require('fs');
 const windowMap = new Map();
 const path = require("path");
 const MenuList = require('./menu');
 const { pathToFileURL } = require('url')
+const gotTheLock = app.requestSingleInstanceLock();
 const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.resolve(path.join(__dirname, '..'));
-const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
+const icon = path.join(__dirname, 'icons', `icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
+app.setPath('userData', path.join(DataPath, 'userData')); // 设置缓存路径
 
-app.setPath('userData', path.join(DataPath, 'userData'));
-app.whenReady().then(() => {
-  global.nomenuSession = session.fromPartition('persist:nomenu');
-  session.defaultSession.registerPreloadScript({
-    type: 'frame',
-    filePath: path.join(__dirname, 'html', 'preload.js')
+if (gotTheLock) {
+  app.whenReady().then(() => {
+    global.nomenuSession = session.fromPartition('persist:nomenu');
+    session.defaultSession.registerPreloadScript({
+      type: 'frame',
+      filePath: path.join(__dirname, 'html', 'preload.js')
+    });
+    createMainWindow();
   });
-  const win = new BrowserWindow({
+
+  app.on('window-all-closed', () => app.quit());
+
+  // 处理第二实例
+  app.on('second-instance', () => {
+    if (mainWin && !mainWin.isDestroyed()) {
+      if (!mainWin.isVisible()) mainWin.show();
+      mainWin.focus();
+    } else {
+      createMainWindow();
+    }
+  });
+} else {
+  // 关闭第二实例
+  app.quit();
+}
+
+// 主窗口实例
+function createMainWindow() {
+  mainWin = new BrowserWindow({
     icon: icon,
     width: 1024,
     height: 600,
@@ -26,11 +50,11 @@ app.whenReady().then(() => {
       preload: path.join(__dirname, 'html', 'preload-main.js')
     }
   });
-  win.loadFile(path.join(__dirname, 'html', 'index.html'));
+  mainWin.loadFile(path.join(__dirname, 'html', 'index.html'));
   const Menuobj = Menu.buildFromTemplate(MenuList);
   Menu.setApplicationMenu(Menuobj);
-})
-app.on('window-all-closed', () => app.quit());
+  mainWin.on('closed', () => mainWin = null);
+}
 
 // 新建窗口事件
 ipcMain.on('new-window', (_, url) => {
