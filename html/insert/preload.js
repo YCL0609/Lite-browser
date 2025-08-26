@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('litebrowser', {
         return ipcRenderer.invoke('insertjs-get-jslist');
     },
     addJS: () => ipcRenderer.send('insertjs-add-js'),
-    removeJS: (name) => ipcRenderer.send('insertjs-remove-js', name),
+    removeJS: (id) => ipcRenderer.send('insertjs-remove-js', id),
     openDir: () => ipcRenderer.send('insertjs-open-dir'),
-    insertJS: (id, js) => ipcRenderer.send('insertjs-insert-js', id, js)
+    insertJS: (winID, jsID) => ipcRenderer.send('insertjs-insert-js', winID, jsID)
 });

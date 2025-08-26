@@ -155,11 +155,11 @@ function insertJS() {
       preload: path.join(htmlPath, 'insert', 'preload.js')
     }
   });
-  childWindow.setMenu(null);
-  // childWindow.setMenu(Menu.buildFromTemplate ([{
-  //   label: '开发者工具',
-  //   accelerator: 'F12',
-  //   role: 'toggleDevTools'
-  // }]));
+  // childWindow.setMenu(null);
+  childWindow.setMenu(Menu.buildFromTemplate ([{
+    label: '开发者工具',
+    accelerator: 'F12',
+    role: 'toggleDevTools'
+  }]));
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
 }

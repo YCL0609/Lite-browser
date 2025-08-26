@@ -1,4 +1,5 @@
 let jsList
+let isAutoMode = false;
 const listdiv = document.getElementById('list');
 document.getElementById('id').innerText = window.litebrowser.parentID;
 GetList();
@@ -20,28 +21,35 @@ async function GetList() {
         return;
     }
     // 处理列表
-    jsList = list.list;
     listdiv.innerHTML = '';
-    list.list.map((item, index) => {
+    for (const item in list.list) {
         const div = document.createElement('div');
-        div.dataset.jsid = index;
+        div.dataset.jsid = item;
         div.dataset.isselent = 0;
-        const date = new Date(item.time);
-        const datestr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-        div.innerHTML = `<a style="float: left">${item.name}</a><a style="float: right;">${datestr}</a>`;
+        div.innerHTML = `<div class="js-row"><a>${list.list[item]}</a></div>`;
         div.onclick = event => {
             listdiv.childNodes.forEach(item => item.dataset.isselent = 0);
             event.currentTarget.dataset.isselent = 1;
         };
-        div.ondblclick = event => window.litebrowser.insertJS(window.litebrowser.parentID, jsList[event.currentTarget.dataset.jsid].name);
+        div.ondblclick = () => window.litebrowser.insertJS(window.litebrowser.parentID, item);
         listdiv.appendChild(div);
-    })
+    }
 }
 
 function RemoveJS() {
     const element = document.querySelector('[data-isselent="1"]');
     if (element) {
-        const name = jsList[element.dataset.jsid].name;
-        window.litebrowser.removeJS(name)
+        window.litebrowser.removeJS(element.dataset.jsid)
+        element.remove();
+    }
+}
+
+function AutoJS() {
+    if (isAutoMode) {
+        isAutoMode = false;
+        document.getElementById('auto-info').style.display = 'none';
+    } else {
+        isAutoMode = true;
+        document.getElementById('auto-info').style.display = 'block';
     }
 }

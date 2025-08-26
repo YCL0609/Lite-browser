@@ -10,12 +10,14 @@
 
 <body>
     <h2>选择要注入的JavaScript文件</h2>
+    <h4 id="auto-info" style="display: none;">注意:选择的JavaScript文件将会在此域名下自动运行</h4>
     <b>窗口ID:<a id="id">-1</a>&nbsp;&nbsp;列表获取时间:<a id="time">未获取</a>&nbsp;&nbsp;用时:<a id="used">0ms</a></b>
     <div class="box">
         <div class="title">
             <a>JavaScript文件列表</a>
             <div class="svg">
-                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onclick="window.litebrowser.openDir()">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                    onclick="window.litebrowser.openDir()">
                     <path
                         d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
                         fill="currentColor" />
@@ -32,6 +34,13 @@
                     <path
                         d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"
                         fill="currentColor" />
+                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg" onclick="AutoJS()">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                        d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z"
+                        fill="currentColor" />
+                    <path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" />
                 </svg>
             </div>
         </div>

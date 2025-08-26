@@ -14,14 +14,13 @@
   "license": "MIT",
   "build": {
     "appId": "cool.ycl.desktop.browser",
-    "productName": "YCL Browser",
+    "productName": "Lite Browser",
     "copyright": "Copyright © 2025 YCL",
     "files": [
       "**/*",
       "!node_modules/**/*",
       "!dist/**/*",
       "!resources/**/*",
-      "!npm-cache/**/*",
       "!.git/**/*",
       "!LICENSE",
       "!README.md",
