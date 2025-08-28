@@ -1,11 +1,11 @@
 let jsList
 let isAutoMode = false;
 const listdiv = document.getElementById('list');
-document.getElementById('id').innerText = window.litebrowser.parentID;
+document.getElementById('id').innerText = litebrowser.parentID;
 GetList();
 
 async function GetList() {
-    const list = await window.litebrowser.getList();
+    const list = await litebrowser.getList();
     const date = new Date(list.time.start);
     const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
     document.getElementById('time').innerText = time;
@@ -31,7 +31,7 @@ async function GetList() {
             listdiv.childNodes.forEach(item => item.dataset.isselent = 0);
             event.currentTarget.dataset.isselent = 1;
         };
-        div.ondblclick = () => window.litebrowser.insertJS(window.litebrowser.parentID, item);
+        div.ondblclick = () => litebrowser.insertJS(litebrowser.parentID, item);
         listdiv.appendChild(div);
     }
 }
@@ -39,17 +39,29 @@ async function GetList() {
 function RemoveJS() {
     const element = document.querySelector('[data-isselent="1"]');
     if (element) {
-        window.litebrowser.removeJS(element.dataset.jsid)
+        litebrowser.removeJS(element.dataset.jsid)
         element.remove();
     }
 }
 
-function AutoJS() {
+async function AutoJS() {
     if (isAutoMode) {
+        const selented = [];
+        document.querySelectorAll('[data-isselent="1"]').forEach(item => selented.push(item.dataset.jsid));
+        litebrowser.changeAutoJS(litebrowser.parentID, selented);
         isAutoMode = false;
         document.getElementById('auto-info').style.display = 'none';
+        listdiv.childNodes.forEach(item => item.dataset.isselent = 0);
     } else {
+        const jsList = await litebrowser.getAutoJS(litebrowser.parentID);
+        if (jsList.errID === -1) return;
         isAutoMode = true;
         document.getElementById('auto-info').style.display = 'block';
+        document.querySelectorAll('[data-jsid]').forEach(item => {
+            item.dataset.isselent = 0;
+            if (jsList.hosts.includes(item.dataset.jsid)) item.dataset.isselent = 1;
+            item.onclick = event => event.currentTarget.dataset.isselent = event.currentTarget.dataset.isselent == 1 ? 0 : 1;
+            item.ondblclick = null;
+        });
     }
 }

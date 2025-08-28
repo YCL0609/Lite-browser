@@ -4,17 +4,17 @@
     "electron-builder": "^26.0.12"
   },
   "name": "@cool.ycl/desktop-browser",
-  "version": "2.2",
+  "version": "2.2.0",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "scripts": {
-    "start": "electron . --trace-warnings --gtk-version=3"
+    "start": "electron . --gtk-version=3"
   },
   "author": "YCL",
   "license": "MIT",
   "build": {
     "appId": "cool.ycl.desktop.browser",
-    "productName": "Lite Browser",
+    "productName": "Lite-Browser",
     "copyright": "Copyright © 2025 YCL",
     "files": [
       "**/*",

@@ -95,7 +95,7 @@ function insertJS() {
   ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // Listen to and inject the content of the JS file selected by the user
 }
 ```
-When the JS file selection child window is loaded, it will read the ID of the parent window and obtain the list of available files through the IPC communication exposed by the preload script, the user of this page can select the script to modify or delete by clicking on it, and after double-clicking the JS entry, the file content will be sent to the parent window, and the parent window will inject it into the page for execution.
+When the JS file selection child window is loaded, it will read the ID of the parent window and obtain the list of available files through the IPC communication exposed by the preload script, the user of this page can select the script to modify or delete by clicking on it, and after double-clicking the JS entry, the file content will be sent to the parent window, and the parent window will inject it into the page for execution. After clicking the specified button, you will enter the selection mode, which allows you to select a js file, and the selected js file will be automatically executed under this domain name.
 ```javascript
 /* js insert subwindow preload script */
 
