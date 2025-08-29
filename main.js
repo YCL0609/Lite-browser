@@ -53,8 +53,7 @@ function createMainWindow() {
       preload: path.join(__dirname, 'html', 'preload-main.js')
     }
   });
-  mainWin.loadURL("https://www.example.com")
-  // mainWin.loadFile(path.join(__dirname, 'html', 'index.html'));
+  mainWin.loadFile(path.join(__dirname, 'html', 'index.html'));
   const Menuobj = Menu.buildFromTemplate(MenuList);
   Menu.setApplicationMenu(Menuobj);
   mainWin.on('closed', () => mainWin = null);
