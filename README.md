@@ -16,17 +16,6 @@ contextBridge.exposeInMainWorld('litebrowser', {
   imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64) // 获取或设置图片
 })
 ```
-渲染进程会首先检测请求是否来自Window ID为1的页面(主页面)，若不是主页面则返回，其他情况出现运行错误会弹出提示窗口。
-```javascript
-ipcMain.on('setting-change', (event, json) => {
-  if (event.sender.id != 1) return; // 检测是否来自主页面
-  try {
-    // ....
-  } catch (err) {
-    dialog.showErrorBox('配置修改错误', err.stack)  // 弹出错误信息
-  }
-});
-```
 setting.json文件结构：
 ```json
 {
@@ -55,17 +44,6 @@ contextBridge.exposeInMainWorld('litebrowser', {
   // ....
 })
 ```
-和主页面设置修改一样渲染进程会首先检测请求是否来自Window ID为0的页面(主页面)，若不是主页面则返回，其他情况出现运行错误会弹出提示窗口。
-```javascript
-ipcMain.on('bookmarks-add', (event, name, url, time) => {
-  if (event.sender.id != 1) return; // 检测是否来自主页面
-  try {
-    // ....
-  } catch (err) {
-    dialog.showErrorBox('书签添加错误', err.stack); // 弹出错误信息
-  }
-});
-```
 bookmarks.json 文件结构:
 ```json
 {
@@ -78,7 +56,7 @@ bookmarks.json 文件结构:
 }
 ```
 ## 页面js插入
-用户自定义js文件存储在DATA_DIR/insertjs目录下，文件名必须为*.js，通过点击菜单中的"控制..."==>"注入JavaScript文件"或按下F1键，即可选择要插入的js文件。<br><br>
+用户自定义js文件存储在DATA_DIR/insertjs目录下，文件名为{32位随机字串}.js由name.json记录与原始文件名的对应关系，通过点击菜单中的"控制..."==>"注入JavaScript文件"或按下F1键，即可选择要插入的js文件。<br><br>
 插入js文件时程序会首先通过executeJavaScriptInIsolatedWorld在当前焦点窗口执行预加载脚本中暴露的litebrowser.registerWindow()方法向渲染进程中注册一个window对象，然后等待并通过executeJavaScript将用户选择的js文件插入到当前焦点窗口中。
 ```javascript
 function insertJS() {
@@ -95,7 +73,7 @@ function insertJS() {
   ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // 监听并注入用户选择的js文件内容
 }
 ```
-js文件选择子窗口被加载时会读取父窗口的id并通过预加载脚本暴露的ipc通信获取可用文件列表，此页面用户通过单击可选择要修改或删除的脚本，双击js条目后会向父窗口发送文件内容，并由父窗口注入到页面中执行。点击指定按钮后会进入选择模式，此模式可以选择js文件，选择的js文件会在此域名下自动执行。
+js文件选择子窗口被加载时会读取父窗口的id并通过预加载脚本暴露的ipc通信获取可用文件列表，此页面用户通过单击可选择要修改或删除的脚本，双击js条目后会向父窗口发送文件内容，并由父窗口注入到页面中执行。
 ```javascript
 /* js插入子窗口预加载脚本 */
 
@@ -111,4 +89,23 @@ contextBridge.exposeInMainWorld('litebrowser', {
     openDir: () => ipcRenderer.send('insertjs-open-dir'), // 打开脚本目录
     insertJS: (id, js) => ipcRenderer.send('insertjs-insert-js', id, js) // 插入脚本
 })
+```
+### 自动js插入
+通过点击js插入页面的'
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z" fill="currentColor" /><path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" /></svg>
+'按钮进入脚本选择，选择完成后再次单击即可保存，所有选择的文件名称都会保存在DATA_DIR/insertjs/auto.json中。
+```json
+{
+  "hosts": [ // 所有会自动执行的网站域名
+    "example.net",
+    "www.example.com"
+    // ...
+  ],
+  "example.net": [ // example.net域名的具体配置
+    "fnuplcuj0hbhheceb3std5w9gnr1cp9d", // 需要插入的js文件id
+    "6df4zk44ub5mo1w59ix49yurcpwvfx8y",
+    "eu9olax01oib7pwvjdxzjleabbc9w46o"
+  ]
+  // ...
+}
 ```

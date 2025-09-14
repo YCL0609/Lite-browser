@@ -6,7 +6,6 @@ const windowMap = new Map();
 const path = require("path");
 const MenuList = require('./menu');
 const { pathToFileURL } = require('url');
-const { error } = require('console');
 const gotTheLock = app.requestSingleInstanceLock();
 const DataPath = process.env.LITE_BROWSER_DATA_PATH || path.resolve(path.join(__dirname, '..'));
 const icon = path.join(__dirname, 'icons', `icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
@@ -15,12 +14,20 @@ app.setPath('userData', path.join(DataPath, 'userData')); // 设置缓存路径
 
 if (gotTheLock) {
   app.whenReady().then(() => {
-    global.nomenuSession = session.fromPartition('persist:nomenu');
-    session.defaultSession.registerPreloadScript({
-      type: 'frame',
-      filePath: path.join(__dirname, 'html', 'preload.js')
-    });
+    // 优先创建主窗口，后续初始化异步进行
     createMainWindow();
+    // 异步注册 session preload 脚本
+    setImmediate(() => {
+      global.nomenuSession = session.fromPartition('persist:nomenu');
+      session.defaultSession.registerPreloadScript({
+        type: 'frame',
+        filePath: path.join(__dirname, 'html', 'preload.js')
+      });
+    });
+    // 异步初始化配置文件等
+    setImmediate(() => {
+      asyncInitFiles();
+    });
   });
 
   app.on('window-all-closed', () => app.quit());
@@ -95,10 +102,9 @@ ipcMain.on('show-context-menu', (_, x, y) => {
 });
 
 // 书签事件
-ipcMain.handle('bookmarks-get', (event) => (event.sender.id == 1) ? getJson('bookmarks.json', '书签文件读取错误') : null);
+ipcMain.handle('bookmarks-get', () => getJson('bookmarks.json', '书签文件读取错误'));
 
-ipcMain.on('bookmarks-add', (event, name, url, time) => {
-  if (event.sender.id != 1) return; // 判断是否为主页面
+ipcMain.on('bookmarks-add', (_, name, url, time) => {
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
     data[time] = { title: name, url: url };
@@ -108,8 +114,7 @@ ipcMain.on('bookmarks-add', (event, name, url, time) => {
   }
 });
 
-ipcMain.on('bookmarks-del', (event, id) => {
-  if (event.sender.id != 1) return; // 判断是否为主页面
+ipcMain.on('bookmarks-del', (_, id) => {
   try {
     const data = JSON.parse(getJson('bookmarks.json', '书签文件读取错误'));
     delete data[id];
@@ -324,16 +329,14 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
 });
 
 // 主页面设置
-ipcMain.handle('setting-get', (event, isimg) => {
-  if (event.sender.id != 1) return; // 判断是否为主页面
+ipcMain.handle('setting-get', (_, isimg) => {
   const data = getJson('setting.json', '配置文件读取错误', defaultSetting);
   if (!isimg) return data;
   const filePath = path.join(DataPath, JSON.parse(data).theme.background)
   return pathToFileURL(filePath).href;
 });
 
-ipcMain.on('setting-change', (event, json) => {
-  if (event.sender.id != 1) return; // 判断是否为主页面
+ipcMain.on('setting-change', (_, json) => {
   try {
     const data = JSON.parse(getJson('setting.json', '配置文件读取错误', defaultSetting));
     const colon = (data.theme.background == null) ? '' : '"';
@@ -345,8 +348,7 @@ ipcMain.on('setting-change', (event, json) => {
   }
 });
 
-ipcMain.on('setting-change-image', async (event, type, base64) => {
-  if (event.sender.id != 1) return; // 判断是否为主页面
+ipcMain.on('setting-change-image', async (_, type, base64) => {
   try {
     const mime = {
       'image/jpeg': 'jpg',
@@ -399,6 +401,27 @@ ipcMain.on('setting-change-image', async (event, type, base64) => {
     dialog.showErrorBox('图片保存错误', err.stack);
   }
 })
+
+// 异步初始化配置文件，避免主线程阻塞
+async function asyncInitFiles() {
+  const files = [
+    { name: 'setting.json', defaultdata: defaultSetting },
+    { name: 'bookmarks.json', defaultdata: '{}' },
+    { name: path.join('insertjs', 'name.json'), defaultdata: '{}' },
+    { name: path.join('insertjs', 'auto.json'), defaultdata: '{"hosts":[]}' }
+  ];
+  for (const f of files) {
+    const filePath = path.join(DataPath, f.name);
+    try {
+      await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+      if (!fs.existsSync(filePath)) {
+        await fs.promises.writeFile(filePath, f.defaultdata);
+      }
+    } catch (err) {
+      dialog.showErrorBox('初始化文件错误: ' + f.name, err.stack);
+    }
+  }
+}
 
 // 获取JSON文件内容
 function getJson(name, errtext, defaultdata = '{}') {

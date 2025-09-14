@@ -1,10 +1,10 @@
 {
   "devDependencies": {
-    "electron": "^37.2.6",
+    "electron": "^38.0.0",
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "scripts": {

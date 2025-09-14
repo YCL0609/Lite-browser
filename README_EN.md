@@ -16,17 +16,6 @@ contextBridge.exposeInMainWorld('litebrowser', {
   imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64) // Get or set the image
 })
 ```
-The rendering process will first detect whether the request is from a page with Window ID 0 (main page), and return if it is not the main page.
-```javascript
-ipcMain.on('setting-change', (event, json) => {
-  if (event.sender.id != 1) return; // Detect if it's from the main page
-  try {
-    // ....
-  } catch (err) {
-    dialog.showErrorBox('配置修改错误', err.stack)  // An error message pops up
-  }
-});
-```
 setting.json file structure:
 ```json
 {
@@ -55,17 +44,6 @@ contextBridge.exposeInMainWorld('litebrowser', {
   // ....
 })
 ```
-As with the main page setting modification, the rendering process will first detect whether the request is from a page with Window ID 1 (main page), and return if it is not the main page.
-```javascript
-ipcMain.on('bookmarks-add', (event, name, url, time) => {
-  if (event.sender.id != 1) return; // Detect if it's from the main page
-  try {
-    // ....
-  } catch (err) {
-    dialog.showErrorBox('书签添加错误', err.stack); // An error message pops up
-  }
-});
-```
 bookmarks.json File Structure:
 ```json
 {
@@ -78,7 +56,7 @@ bookmarks.json File Structure:
 }
 ```
 ## Page js insertion
-The user-defined js file is stored in the DATA_DIR/insertjs directory, the file name must be *.js, and you can select the js file to be inserted by clicking "控制..."==>"注入JavaScript文件" in the menu or pressing the F1 key. <br><br>
+The user-defined js file is stored in the DATA_DIR/insertjs directory, The file named {32-character random string}.js records the correspondence with the original filename in name.json, and you can select the js file to be inserted by clicking "控制..."==>"注入JavaScript文件" in the menu or pressing the F1 key. <br><br>
 When inserting a js file, the program first registers a window object with the rendering process via the litebrowser.registerWindow() method exposed in the executeJavaScriptInIsolatedWorld preload script in the current focus window, and then waits for the user-selected js file to be inserted into the current focus window via executeJavaScript.
 ```javascript
 function insertJS() {
@@ -111,4 +89,23 @@ contextBridge.exposeInMainWorld('litebrowser', {
     openDir: () => ipcRenderer.send('insertjs-open-dir'), // Open the Scripts directory
     insertJS: (id, js) => ipcRenderer.send('insertjs-insert-js', id, js) // Insert a script
 })
+```
+### Automatic JS insertion
+Enter the script selection by clicking the '
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z" fill="currentColor" /><path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" /></svg>
+' button inserted into the page via js, you can enter the script selection. After completing your selection, click again to save. All selected file names will be saved in DATA_DIR/insertjs/auto.json.
+```json
+{
+  "hosts": [ // All website domains that can automatically execute JS.
+    "example.net",
+    "www.example.com"
+    // ...
+  ],
+  "example.net": [ // Specific configuration of the example.net domain
+    "fnuplcuj0hbhheceb3std5w9gnr1cp9d", // ID of the js file to be inserted
+    "6df4zk44ub5mo1w59ix49yurcpwvfx8y",
+    "eu9olax01oib7pwvjdxzjleabbc9w46o"
+  ]
+  // ...
+}
 ```
