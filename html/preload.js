@@ -13,5 +13,7 @@ window.addEventListener('contextmenu', (e) => {
   ipcRenderer.send('show-context-menu', { x: e.clientX, y: e.clientY });
 });
 
-// 自动注入脚本
-ipcRenderer.send('insertjs-auto-js-insert');
+// 自动插入JS
+document.addEventListener('DOMContentLoaded', () => {
+  ipcRenderer.send('insertjs-auto-js-insert');
+});

@@ -1,4 +1,4 @@
-const { app, ipcMain, dialog, shell, session, BrowserWindow, Menu, ipcRenderer } = require('electron');
+const { app, ipcMain, dialog, shell, session, BrowserWindow, Menu } = require('electron');
 let mainWin = null;
 let autoJSCache = {};
 const fs = require('fs');
@@ -96,7 +96,7 @@ ipcMain.on('show-context-menu', (_, x, y) => {
     label: '关闭菜单栏',
     click: () => win.setMenu(null)
   }, {
-    label: '关闭右键菜单', click: () => win.webContents.executeJavaScript('window.litebrowser.disableContextMenu()')
+    label: '关闭右键菜单', click: () => win.webContents.executeJavaScript('litebrowser.disableContextMenu()')
   }]);
   Menuobj.popup({ window: win, x, y })
 });
@@ -290,7 +290,16 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   try {
     const urlStr = win.webContents.getURL();
-    const urlObj = new URL(urlStr);
+    let urlObj;
+    try {
+      urlObj = new URL(urlStr);
+    } catch (e) {
+      // 可选：记录异常和urlStr，便于排查
+      debugger;
+      dialog.showErrorBox('自动注入脚本错误', urlStr + '\n' + e.stack);
+
+      return;
+    }
     const host = (urlObj.host === '') ? -1 : urlObj.host;
     if (host === -1) return;
     if (autoJSCache.hosts === undefined) {
