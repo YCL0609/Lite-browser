@@ -14,7 +14,7 @@
   "license": "MIT",
   "build": {
     "appId": "cool.ycl.desktop.browser",
-    "copyright": "Copyright © 2025 YCL",
+    "copyright": "Copyright (C) 2025 YCL",
     "files": [
       "**/*",
       "!node_modules/**/*",

@@ -21,9 +21,20 @@
         }
     </style>
     <script>
-        if (!localStorage.body) localStorage.body = '';
-        onload = _ => document.body.innerHTML = localStorage.body;
-        oninput = _ => localStorage.body = document.body.innerHTML;
+        document.addEventListener('keydown', function (event) {
+            if (event.ctrlKey) {
+                const key = event.key;
+                if (key >= '1' && key <= '9') {
+                    const notebookIndex = parseInt(key) - 1;
+                    switchNotebook(notebookIndex); // 自定义函数
+                }
+            }
+        });
+
+        function switchNotebook(index) {
+            console.log(`切换到第 ${index + 1} 个笔记本`);
+            // 你的切换逻辑，比如显示对应的 <div> 或加载数据
+        }
     </script>
 </head>
 

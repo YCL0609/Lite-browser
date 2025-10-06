@@ -1,8 +1,17 @@
-const { shell, BrowserWindow, Menu, dialog } = require('electron');
+const { shell, clipboard, dialog, BrowserWindow, Menu } = require('electron');
 const path = require('path');
-const htmlPath = path.join(__dirname, 'html');
-const icon = path.join(__dirname, `icons/icon.${(process.platform == 'win32') ? 'ico' : 'png'}`);
-const { pathToFileURL } = require('url'); // 使用 pathToFileURL 将路径转换为 file:// 协议
+const { pathToFileURL } = require('url');
+const { isDebug } = require('../lib/config');
+const htmlPath = path.join(__dirname, '..', 'html');
+const debugMenu = isDebug ? Menu.buildFromTemplate([{
+  label: '忽略缓存刷新(shift+F5)',
+  accelerator: 'shift+F5',
+  role: 'forceReload'
+}, {
+  label: '开发者工具(F12)',
+  accelerator: 'F12',
+  role: 'toggleDevTools'
+}]) : null;
 
 // 菜单项目
 module.exports = [{
@@ -10,35 +19,19 @@ module.exports = [{
   submenu: [{
     label: '笔记本',
     accelerator: 'Alt+1',
-    click: () => {
-      const newwin = new BrowserWindow({ width: 300, height: 300, icon: icon });
-      newwin.setMenu(null);
-      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'notepad.html')).href);
-    }
+    click: () => openToolsWindow(500, 500, 'notepad.html')
   }, {
     label: '画图板',
     accelerator: 'Alt+2',
-    click: () => {
-      const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
-      newwin.setMenu(null);
-      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'paint.html')).href);
-    }
+    click: () => openToolsWindow(1024, 600, 'paint.html')
   }, {
     label: '电子表格',
     accelerator: 'Alt+3',
-    click: () => {
-      const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
-      newwin.setMenu(null);
-      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'excel.html')).href);
-    }
+    click: () => openToolsWindow(1024, 600, 'excel.html')
   }, {
     label: '代码编辑器',
     accelerator: 'Alt+4',
-    click: () => {
-      const newwin = new BrowserWindow({ width: 1024, height: 600, icon: icon });
-      newwin.setMenu(null);
-      newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', 'code.html')).href);
-    }
+    click: () => openToolsWindow(1024, 600, 'code.html')
   }]
 }, {
   label: '编辑...',
@@ -111,9 +104,17 @@ module.exports = [{
     accelerator: 'F10',
     click: () => {
       const url = BrowserWindow.getFocusedWindow().webContents.getURL();
-      const newwin = new BrowserWindow({ width: 500, height: 200 });
-      newwin.setMenu(null);
-      newwin.loadURL('data:text/html,<meta charset="UTF-8"><title>当前网址</title><body style=word-wrap:break-word;word-break:break-all>' + url)
+      dialog.showMessageBox({
+        type: 'info',
+        title: '当前网址',
+        message: url,
+        buttons: ['复制到剪贴板', '关闭'],
+        defaultId: 1,
+        cancelId: 1
+      })
+        .then(result => {
+          if (result.response === 0) clipboard.writeText(url);
+        });
     }
   }, {
     label: '注入JavaScript文件',
@@ -134,6 +135,19 @@ module.exports = [{
   }
 }];
 
+function openToolsWindow(width, height, htmlfile) {
+  const newwin = new BrowserWindow({
+    width: width,
+    height: height,
+    webPreferences: {
+      session: global.nomenuSession,
+      preload: path.join(__dirname, 'preload', 'tools.js')
+    }
+  });
+  newwin.setMenu(debugMenu);
+  newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', htmlfile)).href);
+}
+
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();
   if (!mainWindow || mainWindow.isDestroyed()) {
@@ -145,25 +159,15 @@ function insertJS() {
 
   const childWindow = new BrowserWindow({
     parent: mainWindow,
-    icon: icon,
     width: 500,
     height: 500,
     webPreferences: {
       additionalArguments: [`--parent-window-id=${mainWindow.id}`],
       session: global.nomenuSession,
       contextIsolation: true,
-      preload: path.join(htmlPath, 'insert', 'preload.js')
+      preload: path.join(__dirname, 'preload', 'insertjs.js')
     }
   });
-  childWindow.setMenu(null);
-  // childWindow.setMenu(Menu.buildFromTemplate([{
-  //   label: '开发者工具',
-  //   accelerator: 'F12',
-  //   role: 'toggleDevTools'
-  // }, {
-  //   label: '刷新(F5)',
-  //   accelerator: 'F5',
-  //   role: 'reload'
-  // }]));
+  childWindow.setMenu(debugMenu);
   childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
 }
