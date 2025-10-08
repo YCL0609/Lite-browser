@@ -19,19 +19,19 @@ module.exports = [{
   submenu: [{
     label: '笔记本',
     accelerator: 'Alt+1',
-    click: () => openToolsWindow(500, 500, 'notepad.html')
+    click: () => openToolsWindow('notepad.html')
   }, {
     label: '画图板',
     accelerator: 'Alt+2',
-    click: () => openToolsWindow(1024, 600, 'paint.html')
-  }, {
-    label: '电子表格',
-    accelerator: 'Alt+3',
-    click: () => openToolsWindow(1024, 600, 'excel.html')
+    click: () => openToolsWindow('paint.html')
   }, {
     label: '代码编辑器',
+    accelerator: 'Alt+3',
+    click: () => openToolsWindow('code.html')
+  }, {
+    label: 'Base64工具',
     accelerator: 'Alt+4',
-    click: () => openToolsWindow(1024, 600, 'code.html')
+    click: () => openToolsWindow('base64.html')
   }]
 }, {
   label: '编辑...',
@@ -135,10 +135,10 @@ module.exports = [{
   }
 }];
 
-function openToolsWindow(width, height, htmlfile) {
+function openToolsWindow(htmlfile) {
   const newwin = new BrowserWindow({
-    width: width,
-    height: height,
+    width: 1024,
+    height: 600,
     webPreferences: {
       session: global.nomenuSession,
       preload: path.join(__dirname, 'preload', 'tools.js')

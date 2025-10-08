@@ -14,6 +14,4 @@ window.addEventListener('contextmenu', (e) => {
 });
 
 // 自动插入JS
-document.addEventListener('DOMContentLoaded', () => {
-  ipcRenderer.send('insertjs-auto-js-insert');
-});
+document.addEventListener('DOMContentLoaded', () => ipcRenderer.send('insertjs-auto-js-insert'));

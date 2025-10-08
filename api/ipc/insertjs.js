@@ -1,10 +1,16 @@
 const { ipcMain, dialog, shell, BrowserWindow } = require('electron');
+const { RandomString, getFile } = require('../../lib/function');
+const { DataPath } = require('../../lib/config');
 let autoJSCache = {};
 const fs = require('fs');
 const windowMap = new Map();
 const path = require('path');
-const { DataPath } = require('../../lib/config');
-const { getJson, RandomString } = require('../../lib/function');
+const defaultJson_name = '{}';
+const defaultJson_auto = '{"hosts":[]}';
+const targetDir = path.join(DataPath, 'insertjs');
+const jsonPath_name = path.join(DataPath, 'insertjs', 'name.json');
+const jsonPath_auto = path.join(DataPath, 'insertjs', 'auto.json');
+
 
 // 窗口注册
 ipcMain.on('insertjs-register-window', (event) => {
@@ -18,19 +24,18 @@ ipcMain.on('insertjs-register-window', (event) => {
 // 获取脚本列表
 ipcMain.handle('insertjs-get-jslist', async () => {
     let json;
-    fs.mkdirSync(path.join(DataPath, 'insertjs'), { recursive: true });
     const startat = performance.now();
     try {
-        const jsonData = JSON.parse(getJson(path.join('insertjs', 'name.json'), '名称ID文件读取错误'));
+        const jsonData = JSON.parse(getFile(jsonPath_name, defaultJson_name));
         json = {
             time: { start: Date.now(), used: performance.now() - startat },
             error: -1,
             list: jsonData
         }
-    } catch (error) {
+    } catch (err) {
         json = {
             time: { start: Date.now(), used: performance.now() - startat },
-            error: error.stack,
+            error: err.stack,
             list: []
         }
     }
@@ -41,8 +46,7 @@ ipcMain.handle('insertjs-get-jslist', async () => {
 ipcMain.on('insertjs-add-js', async (event) => {
     try {
         const win = BrowserWindow.fromWebContents(event.sender);
-        const targetDir = path.join(DataPath, 'insertjs');
-        // 文件处理
+        // 打开文件选择对话框
         const result = await dialog.showOpenDialog(win, {
             title: '选择JavaScript文件',
             properties: ['openFile', 'multiSelections'],
@@ -51,6 +55,7 @@ ipcMain.on('insertjs-add-js', async (event) => {
                 { name: 'All Files', extensions: ['*'] }
             ]
         });
+        // 处理用户选择
         if (result.canceled || result.filePaths.length === 0) {
             return { success: false, message: '用户取消了选择' };
         }
@@ -68,9 +73,9 @@ ipcMain.on('insertjs-add-js', async (event) => {
             }
             // 记录ID和名称对应关系
             try {
-                const idJson = JSON.parse(getJson(path.join('insertjs', 'name.json'), '名称ID文件读取错误'));
+                const idJson = JSON.parse(getFile(jsonPath_name, defaultJson_name));
                 idJson[nameID] = name;
-                fs.writeFileSync(path.join(targetDir, 'name.json'), JSON.stringify(idJson, null, 2), 'utf-8');
+                fs.writeFileSync(jsonPath_name, JSON.stringify(idJson, null, 2), 'utf-8');
                 win.reload();
             } catch (err) {
                 dialog.showErrorBox('文件ID记录错误', err.stack);
@@ -92,9 +97,10 @@ ipcMain.on('insertjs-remove-js', async (_, id) => {
     }
     // 删除ID记录
     try {
-        const idJson = JSON.parse(getJson(path.join('insertjs', 'name.json'), '名称ID文件读取错误'));
+        const jsonPath = path.join(jsPath, 'name.json');
+        const idJson = JSON.parse(getFile(jsonPath, defaultJson_name));
         delete idJson[id];
-        fs.writeFileSync(path.join(jsPath, 'name.json'), JSON.stringify(idJson, null, 2), 'utf-8');
+        fs.writeFileSync(jsonPath, JSON.stringify(idJson, null, 2), 'utf-8');
     } catch (err) {
         dialog.showErrorBox('删除JavaScript文件ID记录错误', err.stack);
     }
@@ -139,7 +145,7 @@ ipcMain.handle('insertjs-get-auto-js', (_, winid) => {
         });
         return { errID: -1, hosts: [] };
     };
-    const listJson = JSON.parse(getJson(path.join('insertjs', 'auto.json'), '自动注入配置文件读取错误', '{"hosts":[]}'));
+    const listJson = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
     return { errID: 0, hosts: (listJson.hosts.includes(host)) ? listJson[host] : [] };
 });
 
@@ -157,7 +163,7 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
         return
     };
     // 更新配置文件
-    const listJson = JSON.parse(getJson(path.join('insertjs', 'auto.json'), '自动注入配置文件读取错误', '{"hosts":[]}'));
+    const listJson = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
     if (listJson.hosts.includes(host)) {
         if (jsIDs.length === 0) {
             delete listJson[host];
@@ -171,7 +177,7 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
             listJson[host] = jsIDs;
         }
     }
-    fs.writeFileSync(path.join(DataPath, 'insertjs', 'auto.json'), JSON.stringify(listJson, null, 2), 'utf-8');
+    fs.writeFileSync(jsonPath_auto, JSON.stringify(listJson, null, 2), 'utf-8');
     autoJSCache = listJson; // 更新缓存
 });
 
@@ -179,21 +185,20 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
 ipcMain.on('insertjs-auto-js-insert', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
+        // 获取窗口网址
         const urlStr = win.webContents.getURL();
         let urlObj;
         try {
             urlObj = new URL(urlStr);
         } catch (e) {
-            // 可选：记录异常和urlStr，便于排查
-            debugger;
             dialog.showErrorBox('自动注入脚本错误', urlStr + '\n' + e.stack);
-
             return;
         }
+        // 获取host对应的脚本列表
         const host = (urlObj.host === '') ? -1 : urlObj.host;
         if (host === -1) return;
         if (autoJSCache.hosts === undefined) {
-            autoJSCache = JSON.parse(getJson(path.join('insertjs', 'auto.json'), '自动注入配置文件读取错误', '{"hosts":[]}'));
+            autoJSCache = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
         }
         let changed = false;
         // 检查文件是否存在，不存在则移除
@@ -219,7 +224,7 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
                     delete autoJSCache[host];
                     autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(host), 1);
                 }
-                fs.writeFileSync(path.join(DataPath, 'insertjs', 'auto.json'), JSON.stringify(autoJSCache, null, 2), 'utf-8');
+                fs.writeFileSync(path.join(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8'));
             }
         }
     } catch (err) {

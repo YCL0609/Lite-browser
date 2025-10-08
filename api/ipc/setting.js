@@ -1,13 +1,14 @@
+const { DataPath, defaultSetting, imageMIME } = require('../../lib/config');
+const { getFile } = require('../../lib/function');
 const { ipcMain, dialog } = require('electron');
+const { pathToFileURL } = require('url');
 const fs = require('fs');
 const path = require('path');
-const { pathToFileURL } = require('url');
-const { getJson } = require('../../lib/function');
-const { DataPath, defaultSetting, imageMIME } = require('../../lib/config');
+const jsonPath = path.join(DataPath, 'setting.json');
 
 // 获取配置
 ipcMain.handle('setting-get', (_, isimg) => {
-    const data = getJson('setting.json', '配置文件读取错误', defaultSetting);
+    const data = getFile(jsonPath, defaultSetting);
     if (!isimg) return data;
     const filePath = path.join(DataPath, JSON.parse(data).theme.background)
     return pathToFileURL(filePath).href;
@@ -16,11 +17,11 @@ ipcMain.handle('setting-get', (_, isimg) => {
 // 修改配置
 ipcMain.on('setting-change', (_, json) => {
     try {
-        const data = JSON.parse(getJson('setting.json', '配置文件读取错误', defaultSetting));
+        const data = JSON.parse(getFile(jsonPath, defaultSetting));
         const colon = (data.theme.background == null) ? '' : '"';
         const bgname = colon + data.theme.background + colon;
         const setting = json.replace(/@@/g, bgname);
-        fs.writeFileSync(path.join(DataPath, 'setting.json'), setting);
+        fs.writeFileSync(jsonPath, setting);
     } catch (err) {
         dialog.showErrorBox('配置修改错误', err.stack)
     }
@@ -35,7 +36,7 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
         const output = `background.${extension}`
         fs.writeFileSync(path.join(DataPath, output), buffer);
         // 更新配置文件
-        const json = JSON.parse(getJson('setting.json', '配置文件读取错误', defaultSetting));
+        const json = JSON.parse(getFile(jsonPath, defaultSetting));
         if (json.theme.background != null) {
             try {
                 fs.unlinkSync(path.join(DataPath, json.theme.background))
@@ -60,7 +61,7 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
             }
         }
         json.theme.background = output
-        fs.writeFileSync(path.join(DataPath, 'setting.json'), JSON.stringify(json));
+        fs.writeFileSync(jsonPath, JSON.stringify(json));
     } catch (err) {
         dialog.showErrorBox('图片保存错误', err.stack);
     }

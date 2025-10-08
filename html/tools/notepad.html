@@ -1,9 +1,11 @@
-<!-- 修改自https://github.com/zserge/awfice#text-editor---59-bytes -->
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="note.js"></script>
     <title>笔记本</title>
     <style>
         body {
@@ -11,6 +13,17 @@
             font-size: 20px;
             word-wrap: break-word;
             word-break: break-all
+        }
+
+        .note {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+            line-height: 1.5;
+            outline: none;
+            resize: none;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -21,24 +34,74 @@
         }
     </style>
     <script>
-        document.addEventListener('keydown', function (event) {
+        let noteID = 1;
+        let contentCache = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            showNote(noteID);
+            setInterval(() => saveNote(noteID, true), 5 * 1000); // 自动保存
+        });
+
+        document.addEventListener('keydown', (event) => {
             if (event.ctrlKey) {
                 const key = event.key;
                 if (key >= '1' && key <= '9') {
-                    const notebookIndex = parseInt(key) - 1;
-                    switchNotebook(notebookIndex); // 自定义函数
+                    event.preventDefault();
+                    showNote(parseInt(key));
+                }
+                if (key === 's' && key !== 'S') {
+                    event.preventDefault();
+                    saveNote(noteID);
                 }
             }
         });
 
-        function switchNotebook(index) {
-            console.log(`切换到第 ${index + 1} 个笔记本`);
-            // 你的切换逻辑，比如显示对应的 <div> 或加载数据
+        // 显示笔记
+        function showNote(key) {
+            // 显示读取笔记的消息
+            const msgID = showMessage('warning', `正在读取笔记${key}...`);
+            // 读取笔记内容
+            litebrowser.notepad.read(key).then(response => {
+                // 移除读取消息
+                closeMessage(msgID);
+                if (response.status) {
+                    // 显示笔记内容
+                    document.querySelector('.note').innerHTML = response.message;
+                    noteID = key;
+                    contentCache = response.message;
+                    // 显示成功消息
+                    const okID = showMessage('success', `笔记${key}读取成功`);
+                    setTimeout(() => closeMessage(okID), 500);
+                } else {
+                    showMessage('error', response.message);
+                }
+            });
+        }
+
+        // 保存笔记
+        function saveNote(key, isauto = false) {
+            // 显示读取笔记的消息
+            const msgID = !isauto ? showMessage('warning', `正在保存笔记${key}...`) : null;
+            const note = document.querySelector('.note');
+            if (note.innerHTML === contentCache && isauto) return; // 内容未更改
+            // 保存笔记内容
+            litebrowser.notepad.save(key, note.innerHTML).then(response => {
+                if (!isauto) closeMessage(msgID);
+                if (response.status) {
+                    contentCache = note.innerHTML;
+                    // 显示成功消息
+                    const okID = showMessage('success', `${isauto ? '自动' : `笔记${key}`}保存成功`);
+                    setTimeout(() => closeMessage(okID), isauto ? 500 : 2000);
+                } else {
+                    showMessage('error', "自动保存错误:" + response.message);
+                }
+            });
         }
     </script>
 </head>
 
-<body contenteditable>
+
+<body>
+    <div contenteditable class="note"></div>
 </body>
 
 </html>
