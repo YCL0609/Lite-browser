@@ -4,7 +4,7 @@
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "scripts": {
@@ -41,13 +41,6 @@
     "linux": {
       "icon": "icons/icon.png",
       "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
         {
           "target": "tar.gz",
           "arch": [
