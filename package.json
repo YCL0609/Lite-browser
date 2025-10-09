@@ -4,7 +4,7 @@
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "scripts": {
