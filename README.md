@@ -1,6 +1,6 @@
 # Lite Browser
 English Version: [README_EN.md](README_EN.md)<br><br>
-一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器基于electron。<br>
+一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器，项目基于electron。<br>
 主页面默认背景图片[Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 ## 运行时数据
 DATA_DIR默认为可执行文件目录下的resources文件夹，可通过LITE_BROWSER_DATA_PATH环境变量覆盖。<br>
