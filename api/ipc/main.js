@@ -2,5 +2,5 @@ require('./tools');
 require('./setting');
 require('./insertjs');
 require('./bookmarks');
-require('./newWindow');
+require('./mainWindow');
 require('./contextMenu');

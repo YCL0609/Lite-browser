@@ -1,11 +1,12 @@
 const { app, session, BrowserWindow, Menu } = require('electron');
 const { DataPath } = require('./lib/config');
 const MenuList = require('./api/menu');
-let mainWin = null;
 const path = require("path");
+let mainWin = null;
 const gotTheLock = app.requestSingleInstanceLock();
-app.setPath('userData', path.join(DataPath, 'userData')); // 设置缓存路径
 
+// 设置缓存路径
+app.setPath('userData', path.join(DataPath, 'userData'));
 // 关闭第二实例
 if (!gotTheLock) app.quit();
 

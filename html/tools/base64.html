@@ -1,240 +1,45 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-cn">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base64 编码/解码工具</title>
-    <style>
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-        }
-
-        body {
-            overflow: hidden;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .left-panel,
-        .right-panel {
-            box-sizing: border-box;
-            flex: 0 0 50%;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-
-        .left-panel {
-            border-right: 1px solid #333;
-        }
-
-        .left-panel *{
-            margin: 10px 0;
-        }
-
-        .left-panel div {
-            margin: 0;
-        }
-
-        .right-panel {
-            border-left: 1px solid #333;
-        }
-
-        textarea {
-            flex: 1 1 auto;
-            width: 100%;
-            min-height: 0;
-            box-sizing: border-box;
-            resize: vertical;
-            background: #f0f0f0;
-            border: 0;
-            padding: 0;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #333;
-                color: white;
-            }
-
-            textarea {
-                background: #555;
-                color: white;
-                border: 0;
-            }
-
-            .left-panel {
-                border-color: #eee;
-            }
-
-            .right-panel {
-                border-color: #eee;
-            }
-
-        }
-    </style>
-    <script>
-        // 切换输入类型的显示/隐藏
-        function toggleInputType() {
-            const type = document.getElementById('inputType').value;
-            document.getElementById('decodeBtn').style.display = type === 'text' ? '' : 'none';
-            document.getElementById('textInputDiv').style.display = type === 'text' ? 'block' : 'none';
-            document.getElementById('fileInputDiv').style.display = type === 'file' ? 'block' : 'none';
-            // 清空输入和错误信息
-            document.getElementById('textInput').value = '';
-            document.getElementById('fileInput').value = '';
-            document.getElementById('outputArea').value = '';
-            document.getElementById('errorMsg').textContent = '';
-        }
-
-        // 处理输入并执行编码或解码
-        async function processInput(operation) {
-            document.getElementById('errorMsg').innerHTML = '正在处理...';
-
-            const inputType = document.getElementById('inputType').value;
-
-            try {
-               if (inputType === 'text') {
-                    const text = document.getElementById('textInput').value.trim();
-                    if (!text) {
-                        throw new Error("请输入文本。");
-                    }
-                    if (operation === 'encode') {
-                        // 编码文本（支持中文等 UTF-8 字符）
-                        const encoded = await encodeTextToBase64(text);
-                        document.getElementById('outputArea').value = encoded;
-                    } else {
-                        // 解码 Base64 字符串
-                        const decoded = decodeBase64ToText(text);
-                        document.getElementById('outputArea').value = decoded;
-                    }
-
-                } else if (inputType === 'file') {
-                    const fileInput = document.getElementById('fileInput');
-                    const file = fileInput.files[0];
-                    if (!file) {
-                        throw new Error("请选择一个文件。");
-                    }
-
-                    if (operation === 'encode') {
-                        // 编码文件
-                        const base64DataUrl = await encodeFileToBase64(file);
-                        document.getElementById('outputArea').value = base64DataUrl;
-                    }
-                }
-
-            } catch (e) {
-                console.error(e);
-                document.getElementById('outputArea').value = e.stack;
-                document.getElementById('errorMsg').innerHTML = `<a style="color:red">处理错误: ${e.message}</a>`;
-            }
-        }
-
-        // --- 文本处理函数 ---
-
-        /**
-         * 将文本（支持 Unicode/UTF-8）编码为 Base64
-         * @param {string} text - 原始文本
-         * @returns {Promise<string>} Base64 字符串
-         */
-        async function encodeTextToBase64(text) {
-            // 使用 TextEncoder 将字符串转换为 UTF-8 字节数组
-            const utf8Bytes = new TextEncoder().encode(text);
-
-            // 将字节数组转换为一个 Uint8Array
-            const base64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    // FileReader.readAsDataURL 结果格式为 "data:;base64,..."
-                    // 我们只需要 Base64 部分
-                    const base64String = reader.result.split(',')[1];
-                    resolve(base64String);
-                };
-                reader.onerror = error => reject(error);
-                // 浏览器原生的 btoa/atob 不直接支持 Unicode，使用 Blob/FileReader 可以完美支持
-                reader.readAsDataURL(new Blob([utf8Bytes]));
-            });
-            return base64;
-        }
-
-        /**
-         * 将 Base64 字符串解码为文本
-         * @param {string} base64 - Base64 字符串
-         * @returns {string} 解码后的文本
-         */
-        function decodeBase64ToText(base64) {
-            // 清理 Base64 字符串，移除 Data URL 前缀和空格
-            base64 = base64.replace(/^data:.*,/, '').trim();
-
-            // 传统的 btoa/atob 方式处理 Base64 字符串
-            // 为了支持中文/Unicode，需要进行额外处理
-            try {
-                const binaryString = atob(base64);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-                // 使用 TextDecoder 将字节数组解码为 UTF-8 字符串
-                return new TextDecoder('utf-8').decode(bytes);
-            } catch (e) {
-                throw new Error("Base64 字符串格式不正确，无法解码为文本。");
-            }
-        }
-
-        // --- 文件处理函数 ---
-
-        /**
-         * 将文件编码为 Base64 Data URL
-         * @param {File} file - 输入文件
-         * @returns {Promise<string>} Base64 Data URL 字符串 (e.g., "data:image/png;base64,...")
-         */
-        function encodeFileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
-        }
-
-    </script>
+    <link rel="stylesheet" href="./css/base64.css">
 </head>
 
 <body>
     <div class="left-panel">
         <div>
             <label for="inputType">选择输入类型:</label>
-            <select id="inputType" onchange="toggleInputType()">
+            <select id="inputType" onchange="switchType()">
                 <option value="text">文本输入</option>
                 <option value="file">文件上传</option>
             </select>
-
+            
             <div id="textInputDiv">
                 <label for="textInput">输入文本或 Base64 字符串:</label>
                 <textarea id="textInput" style="height: 300px;" placeholder="在此处输入或粘贴..."></textarea>
             </div>
-
+            
             <div id="fileInputDiv" style="display: none;">
                 <label for="fileInput">选择文件:</label>
                 <input type="file" id="fileInput">
             </div>
         </div>
-
+        
         <div>
-            <button id="encodeBtn" onclick="processInput('encode')">文本/文件编码 (Encode)</button>
-            <button id="decodeBtn" onclick="processInput('decode')">Base64 解码 (Decode)</button>
+            <button id="encodeBtn" onclick="processInput('encode')">Base64 编码</button>
+            <button id="decodeBtn" onclick="processInput('decode')">Base64 解码</button>
         </div>
-
+        
         <div id="errorMsg"></div>
     </div>
     <div class="right-panel">
-        <textarea id="outputArea" style="resize: none" readonly placeholder="结果将显示在此处..."></textarea>
+        结果显示:
+        <textarea id="outputArea" style="resize: none" readonly></textarea>
     </div>
+    <script src="./js/base64.js"></script>
 </body>
 
 </html>

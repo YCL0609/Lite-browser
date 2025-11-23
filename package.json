@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "electron": "^38.1.2",
+    "electron": "^39.2.0",
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "electron . --gtk-version=3"
   },
-  "author": "YCL",
+  "author": "YCL <email@ycl.cool>",
   "license": "MIT",
   "build": {
     "appId": "cool.ycl.desktop.browser",
@@ -21,8 +21,11 @@
       "!dist/**/*",
       "!resources/**/*",
       "!.git/**/*",
+      "!.vscode/**/*",
       "!LICENSE",
       "!README.md",
+      "!README_EN.md",
+      "!.gitignore",
       "!package-lock.json"
     ],
     "asar": true,
@@ -43,6 +46,13 @@
       "target": [
         {
           "target": "tar.gz",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "AppImage",
           "arch": [
             "x64",
             "arm64"

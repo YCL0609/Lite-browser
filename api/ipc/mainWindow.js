@@ -1,4 +1,5 @@
 const { ipcMain, BrowserWindow, session } = require('electron');
+const { isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
 
 // 正常新窗口
 ipcMain.on('new-window', (_, url) => {
@@ -12,14 +13,5 @@ ipcMain.on('new-window', (_, url) => {
   newwin.loadURL(url);
 });
 
-// 无菜单新窗口
-ipcMain.on('new-window-nomenu', (_, url) => {
-  const newwin = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      session: session.defaultSession,
-    },
-  });
-  newwin.loadURL(url);
-});
+// 数据目录权限查询
+ipcMain.handle('dataDir-permission', () => ({ read: isDataDirCanRead, write: isDataDirCanWrite }));

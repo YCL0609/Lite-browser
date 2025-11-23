@@ -1,5 +1,14 @@
 let bookmark_list, search_url;
 const default_url = ['https://www.bing.com/search?q=%s', 'https://www.google.com/search?q=%s', 'https://www.baidu.com/s?wd=%s'];
+
+// 数据目录权限检查
+litebrowser.dataDirPermission()
+    .then(permission => {
+        if (!permission.read) showMessage('error', '数据目录不可读, 程序运行在受限模式!');
+        if (!permission.write) showMessage('warning', '数据目录不可写, 所有修改将在程序关闭后丢弃!');
+    });
+
+// 加载书签
 litebrowser.getBookmarks()
     .then(json => {
         const List = JSON.parse(json);
@@ -18,6 +27,7 @@ litebrowser.getBookmarks()
         })
     });
 
+// 加载设置
 litebrowser.getSetting(false)
     .then(json => {
         const setting = JSON.parse(json);
@@ -129,7 +139,6 @@ function Poop(id = -1) {
 }
 // 书签事件
 window.bookmark = class bookmark {
-
     static delete(useipc = true) { // 删除书签
         const select = document.getElementById('bookmark-del');
         if (select.value == -1) return

@@ -1,169 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <script src="note.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/code.css">
+    <link rel="stylesheet" href="../../lib/note.css">
+    <script src="../../lib/note.js"></script>
     <title>简易代码编辑器</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-        }
-
-        .editor {
-            display: flex;
-            height: 100%;
-            outline: #fff 1px solid;
-        }
-
-        textarea {
-            width: 33.333%;
-            font-size: 18px;
-            padding: 0.5em;
-            resize: none;
-            box-sizing: border-box;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        @media (prefers-color-scheme: dark) {
-
-            body,
-            textarea {
-                background-color: #333;
-                color: #fff;
-            }
-        }
-    </style>
-    <script>
-    const codeCache = { html: '', css: '', js: '' }
-
-        document.addEventListener('keydown', (event) => {
-            if (event.ctrlKey) {
-                if (event.key === 's' && event.key !== 'S') {
-                    event.preventDefault();
-                    saveCode();
-                }
-            }
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const htmlInput = document.getElementById("htmlInput");
-            const cssInput = document.getElementById("cssInput");
-            const jsInput = document.getElementById("jsInput");
-            const previewFrame = document.getElementById("preview");
-
-            const updatePreview = () => {
-                const html = htmlInput.value;
-                const css = `<style>${cssInput.value}</style>`;
-                const js = `<script>${jsInput.value}<\/script>`;
-                previewFrame.srcdoc = html + css + js;
-            };
-
-            [htmlInput, cssInput, jsInput].forEach((textarea) => {
-                textarea.addEventListener("input", updatePreview);
-                textarea.addEventListener("keydown", handleTabKey);
-            });
-
-            function handleTabKey(event) {
-                if (event.key === "Tab") {
-                    event.preventDefault();
-                    const { selectionStart, selectionEnd, value } = event.target;
-                    event.target.value =
-                        value.substring(0, selectionStart) + "  " + value.substring(selectionEnd);
-                    event.target.selectionStart = event.target.selectionEnd = selectionStart + 2;
-                }
-            }
-
-            // 读取历史代码
-            const msgID = showMessage('warning', `正在读取历史代码...`);
-            litebrowser.code.get().then(response => {
-                closeMessage(msgID);
-                if (response.status) {
-                    // 显示笔记内容
-                    htmlInput.value = response.message.html;
-                    cssInput.value = response.message.css;
-                    jsInput.value = response.message.js;
-
-                    // 初始化缓存
-                    codeCache.html = response.message.html;
-                    codeCache.css = response.message.css;
-                    codeCache.js = response.message.js;
-
-                    updatePreview();
-
-                    // 显示成功消息
-                    const okID = showMessage('success', `历史代码读取成功`);
-                    setTimeout(() => closeMessage(okID), 1000);
-                } else {
-                    showMessage('error', response.message);
-                }
-
-                // 设置自动保存
-                setInterval(() => saveCode(true), 5 * 1000)
-            });
-        });
-
-        // 保存代码
-        function saveCode(isauto = false) {
-            let changed = [];
-            const input = {
-                html: document.getElementById('htmlInput'),
-                css: document.getElementById('cssInput'),
-                js: document.getElementById('jsInput')
-            };
-
-            // 显示读取笔记的消息
-            const msgID = !isauto ? showMessage('warning', `正在保存...`) : null;
-
-            // 没有变化，不保存
-            ['html', 'css', 'js'].forEach(e => {
-                // 统一换行符，避免 Windows CRLF/LF 导致的误判
-                const cacheVal = (codeCache[e] || '').replace(/\r\n/g, '\n');
-                const inputVal = (input[e].value || '').replace(/\r\n/g, '\n');
-                if (cacheVal !== inputVal) changed.push(e);
-            })
-            if (!isauto) changed = ['html', 'css', 'js']; // 手动保存时，全部保存
-            if (changed.length === 0) return;
-
-            // 保存到文件
-            Promise.all(changed.map(item => litebrowser.code.set(item, input[item].value)))
-                .then(results => {
-                    // 判断是否成功
-                    let isok = true;
-                    results.forEach((res, index) => {
-                        if (!res.status) isok = false;
-                    });
-
-                    // 更新缓存
-                    changed.forEach(e => codeCache[e] = input[e].value);
-
-                    // UI处理
-                    if (msgID) closeMessage(msgID);
-                    if (isok) {
-                        const okID = showMessage('success', `${isauto ? '自动' : ''}保存成功`);
-                        setTimeout(() => closeMessage(okID), isauto ? 500 : 2000);
-                    } else {
-                        showMessage('error', `${isauto ? '自动' : ''}保存错误`);
-                    }
-                });
-        }
-    </script>
 </head>
 
 <body>
@@ -175,6 +19,7 @@
         </section>
         <iframe id="preview" title="代码预览"></iframe>
     </main>
+    <script src="./js/code.js"></script>
 </body>
 
 </html>

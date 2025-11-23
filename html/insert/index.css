@@ -51,12 +51,13 @@ a {
 }
 
 .title a {
+    user-select: none;
     line-height: 35px;
     margin-left: 10px;
     color: #fff;
 }
 
-.title .svg {
+#icon {
     height: 40px;
     display: flex;
     cursor: pointer;
@@ -64,25 +65,39 @@ a {
     justify-content: center;
 }
 
-.title svg {
-    margin: 0 2px;
+svg {
     padding: 2px;
+    margin: 0 2px;
     border-radius: 4px;
     transition: background 0.2s, transform 0.2s;
 }
 
-.title svg:hover {
+svg:hover {
     background: #f0f5ff;
     transform: scale(1.15);
 }
 
-.list {
+.tipDiv {
+    display: none;
+    padding: 5px;
+    font-size: large;
+    font-weight: bold;
+    background-color: #f5deb3;
+}
+
+.tipDiv * {
+    color: #000;
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
+#list {
     flex-grow: 1;
     user-select: none;
     padding: 5px;
 }
 
-.list div[data-isselent="1"] {
+#list div[data-isselent="1"] {
     background-color: #cce0ff;
     border-radius: 5px;
 }
@@ -114,6 +129,7 @@ a {
     margin-right: 5px;
 }
 
+/* /*  */
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #222;
@@ -134,11 +150,11 @@ a {
 
     .box,
     .title,
-    .list div[data-isselent="1"] {
+    #list div[data-isselent="1"] {
         border-color: gray;
     }
 
-    .list div[data-isselent="1"] {
+    #list div[data-isselent="1"] {
         background-color: #336666;
     }
 
@@ -151,9 +167,8 @@ a {
         margin-left: 10px;
     }
 
-    .title svg:hover {
+    svg:hover {
         background: #3a4a5a;
         transform: scale(1.15);
     }
-
 }

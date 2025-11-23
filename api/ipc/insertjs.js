@@ -1,6 +1,6 @@
 const { ipcMain, dialog, shell, BrowserWindow } = require('electron');
 const { RandomString, getFile } = require('../../lib/function');
-const { DataPath } = require('../../lib/config');
+const { DataPath, isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
 let autoJSCache = {};
 const fs = require('fs');
 const windowMap = new Map();
@@ -23,18 +23,19 @@ ipcMain.on('insertjs-register-window', (event) => {
 
 // 获取脚本列表
 ipcMain.handle('insertjs-get-jslist', async () => {
+    if (!isDataDirCanRead) return { used: 0, error: '数据目录不可读', list: [] };
     let json;
     const startat = performance.now();
     try {
         const jsonData = JSON.parse(getFile(jsonPath_name, defaultJson_name));
         json = {
-            time: { start: Date.now(), used: performance.now() - startat },
+            used: performance.now() - startat,
             error: -1,
             list: jsonData
         }
     } catch (err) {
         json = {
-            time: { start: Date.now(), used: performance.now() - startat },
+            used: performance.now() - startat,
             error: err.stack,
             list: []
         }
@@ -45,6 +46,7 @@ ipcMain.handle('insertjs-get-jslist', async () => {
 // 添加脚本
 ipcMain.on('insertjs-add-js', async (event) => {
     try {
+        if (!isDataDirCanWrite) throw new Error('数据目录不可写，无法添加脚本');
         const win = BrowserWindow.fromWebContents(event.sender);
         // 打开文件选择对话框
         const result = await dialog.showOpenDialog(win, {
@@ -89,6 +91,11 @@ ipcMain.on('insertjs-add-js', async (event) => {
 // 删除脚本
 ipcMain.on('insertjs-remove-js', async (_, id) => {
     const jsPath = path.join(DataPath, 'insertjs');
+    if (!isDataDirCanWrite) {
+        dialog.showErrorBox('删除JavaScript文件错误', '数据目录不可写，无法删除脚本');
+        return;
+    }
+    // 删除文件
     try {
         const filePath = path.join(jsPath, id + '.js');
         await fs.promises.unlink(filePath);
@@ -120,6 +127,7 @@ ipcMain.on('insertjs-open-dir', async () => {
 // 注入脚本
 ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
     try {
+        if (!isDataDirCanRead) throw new Error('数据目录不可读，无法注入脚本');
         const mainWindow = BrowserWindow.fromId(winid);
         const filepath = path.join(DataPath, 'insertjs', jsname + '.js');
         const content = fs.readFileSync(filepath, 'utf-8');
@@ -134,6 +142,7 @@ ipcMain.on('insertjs-insert-js', (event, winid, jsname) => {
 
 // 获取当前网址的自动注入脚本列表
 ipcMain.handle('insertjs-get-auto-js', (_, winid) => {
+    if (!isDataDirCanRead) return { errID: -1, hosts: [] };
     const win = BrowserWindow.fromId(winid);
     const url = new URL(win.webContents.getURL());
     const host = (url.host === '') ? -1 : url.host;
@@ -151,6 +160,10 @@ ipcMain.handle('insertjs-get-auto-js', (_, winid) => {
 
 // 更新当前网址的自动注入脚本列表
 ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
+    if (!isDataDirCanWrite || !isDataDirCanRead) {
+        dialog.showErrorBox('修改自动注入脚本错误', `数据目录不可${!isDataDirCanRead ? '读' : ''}${!isDataDirCanWrite ? '写' : ''}，无法修改自动注入脚本列表`);
+        return;
+    }
     const win = BrowserWindow.fromId(winid);
     const url = new URL(win.webContents.getURL());
     const host = (url.host === '') ? -1 : url.host;
@@ -185,6 +198,7 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
 ipcMain.on('insertjs-auto-js-insert', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
+        if (!isDataDirCanRead) throw new Error('数据目录不可读，无法自动注入脚本');
         // 获取窗口网址
         const urlStr = win.webContents.getURL();
         let urlObj;

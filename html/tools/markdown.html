@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkDown 实时预览</title>
+    <link rel="stylesheet" href="./css/markdown.css">
+    <link rel="stylesheet" href="../../lib/note.css">
+    <script src="../../lib/note.js"></script>
+    <script src="../../lib/marked.min.js"></script>
+    <script src="../../lib/purify.min.js"></script>
+</head>
+
+<body>
+    <div class="left-panel">
+        <a>MarkDown:</a>
+        <textarea id="input" placeholder="在此输入 Markdown 文本..."></textarea>
+    </div>
+    <div class="right-panel">
+        <a>预览:</a>
+        <iframe id="preview" title="MarkDown预览"></iframe>
+    </div>
+    <script src="./js/markdown.js"></script>
+</body>
+
+</html>

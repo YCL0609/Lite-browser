@@ -32,6 +32,10 @@ module.exports = [{
     label: 'Base64工具',
     accelerator: 'Alt+4',
     click: () => openToolsWindow('base64.html')
+  }, {
+    label: 'Markdown编辑器',
+    accelerator: 'Alt+5',
+    click: () => openToolsWindow('markdown.html')
   }]
 }, {
   label: '编辑...',

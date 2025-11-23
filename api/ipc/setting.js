@@ -1,4 +1,4 @@
-const { DataPath, defaultSetting, imageMIME } = require('../../lib/config');
+const { DataPath, defaultSetting, imageMIME, isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
 const { getFile } = require('../../lib/function');
 const { ipcMain, dialog } = require('electron');
 const { pathToFileURL } = require('url');
@@ -8,6 +8,7 @@ const jsonPath = path.join(DataPath, 'setting.json');
 
 // 获取配置
 ipcMain.handle('setting-get', (_, isimg) => {
+    if (!isDataDirCanRead || !isDataDirCanWrite) return defaultSetting;
     const data = getFile(jsonPath, defaultSetting);
     if (!isimg) return data;
     const filePath = path.join(DataPath, JSON.parse(data).theme.background)
@@ -16,6 +17,7 @@ ipcMain.handle('setting-get', (_, isimg) => {
 
 // 修改配置
 ipcMain.on('setting-change', (_, json) => {
+    if (!isDataDirCanWrite) return;
     try {
         const data = JSON.parse(getFile(jsonPath, defaultSetting));
         const colon = (data.theme.background == null) ? '' : '"';
@@ -29,6 +31,7 @@ ipcMain.on('setting-change', (_, json) => {
 
 // 修改背景图片
 ipcMain.on('setting-change-image', async (_, type, base64) => {
+    if (!isDataDirCanWrite) return;
     try {
         const extension = imageMIME[type];
         if (!extension) throw new Error('未知MIME类型: ' + mimeType);
@@ -66,3 +69,8 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
         dialog.showErrorBox('图片保存错误', err.stack);
     }
 })
+
+module.exports = {
+    isDataDirCanRead,
+    isDataDirCanWrite
+};

@@ -8,7 +8,7 @@
     flex-direction: column;
     gap: 8px;
     align-items: center;
-    pointer-events: none; /* allow clicks to pass through container; notes can opt-in */
+    pointer-events: none;
 }
 
 .lite-browser-note {
@@ -18,7 +18,7 @@
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     color: #000;
-    pointer-events: auto; /* allow clicks on individual notes (for dismiss) */
+    pointer-events: auto;
     cursor: pointer;
 }
 

@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('litebrowser', {
     openDir: () => ipcRenderer.send('insertjs-open-dir'),
     insertJS: (winID, jsID) => ipcRenderer.send('insertjs-insert-js', winID, jsID),
     getAutoJS: (winID) => ipcRenderer.invoke('insertjs-get-auto-js', winID),
-    changeAutoJS: (winID, jsIDs) => ipcRenderer.send('insertjs-change-auto-js', winID, jsIDs)
+    changeAutoJS: (winID, jsIDs) => ipcRenderer.send('insertjs-change-auto-js', winID, jsIDs),
+    dataDirPermission: () => ipcRenderer.invoke('dataDir-permission'),
 });
