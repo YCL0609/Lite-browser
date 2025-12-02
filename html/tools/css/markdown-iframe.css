@@ -1,3 +1,8 @@
+* {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 html,
 body {
     margin: 0;
@@ -6,17 +11,22 @@ body {
     overflow-x: hidden;
 }
 
-pre {
-    max-width: 100%; 
-    overflow-x: auto; 
-    white-space: pre;
-    box-sizing: border-box; 
-    word-wrap: normal;
-}
 
 pre,
 code {
     background-color: #ccc;
+}
+
+pre {
+    max-width: 94%;
+    overflow-x: auto;
+    white-space: pre;
+    box-sizing: border-box;
+    word-wrap: normal;
+}
+
+code {
+    margin: 0;
 }
 
 h1,
@@ -25,6 +35,8 @@ h3,
 h4,
 h5,
 h6 {
+    margin-left: 0;
+    margin-right: 0;
     position: relative;
     padding-bottom: 5px;
     line-height: 1.2;
@@ -60,14 +72,32 @@ h6::after {
     height: 1.5px;
 }
 
+thead {
+    background-color: #9cceffff;
+}
+
 th,
 td {
     border: 1px solid;
 }
 
-thead {
-    background-color: #9cceffff;
+table {
+    display: block;
+    width: 94%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    margin: 0 10px; 
 }
+
+img {
+    display: block;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+}   
 
 @media (prefers-color-scheme: dark) {
     body {

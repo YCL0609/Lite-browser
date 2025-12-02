@@ -1,3 +1,4 @@
+const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 const canvas = document.getElementById('pad');
 const ctx = canvas.getContext('2d');
 let isDrawing = false;
@@ -14,19 +15,19 @@ canvas.addEventListener('mousedown', (e) => {
     isErasing = (e.button === 2);
     [lastX, lastY] = [e.offsetX, e.offsetY];
 });
+
+// 绘画逻辑
 canvas.addEventListener('mousemove', (e) => {
     if (!isDrawing) return;
-    
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     if (isErasing) {
-        ctx.strokeStyle = isDark ? getComputedStyle(canvas).backgroundColor : 'white';
+        ctx.strokeStyle = isDark ? '#333' : '#fff';
         ctx.lineWidth = 20;
     } else {
         ctx.strokeStyle = isDark ? 'white' : 'black';
         ctx.lineWidth = 2;
     }
-    
+
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(lastX, lastY);
@@ -35,29 +36,54 @@ canvas.addEventListener('mousemove', (e) => {
     [lastX, lastY] = [e.offsetX, e.offsetY];
 });
 
-
+// 动态设置画板大小
 window.addEventListener('resize', resizeCanvas);
 
+// 提示信息
 document.addEventListener('DOMContentLoaded', () => {
     const noteID = showMessage(null, '左键绘制, 右键擦除, Ctrl+S保存图片');
     setTimeout(() => closeMessage(noteID), 2000);
 });
+
+// 保存到本地
 document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        const image = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = 'canvas-image.png';
-        link.href = image;
-        link.click();
+    if (e.ctrlKey && e.key.toLowerCase() === 's') {
+        e.preventDefault();        
+        canvas.toBlob(blob => {
+            // 设置原始图像
+            const rawImage = new Image();
+            const rawBlob = URL.createObjectURL(blob);
+            rawImage.src = rawBlob;
+
+            // 创建新画布并对齐大小
+            const bgCanvas = document.createElement('canvas');
+            const bgctx = bgCanvas.getContext('2d');
+            bgCanvas.width = canvas.width;
+            bgCanvas.height = canvas.height;
+    
+            // 添加背景颜色
+            bgctx.fillStyle = isDark ? '#333' : '#fff';
+            bgctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 下载图像
+            rawImage.onload = () => {
+                bgctx.drawImage(rawImage, 0, 0);
+                const link = document.createElement('a');
+                link.download = 'canvas-image.png';
+                link.href = bgCanvas.toDataURL('image/png');
+                link.click();
+            };
+        })
+
     }
 });
 
+// 设置画图板大小
 function resizeCanvas() {
     const oldData = canvas.toDataURL();
     const img = new Image();
     img.src = oldData;
-    
+
     img.onload = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
