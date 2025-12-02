@@ -16,6 +16,7 @@
   "build": {
     "appId": "cool.ycl.desktop.browser",
     "copyright": "Copyright (C) 2025 YCL",
+    "publish": null,
     "files": [
       "**/*",
       "!node_modules/**/*",
