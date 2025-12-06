@@ -1,42 +1,22 @@
-const { shell, clipboard, dialog, BrowserWindow, Menu } = require('electron');
-const path = require('path');
-const { pathToFileURL } = require('url');
-const { isDebug } = require('../lib/config');
-const htmlPath = path.join(__dirname, '..', 'html');
-const debugMenu = isDebug ? Menu.buildFromTemplate([{
-  label: '忽略缓存刷新(shift+F5)',
-  accelerator: 'shift+F5',
-  role: 'forceReload'
-}, {
-  label: '开发者工具(F12)',
-  accelerator: 'F12',
-  role: 'toggleDevTools'
-}]) : null;
+import { shell, clipboard, dialog, BrowserWindow } from 'electron';
+import { openToolsWindow, insertJS } from '../lib/menuControl.js';
+import { ToolsInfo } from '../lib/config.js';
+
+// 工具菜单
+let ToolsMenu = [];
+for (let i = 0; i < ToolsInfo.id.length; i++) {
+  const json = {
+    label: ToolsInfo.name[i],
+    accelerator: 'Alt+' + (i + 1),
+    click: () => openToolsWindow(ToolsInfo.id[i] + '.html')
+  }
+  ToolsMenu.push(json);
+}
 
 // 菜单项目
-module.exports = [{
+export default [{
   label: '工具...',
-  submenu: [{
-    label: '笔记本',
-    accelerator: 'Alt+1',
-    click: () => openToolsWindow('notepad.html')
-  }, {
-    label: '画图板',
-    accelerator: 'Alt+2',
-    click: () => openToolsWindow('paint.html')
-  }, {
-    label: '代码编辑器',
-    accelerator: 'Alt+3',
-    click: () => openToolsWindow('code.html')
-  }, {
-    label: 'Base64工具',
-    accelerator: 'Alt+4',
-    click: () => openToolsWindow('base64.html')
-  }, {
-    label: 'Markdown编辑器',
-    accelerator: 'Alt+5',
-    click: () => openToolsWindow('markdown.html')
-  }]
+  submenu: ToolsMenu
 }, {
   label: '编辑...',
   submenu: [{
@@ -138,40 +118,3 @@ module.exports = [{
     newwin.loadURL(url);
   }
 }];
-
-function openToolsWindow(htmlfile) {
-  const newwin = new BrowserWindow({
-    width: 1024,
-    height: 600,
-    webPreferences: {
-      session: global.nomenuSession,
-      preload: path.join(__dirname, 'preload', 'tools.js')
-    }
-  });
-  newwin.setMenu(debugMenu);
-  newwin.loadURL(pathToFileURL(path.join(htmlPath, 'tools', htmlfile)).href);
-}
-
-function insertJS() {
-  const mainWindow = BrowserWindow.getFocusedWindow();
-  if (!mainWindow || mainWindow.isDestroyed()) {
-    dialog.showErrorBox('错误', '当前没有可用的浏览器窗口');
-    return;
-  }
-
-  mainWindow.webContents.executeJavaScript('litebrowser.registerWindow()');
-
-  const childWindow = new BrowserWindow({
-    parent: mainWindow,
-    width: 500,
-    height: 500,
-    webPreferences: {
-      additionalArguments: [`--parent-window-id=${mainWindow.id}`],
-      session: global.nomenuSession,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload', 'insertjs.js')
-    }
-  });
-  childWindow.setMenu(debugMenu);
-  childWindow.loadFile(path.join(htmlPath, 'insert', 'index.html'));
-}

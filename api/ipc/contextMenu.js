@@ -1,5 +1,5 @@
-const { ipcMain, BrowserWindow, Menu } = require('electron');
-const MenuList = require('../menu');
+import { ipcMain, BrowserWindow, Menu } from 'electron';
+import MenuList from '../menu.js';
 
 // 右键菜单
 ipcMain.on('show-context-menu', (_, x, y) => {

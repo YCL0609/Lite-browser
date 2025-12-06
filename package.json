@@ -4,9 +4,10 @@
     "electron-builder": "^26.0.12"
   },
   "name": "lite-browser",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
+  "type": "module",
   "scripts": {
     "start": "electron . --gtk-version=3",
     "build": "electron-builder"
@@ -20,22 +21,36 @@
     "files": [
       "**/*",
       "!node_modules/**/*",
-      "!dist/**/*",
       "!resources/**/*",
-      "!.git/**/*",
       "!.vscode/**/*",
+      "!icons/**/*",
+      "!dist/**/*",
+      "!.git/**/*",
       "!LICENSE",
       "!README.md",
-      "!README_EN.md",
       "!.gitignore",
+      "!README_EN.md",
       "!package-lock.json"
     ],
     "asar": true,
+    "extraResources": [
+      {
+        "from": "icons",
+        "to": "./icons"
+      }
+    ],
     "win": {
       "icon": "icons/icon.ico",
       "target": [
         {
           "target": "zip",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
           "arch": [
             "x64",
             "ia32"

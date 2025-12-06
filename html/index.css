@@ -20,7 +20,7 @@ body {
 }
 
 .main:first-child {
-    margin-top: 100px;
+    margin-top: 5%;
 }
 
 #word {
@@ -70,7 +70,7 @@ body {
 }
 
 .setting {
-    position: absolute;
+    position: fixed;
     cursor: pointer;
     width: 35px;
     height: 35px;

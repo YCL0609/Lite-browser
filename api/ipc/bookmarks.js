@@ -1,10 +1,10 @@
-const { ipcMain, dialog } = require('electron');
-const { DataPath, isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
-const { getFile } = require('../../lib/function');
-const defaultJson = '{}';
-const fs = require('fs');
-const path = require('path');
+import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
+import { getFile } from '../../lib/getFile.js';
+import { ipcMain, dialog } from 'electron';
+import path from 'path';
+import fs from 'fs';
 const jsonPath = path.join(DataPath, 'bookmarks.json');
+const defaultJson = '{}';
 
 // 获取书签
 ipcMain.handle('bookmarks-get', () => {

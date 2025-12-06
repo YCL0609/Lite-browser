@@ -1,15 +1,15 @@
-const { DataPath, defaultSetting, imageMIME, isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
-const { getFile } = require('../../lib/function');
-const { ipcMain, dialog } = require('electron');
-const { pathToFileURL } = require('url');
-const fs = require('fs');
-const path = require('path');
+import { DataPath, defaultSetting, imageMIME, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
+import { getFile } from '../../lib/getFile.js';
+import { ipcMain, dialog } from 'electron';
+import { pathToFileURL } from 'url';
+import path from 'path';
+import fs from 'fs';
 const jsonPath = path.join(DataPath, 'setting.json');
 
 // 获取配置
 ipcMain.handle('setting-get', (_, isimg) => {
-    if (!isDataDirCanRead || !isDataDirCanWrite) return defaultSetting;
-    const data = getFile(jsonPath, defaultSetting);
+    if (!isDataDirCanRead || !isDataDirCanWrite) return JSON.stringify(defaultSetting);
+    const data = getFile(jsonPath, JSON.stringify(defaultSetting));
     if (!isimg) return data;
     const filePath = path.join(DataPath, JSON.parse(data).theme.background)
     return pathToFileURL(filePath).href;
@@ -19,7 +19,7 @@ ipcMain.handle('setting-get', (_, isimg) => {
 ipcMain.on('setting-change', (_, json) => {
     if (!isDataDirCanWrite) return;
     try {
-        const data = JSON.parse(getFile(jsonPath, defaultSetting));
+        const data = JSON.parse(getFile(jsonPath, JSON.stringify(defaultSetting)));
         const colon = (data.theme.background == null) ? '' : '"';
         const bgname = colon + data.theme.background + colon;
         const setting = json.replace(/@@/g, bgname);
@@ -39,7 +39,7 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
         const output = `background.${extension}`
         fs.writeFileSync(path.join(DataPath, output), buffer);
         // 更新配置文件
-        const json = JSON.parse(getFile(jsonPath, defaultSetting));
+        const json = JSON.parse(getFile(jsonPath, JSON.stringify(defaultSetting)));
         if (json.theme.background != null) {
             try {
                 fs.unlinkSync(path.join(DataPath, json.theme.background))
@@ -70,7 +70,7 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
     }
 })
 
-module.exports = {
+export default {
     isDataDirCanRead,
     isDataDirCanWrite
 };

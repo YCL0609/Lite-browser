@@ -1,17 +1,16 @@
-const { getFile } = require('../../lib/function');
-const { DataPath, isDataDirCanRead, isDataDirCanWrite, defaultCode, defaultNote, defaultMarkDown } = require('../../lib/config');
-const { ipcMain } = require('electron');
-const fs = require('fs');
-const path = require('path');
-const toolsPath = path.join(DataPath, 'tools');
+import { isDataDirCanRead, isDataDirCanWrite, ToolsFile, defaultCode, defaultNote, defaultMarkDown } from '../../lib/config.js';
+import { getFile } from '../../lib/getFile.js';
+import { ipcMain } from 'electron';
+import fs from 'fs';
 
 // 读取笔记内容
 ipcMain.handle('tools-notepad-get', (_, id) => {
+    // 合规性和存储目录权限检查
     if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
     if (!isDataDirCanRead) return { status: true, message: defaultNote };
-    const filePath = path.join(toolsPath, 'notepad', `${id}.txt`);
+
     try {
-        const content = getFile(filePath, defaultNote);
+        const content = getFile(ToolsFile.notepad[id], defaultNote);
         return { status: true, message: content };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -20,12 +19,13 @@ ipcMain.handle('tools-notepad-get', (_, id) => {
 
 // 保存笔记内容
 ipcMain.handle('tools-notepad-set', (_, id, content) => {
+    // 合规性和存储目录权限检查
     if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
-    const filePath = path.join(toolsPath, 'notepad', `${id}.txt`);
+
     try {
-        getFile(filePath, defaultNote); // 确保文件存在
-        fs.writeFileSync(filePath, content, 'utf-8');
+        getFile(ToolsFile.notepad[id], defaultNote); // 确保文件存在
+        fs.writeFileSync(ToolsFile.notepad[id], content, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -34,11 +34,12 @@ ipcMain.handle('tools-notepad-set', (_, id, content) => {
 
 // 删除笔记内容
 ipcMain.handle('tools-notepad-del', (_, id) => {
+    // 合规性和存储目录权限检查
     if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
-    const filePath = path.join(toolsPath, 'notepad', `${id}.txt`);
+
     try {
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(ToolsFile.notepad[id]);
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -47,18 +48,15 @@ ipcMain.handle('tools-notepad-del', (_, id) => {
 
 // 读取代码编辑器内容
 ipcMain.handle('tools-code-get', async () => {
+    // 存储目录权限检查
     if (!isDataDirCanRead) return { status: true, message: { html: defaultCode.html, css: defaultCode.css, js: defaultCode.js } };
-    const filePath_html = path.join(toolsPath, 'code', 'index.html');
-    const filePath_css = path.join(toolsPath, 'code', 'index.css');
-    const filePath_js = path.join(toolsPath, 'code', 'index.js');
 
     try {
         const [htmlText, cssText, jsText] = await Promise.all([
-            getFile(filePath_html, defaultCode.html),
-            getFile(filePath_css, defaultCode.css),
-            getFile(filePath_js, defaultCode.js)
+            getFile(ToolsFile.code.html, defaultCode.html),
+            getFile(ToolsFile.code.css, defaultCode.css),
+            getFile(ToolsFile.code.js, defaultCode.js)
         ]);
-
         return { status: true, message: { html: htmlText, css: cssText, js: jsText } };
     } catch (err) {
         return { status: false, message: err.stack };
@@ -68,11 +66,12 @@ ipcMain.handle('tools-code-get', async () => {
 
 // 保存代码编辑器内容
 ipcMain.handle('tools-code-set', (_, type, content) => {
+    // 合规性和存储目录权限检查
     if (!['html', 'css', 'js'].includes(type)) return { status: false, message: '类型错误' };
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
-    const filePath = path.join(toolsPath, 'code', `index.${type}`); // 确保文件存在
+    
     try {
-        fs.writeFileSync(filePath, content, 'utf-8');
+        fs.writeFileSync(ToolsFile.code[type], content, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -81,15 +80,13 @@ ipcMain.handle('tools-code-set', (_, type, content) => {
 
 // 删除代码编辑器内容
 ipcMain.handle('tools-code-del', () => {
-    const filePath_html = path.join(toolsPath, 'code', 'index.html');
-    const filePath_css = path.join(toolsPath, 'code', 'index.css');
-    const filePath_js = path.join(toolsPath, 'code', 'index.js');
+    // 存储目录权限检查
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
 
     try {
-        fs.unlinkSync(filePath_html);
-        fs.unlinkSync(filePath_css);
-        fs.unlinkSync(filePath_js);
+        fs.unlinkSync(ToolsFile.code.html);
+        fs.unlinkSync(ToolsFile.code.css);
+        fs.unlinkSync(ToolsFile.code.js);
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -98,10 +95,11 @@ ipcMain.handle('tools-code-del', () => {
 
 // 读取MarkDown内容
 ipcMain.handle('tools-markdown-get', () => {
+    // 存储目录权限检查
     if (!isDataDirCanRead) return { status: true, message: defaultMarkDown };
-    const filePath = path.join(toolsPath, 'markdown.md');
+
     try {
-        const content = getFile(filePath, defaultMarkDown);
+        const content = getFile(ToolsFile.markdown, defaultMarkDown);
         return { status: true, message: content };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -110,10 +108,11 @@ ipcMain.handle('tools-markdown-get', () => {
 
 // 保存MarkDown内容
 ipcMain.handle('tools-markdown-set', (_, content) => {
+    // 存储目录权限检查
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
-    const filePath = path.join(toolsPath, 'markdown.md');
+
     try {
-        fs.writeFileSync(filePath, content, 'utf-8');
+        fs.writeFileSync(ToolsFile.markdown, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -122,11 +121,11 @@ ipcMain.handle('tools-markdown-set', (_, content) => {
 
 // 删除MarkDown内容
 ipcMain.handle('tools-markdown-del', () => {
-    const filePath = path.join(toolsPath, 'markdown.md');
+    // 存储目录权限检查
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
 
     try {
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(ToolsFile.markdown);
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }

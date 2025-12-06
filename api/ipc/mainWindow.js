@@ -1,5 +1,5 @@
-const { ipcMain, BrowserWindow, session } = require('electron');
-const { isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
+import { ipcMain, BrowserWindow, session } from 'electron';
+import { isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
 
 // 正常新窗口
 ipcMain.on('new-window', (_, url) => {

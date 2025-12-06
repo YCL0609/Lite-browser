@@ -1,15 +1,15 @@
-const { ipcMain, dialog, shell, BrowserWindow } = require('electron');
-const { RandomString, getFile } = require('../../lib/function');
-const { DataPath, isDataDirCanRead, isDataDirCanWrite } = require('../../lib/config');
-let autoJSCache = {};
-const fs = require('fs');
-const windowMap = new Map();
-const path = require('path');
-const defaultJson_name = '{}';
-const defaultJson_auto = '{"hosts":[]}';
-const targetDir = path.join(DataPath, 'insertjs');
+import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
+import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
+import { getFile } from '../../lib/getFile.js';
+import path from 'path';
+import fs from 'fs';
 const jsonPath_name = path.join(DataPath, 'insertjs', 'name.json');
 const jsonPath_auto = path.join(DataPath, 'insertjs', 'auto.json');
+const targetDir = path.join(DataPath, 'insertjs');
+const defaultJson_auto = '{"hosts":[]}';
+const defaultJson_name = '{}';
+const windowMap = new Map();
+let autoJSCache = {};
 
 
 // 窗口注册
@@ -65,7 +65,7 @@ ipcMain.on('insertjs-add-js', async (event) => {
             const fileName = path.basename(sourcePath);
             const ext = path.extname(fileName);
             const name = path.basename(fileName, ext);
-            const nameID = RandomString();
+            const nameID = crypto.randomUUID();
             const targetPath = path.join(targetDir, nameID + '.js');
             // 复制文件
             try {
