@@ -36,4 +36,5 @@ jobs:
                 dist/*.tar.gz
                 dist/*.dmg
                 dist/*.zip
+                dist/*.exe
             retention-days: 1
