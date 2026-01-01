@@ -100,21 +100,13 @@ export default [{
           if (result.response === 0) clipboard.writeText(url);
         });
     }
-  }, {
-    label: '注入JavaScript文件',
-    accelerator: 'F1',
-    click: insertJS
   }]
 }, {
   label: '忽略缓存刷新(shift+F5)',
   accelerator: 'shift+F5',
   role: 'forceReload'
 }, {
-  label: '在独立线程中打开(F9)',
-  accelerator: 'F9',
-  click: () => {
-    const url = BrowserWindow.getFocusedWindow().webContents.getURL();
-    const newwin = new BrowserWindow({ width: 1024, height: 600 });
-    newwin.loadURL(url);
-  }
+  label: 'JavaScript注入(F1)',
+  accelerator: 'F1',
+  click: insertJS
 }];

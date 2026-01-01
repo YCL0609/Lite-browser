@@ -1,13 +1,19 @@
 const { ipcRenderer, contextBridge } = require('electron');
+let contextmenu = true;
+let topmenu = true;
 
 contextBridge.exposeInMainWorld('litebrowser', {
-  // 禁用右键菜单
-  disableContextMenu: () => window.litebrowser_contextmenu = false,
+  // 菜单相关
+  disableContextMenu: () => contextmenu = false,
+  switchTopMenu: () => {
+    ipcRenderer.send('menu-switch-top-menu', !topmenu);
+    topmenu = !topmenu;
+  },
   // 新建窗口
   newWindow: (url) => ipcRenderer.send('new-window', url),
   // 数据目录权限查询
   dataDirPermission: () => ipcRenderer.invoke('dataDir-permission'),
-  // 插入脚本相关
+  // 脚本注入相关
   registerWindow: () => ipcRenderer.send('insertjs-register-window'),
   // 书签相关
   getBookmarks: () => ipcRenderer.invoke('bookmarks-get'),
@@ -20,9 +26,8 @@ contextBridge.exposeInMainWorld('litebrowser', {
 });
 
 // 右键菜单事件
-window.litebrowser_contextmenu = true;
 window.addEventListener('contextmenu', (e) => {
-  if (typeof litebrowser_contextmenu === 'boolean' && !litebrowser_contextmenu) return;
+  if (!contextmenu) return;
   e.preventDefault();
-  ipcRenderer.send('show-context-menu', { x: e.clientX, y: e.clientY });
+  ipcRenderer.send('menu-contextmenu', { x: e.clientX, y: e.clientY });
 });

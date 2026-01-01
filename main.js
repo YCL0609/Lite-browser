@@ -19,7 +19,7 @@ app.whenReady().then(() => {
   Menu.setApplicationMenu(Menuobj);
   getNomenuSession()
 
-  // 命令行参数处理 (若不符合条件就创建主窗口)
+  // 命令行参数处理
   cmdLineHandle(process.argv, createMainWindow);
 
   // 预加载脚本
@@ -32,17 +32,35 @@ app.whenReady().then(() => {
   import('./api/ipc/main.js');
 });
 
+// 所有窗口在独立线程中打开
+app.on('web-contents-created', (_, contents) => {
+  const mainSession = session.fromPartition('persist:main');
+  contents.setWindowOpenHandler((details) => {
+    if (contents.session === mainSession) return { action: 'allow' };
+    setImmediate(() => {
+      const newWin = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+          contextIsolation: true
+        }
+      });
+      newWin.loadURL(details.url);
+    });
+    return { action: 'deny' }
+  })
+});
+
 // 为所有窗口添加错误处理函数
 app.on('browser-window-created', (_, window) => {
-  window.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
-    console.log('asd')
+  window.webContents.on('did-fail-load', (event, code, desc, errURL, isMainFrame) => {
     if (!isMainFrame) return; // 仅处理主框架加载失败
     event.preventDefault();
-    
+
     // 拼接URL
     const rawPath = path.join(appPath, 'html', 'error', 'index.html');
-    const url = `file://${rawPath}?code=${errorCode}&desc=${errorDescription}&url=${encodeURIComponent(validatedURL)}`;
-    
+    const url = `file://${rawPath}?code=${code}&desc=${desc}&time=${new Date().toTimeString()}&url=${encodeURIComponent(errURL)}`;
+
     // 加载本地错误页面
     window.loadURL(url)
   });
@@ -87,11 +105,9 @@ function cmdLineHandle(params, callback) {
   const Urls = [];
   const Tools = [];
 
-  // 1. 获取命令行传入的url，同时检查特定参数
   for (const arg of params) {
     // 提取URL
     if (urlRegex.test(arg)) Urls.push(arg);
-
     // 小工具参数
     if (ToolsInfo.id.includes(arg.slice(2))) {
       if (!Tools.includes(arg.slice(2))) Tools.push(arg.slice(2));
@@ -99,7 +115,7 @@ function cmdLineHandle(params, callback) {
   }
 
   if (Urls.length === 0 && Tools.length === 0) {
-    // 正常启动
+    // 无特殊参数时正常启动
     if (typeof callback === 'function') callback();
   } else {
     // 打开对应页面

@@ -27,23 +27,14 @@ hr {
 }
 
 p {
-    opacity: 0;
     margin: 10px 0;
     text-align: left;
     font-size: x-large;
-    transform: translateX(50px);
-    animation: slideInFade 1.5s ease-out 0.5s forwards;
 }
 
 a {
     color: #009999;
-}
-
-@keyframes slideInFade {
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    overflow-wrap: break-word;
 }
 
 @media (prefers-color-scheme: dark) {
