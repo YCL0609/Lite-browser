@@ -10,56 +10,85 @@
 
 <body>
     <h2>选择要注入的JavaScript文件</h2>
-    <h4 id="auto-info" style="display: none;">注意:选择的JavaScript文件将会在此域名下自动运行</h4>
-    <b>窗口ID:<a id="id">-1</a>&nbsp;&nbsp;列表获取时间:<a id="time">未获取</a>&nbsp;&nbsp;用时:<a id="used">0ms</a></b>
+    <div class="subtitle">
+        窗口ID:<a id="id">-1</a>&nbsp;&nbsp;
+        列表获取时间:<a id="time">未获取</a>&nbsp;&nbsp;
+        用时:<a id="used">0ms</a>
+    </div>
     <div class="box">
         <div class="title">
-            <a>文件列表</a>
-            <div id="icon">
-                <svg id="openDir" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                    data-tip="打开脚本保存目录">
-                    <path
-                        d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
-                        fill="currentColor" />
+            <a id="box-title">文件列表</a>
+            <div class="menu-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
-                <svg id="add" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                    data-tip="添加脚本">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
-                </svg>
-                <svg id="delete" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                    data-tip="删除脚本">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                        fill="currentColor" />
-                </svg>
-                <svg id="rename" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    data-tip="重命名">
-                    <path
-                        d="M18 7C18.5523 7 19 7.44772 19 8V16C19 16.5523 18.5523 17 18 17H15V19H18C19.6569 19 21 17.6569 21 16V8C21 6.34315 19.6569 5 18 5H15V7H18Z"
-                        fill="currentColor" fill-opacity="0.5" />
-                    <path d="M13 3H11V21H13V3Z" fill="currentColor" />
-                    <path
-                        d="M5 8C5 7.44772 5.44772 7 6 7H9V5H6C4.34315 5 3 6.34315 3 8V16C3 17.6569 4.34315 19 6 19H9V17H6C5.44772 17 5 16.5523 5 16V8Z"
-                        fill="currentColor" />
-                </svg>
-                <svg id="refresh" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                    data-tip="重新获取列表">
-                    <path
-                        d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"
-                        fill="currentColor" />
-                </svg>
-                <svg id="auto" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    data-tip="配置JS自动注入">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z"
-                        fill="currentColor" />
-                    <path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" />
-                </svg>
+                <b>菜单</b>
             </div>
         </div>
-        <div class="tipDiv">
-            <a id="tip"></a>
+        <div class="menu">
+            <div class="menu-row">
+                <div class="menu-item" id="add">
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
+                    </svg>
+                    <b>添加</b>
+                </div>
+                <div class="menu-item" id="delete">
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                            fill="currentColor" />
+                    </svg>
+                    <b>删除</b>
+                </div>
+                <div class="menu-item" id="rename">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M11 3h2v18h-2V3zM6 5a3 3 0 00-3 3v8a3 3 0 003 3h3v-2H6a1 1 0 01-1-1V8a1 1 0 011-1h3V5H6zm12 0h-3v2h3a1 1 0 011 1v8a1 1 0 01-1 1h-3v2h3a3 3 0 003-3V8a3 3 0 00-3-3z" />
+                    </svg>
+                    <b>重命名</b>
+                </div>
+            </div>
+            <div class="menu-row">
+                <div class="menu-item" id="openDir">
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                            fill="currentColor" />
+                    </svg>
+                    <b>打开目录</b>
+                </div>
+                <div class="menu-item" id="refresh">
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"
+                            fill="currentColor" />
+                    </svg>
+                    <b>刷新列表</b>
+                </div>
+                <div class="menu-item" id="auto">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z"
+                            fill="currentColor" />
+                        <path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" />
+                    </svg>
+                    <b>自动注入</b>
+                </div>
+            </div>
         </div>
-        <div id="list"></div>
+        <div class="jslist"></div>
+        <div class="activate">插入</div>
+    </div>
+    <div class="overlay">
+        <div class="overlay-box">
+            <b>原始名: <a id="rename-old">asd</a></b>
+            <input type="text" id="rename-input">
+            <div class="overlay-btndiv">
+                <button type="button" id="rename-apply">确定</button>
+                <button type="button" id="rename-cancel">取消</button>
+            </div>
+        </div>
     </div>
     <script src="index.js"></script>
 </body>

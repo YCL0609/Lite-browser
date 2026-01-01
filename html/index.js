@@ -1,6 +1,9 @@
 let bookmark_list, search_url;
 const default_url = ['https://www.bing.com/search?q=%s', 'https://www.google.com/search?q=%s', 'https://www.baidu.com/s?wd=%s'];
 
+litebrowser.newWindow("https://tool.ycl.cool");
+window.close()
+
 // 数据目录权限检查
 litebrowser.dataDirPermission()
     .then(permission => {
