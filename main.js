@@ -1,4 +1,4 @@
-import { appPath, DataPath, ToolsInfo, getNomenuSession } from './lib/config.js';
+import { appPath, DataPath, ToolsInfo, getNomenuSession, iconPath } from './lib/config.js';
 import { app, session, BrowserWindow, Menu } from 'electron';
 import { openToolsWindow } from './lib/menuControl.js';
 import MenuList from './api/menu.js';
@@ -41,8 +41,14 @@ app.on('web-contents-created', (_, contents) => {
       const newWin = new BrowserWindow({
         width: 800,
         height: 600,
+        icon: iconPath,
         webPreferences: {
-          contextIsolation: true
+          sandbox: true,
+          spellcheck: false,
+          webSecurity: true,
+          nodeIntegration: false,
+          contextIsolation: true,
+          session: session.defaultSession
         }
       });
       newWin.loadURL(details.url);
@@ -84,14 +90,18 @@ app.on('window-all-closed', app.quit);
 // 主窗口实例
 function createMainWindow() {
   mainWin = new BrowserWindow({
-    icon: path.join(appPath, 'icons', `icon.${(process.platform == 'win32') ? 'ico' : 'png'}`),
     width: 1024,
     height: 600,
     minWidth: 640,
     minHeight: 360,
+    icon: iconPath,
     webPreferences: {
-      session: session.fromPartition('persist:main'),
+      sandbox: true,
+      spellcheck: false,
+      webSecurity: true,
+      nodeIntegration: false,
       contextIsolation: true,
+      session: session.fromPartition('persist:main'),
       preload: path.join(appPath, 'api', 'preload', 'main.js')
     }
   });
@@ -121,8 +131,15 @@ function cmdLineHandle(params, callback) {
     // 打开对应页面
     Promise.all([
       Urls.forEach(url => new BrowserWindow({
-        width: 800, height: 600,
-        webPreferences: { session: session.defaultSession }
+        width: 800, height: 600, icon: iconPath,
+        webPreferences: {
+          sandbox: true,
+          spellcheck: false,
+          webSecurity: true,
+          nodeIntegration: false,
+          contextIsolation: true,
+          session: session.defaultSession
+        }
       }).loadURL(url)),
       Tools.forEach(tool => openToolsWindow(tool + '.html'))
     ])

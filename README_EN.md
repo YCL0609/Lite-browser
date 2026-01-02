@@ -1,7 +1,8 @@
 # Lite Browser
 中文版本: [README.md](README.md)<br><br>
 An electron-based browser for lightweight web environments or partial web debugging needs. <br>
-The default background image for the main page [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
+The default background image for the main page [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)<br>
+Due to certain reasons, the English interface is not yet available.
 ## Runtime Data
 DATA_DIR defaults to the resources folder in the executable file directory, which can be overridden by LITE_BROWSER_DATA_PATH environment variables. <br>
 By default, the runtime electron web page data is stored in the DATA_DIR/userData/ folder, the user-defined js files are stored in the DATA_DIR/insertjs/ folder, and the other files are stored in the DATA_DIR/ folder by default.
