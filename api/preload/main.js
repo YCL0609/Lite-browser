@@ -4,10 +4,10 @@ let topmenu = true;
 
 contextBridge.exposeInMainWorld('litebrowser', {
   // 菜单相关
-  disableContextMenu: () => contextmenu = false,
+  switchContextMenu: () => contextmenu = !contextmenu,
   switchTopMenu: () => {
-    ipcRenderer.send('menu-switch-top-menu', !topmenu);
     topmenu = !topmenu;
+    ipcRenderer.send('menu-switch-top-menu', topmenu);
   },
   // 新建窗口
   newWindow: (url) => ipcRenderer.send('new-window', url),

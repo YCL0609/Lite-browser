@@ -6,10 +6,10 @@ let topmenu = true;
 contextBridge.exposeInMainWorld('litebrowser', {
   registerWindow: () => ipcRenderer.send('insertjs-register-window'),
   switchTopMenu: () => {
-    ipcRenderer.send('menu-switch-top-menu', !topmenu);
     topmenu = !topmenu;
+    ipcRenderer.send('menu-switch-top-menu', topmenu);
   },
-  disableContextMenu: () => contextmenu = false
+  switchContextMenu: () => contextmenu = !contextmenu,
 });
 
 // 右键菜单事件
@@ -21,4 +21,3 @@ window.addEventListener('contextmenu', (e) => {
 
 // 自动插入JS
 ipcRenderer.send('insertjs-auto-js-insert')
-// document.addEventListener('DOMContentLoaded', () => );

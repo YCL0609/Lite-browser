@@ -1,7 +1,7 @@
 import { appPath, DataPath, ToolsInfo, getNomenuSession, iconPath } from './lib/config.js';
 import { app, session, BrowserWindow, Menu } from 'electron';
 import { openToolsWindow } from './lib/menuControl.js';
-import MenuList from './api/menu.js';
+import { TopMenu } from './api/menu.js';
 import path from "path";
 const gotTheLock = app.requestSingleInstanceLock();
 let mainWin = null;
@@ -15,9 +15,8 @@ if (!gotTheLock) app.quit();
 // 主逻辑
 app.whenReady().then(() => {
   // 设置应用菜单
-  const Menuobj = Menu.buildFromTemplate(MenuList);
-  Menu.setApplicationMenu(Menuobj);
-  getNomenuSession()
+  Menu.setApplicationMenu(TopMenu);
+  getNomenuSession();
 
   // 命令行参数处理
   cmdLineHandle(process.argv, createMainWindow);
