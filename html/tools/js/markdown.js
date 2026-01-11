@@ -90,7 +90,7 @@ function showMD() {
     const cssurl = new URL('./css/markdown-iframe.css', location.href).href;
 
     // 构建BLOB
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="${location.href}"><link rel="stylesheet" href="${cssurl}"></head><body>${safeHtml}</body></html>`;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="${cssurl}"></head><body>${safeHtml}</body></html>`;
     const blob = new Blob([html], { type: 'text/html' });
     BlobUrl = URL.createObjectURL(blob);
     // 设置 src 为 blob url

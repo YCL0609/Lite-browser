@@ -10,7 +10,7 @@ ipcMain.handle('tools-notepad-get', (_, id) => {
     if (!isDataDirCanRead) return { status: true, message: defaultNote };
 
     try {
-        const content = getFile(ToolsFile.notepad[id], defaultNote);
+        const content = getFile(ToolsFile.notepad[id - 1], defaultNote);
         return { status: true, message: content };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -24,8 +24,8 @@ ipcMain.handle('tools-notepad-set', (_, id, content) => {
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
 
     try {
-        getFile(ToolsFile.notepad[id], defaultNote); // 确保文件存在
-        fs.writeFileSync(ToolsFile.notepad[id], content, 'utf-8');
+        getFile(ToolsFile.notepad[id - 1], defaultNote); // 确保文件存在
+        fs.writeFileSync(ToolsFile.notepad[id - 1], content, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -39,7 +39,7 @@ ipcMain.handle('tools-notepad-del', (_, id) => {
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
 
     try {
-        fs.unlinkSync(ToolsFile.notepad[id]);
+        fs.unlinkSync(ToolsFile.notepad[id - 1]);
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }
@@ -69,7 +69,7 @@ ipcMain.handle('tools-code-set', (_, type, content) => {
     // 合规性和存储目录权限检查
     if (!['html', 'css', 'js'].includes(type)) return { status: false, message: '类型错误' };
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
-    
+
     try {
         fs.writeFileSync(ToolsFile.code[type], content, 'utf-8');
         return { status: true, message: 'OK' };
