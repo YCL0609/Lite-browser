@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/code.css">
-    <link rel="stylesheet" href="../../lib/note.css">
-    <script src="../../lib/note.js"></script>
+    <script type="module">
+        import { toolsFileControl } from '../../lib/toolsFileControl.js';
+        window.toolsFileControl = toolsFileControl;
+    </script>
     <title>简易代码编辑器</title>
 </head>
 

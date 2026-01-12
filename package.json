@@ -10,7 +10,8 @@
   "type": "module",
   "scripts": {
     "start": "electron . --gtk-version=3",
-    "build": "electron-builder"
+    "getlibs": "node getlibs.js",
+    "build": "npm run getlibs && electron-builder"
   },
   "author": "YCL <email@ycl.cool>",
   "license": "MIT",
@@ -19,18 +20,19 @@
     "copyright": "Copyright (C) 2025 YCL",
     "publish": null,
     "files": [
-      "**/*",
+      "**/*", 
       "!node_modules/**/*",
       "!resources/**/*",
       "!.vscode/**/*",
       "!icons/**/*",
       "!dist/**/*",
       "!.git/**/*",
-      "!LICENSE",
-      "!README.md",
-      "!.gitignore",
+      "!package-lock.json",
       "!README_EN.md",
-      "!package-lock.json"
+      "!.gitignore",
+      "!getlibs.js",
+      "!README.md",
+      "!LICENSE"
     ],
     "asar": true,
     "extraResources": [
@@ -97,5 +99,10 @@
         }
       ]
     }
+  },
+  "dependencies": {
+    "dompurify": "^3.3.1",
+    "katex": "^0.16.27",
+    "marked": "^17.0.1"
   }
 }

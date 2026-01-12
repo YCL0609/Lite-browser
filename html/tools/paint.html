@@ -5,8 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/paint.css">
-    <link rel="stylesheet" href="../../lib/note.css">
-    <script src="../../lib/note.js"></script>
+    <script type="module">
+        import { NoteMessage } from '../../lib/noteMessage.js';
+        window.NoteMessage = NoteMessage;
+    </script>
     <title>画图板</title>
 </head>
 

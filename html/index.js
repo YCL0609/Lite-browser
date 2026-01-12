@@ -4,8 +4,8 @@ const default_url = ['https://www.bing.com/search?q=%s', 'https://www.google.com
 // 数据目录权限检查
 litebrowser.dataDirPermission()
     .then(permission => {
-        if (!permission.read) showMessage('error', '数据目录不可读, 程序运行在受限模式!');
-        if (!permission.write) showMessage('warning', '数据目录不可写, 所有修改将在程序关闭后丢弃!');
+        if (!permission.read) NoteMessage.showMessage('error', '数据目录不可读, 程序运行在受限模式!');
+        if (!permission.write) NoteMessage.showMessage('warning', '数据目录不可写, 所有修改将在程序关闭后丢弃!');
     });
 
 // 加载书签

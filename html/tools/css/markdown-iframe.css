@@ -1,18 +1,18 @@
-* {
-    margin-left: 10px;
-    margin-right: 10px;
-}
-
 html,
 body {
     margin: 0;
     padding: 0;
     width: 100%;
     overflow-x: hidden;
+    word-break: break-all;
 }
 
 
-pre,
+pre {
+    width: 94%;
+    margin: 0 10px;
+}
+
 code {
     background-color: #ccc;
 }
@@ -86,18 +86,14 @@ table {
     width: 94%;
     box-sizing: border-box;
     overflow-x: auto;
-    margin: 0 10px; 
+    margin: 0 10px;
 }
 
 img {
     display: block;
     box-sizing: border-box;
-    margin-left: 0;
-    margin-right: 0;
     max-width: 100%;
-    width: auto;
-    height: auto;
-}   
+}
 
 @media (prefers-color-scheme: dark) {
     body {

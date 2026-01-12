@@ -2,3 +2,7 @@ node_modules/
 resources/
 .vscode/
 dist/
+lib/katex/
+lib/license/
+lib/purify.min.js
+lib/marked.min.js

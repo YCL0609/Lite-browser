@@ -4,12 +4,12 @@ contextBridge.exposeInMainWorld('litebrowser', {
     dataDirPermission: () => ipcRenderer.invoke('dataDir-permission'),
     notepad: {
         get: (id) => ipcRenderer.invoke('tools-notepad-get', id),
-        set: (id, content) => ipcRenderer.invoke('tools-notepad-set', id, content),
+        set: (content, id) => ipcRenderer.invoke('tools-notepad-set', content, id),
         del: (id) => ipcRenderer.invoke('tools-notepad-del', id)
     },
     code: {
         get: () => ipcRenderer.invoke('tools-code-get'),
-        set: (type, content) => ipcRenderer.invoke('tools-code-set', type, content),
+        set: (content, type) => ipcRenderer.invoke('tools-code-set', content, type),
         del: () => ipcRenderer.invoke('tools-code-del')
     },
     markdown: {

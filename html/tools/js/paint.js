@@ -41,8 +41,8 @@ window.addEventListener('resize', resizeCanvas);
 
 // 提示信息
 document.addEventListener('DOMContentLoaded', () => {
-    const noteID = showMessage(null, '左键绘制, 右键擦除, Ctrl+S保存图片');
-    setTimeout(() => closeMessage(noteID), 2000);
+    const noteID = NoteMessage.showMessage('info', '左键绘制, 右键擦除, Ctrl+S保存图片');
+    setTimeout(() => NoteMessage.closeMessage(noteID), 2000);
 });
 
 // 保存到本地

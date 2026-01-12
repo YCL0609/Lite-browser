@@ -33,3 +33,22 @@ const message = {
     p.appendChild(a);
     infoDiv.appendChild(p);
 });
+
+
+// 来自 https://github.com/YCL0609/YCL-Public-library
+function getUrlParams(name) {
+    const urlSearch = window.location.search;
+    const params = new URLSearchParams(urlSearch);
+    if (!name) {
+        // 不传 name：返回所有参数的键值对对象
+        const allParams = {};
+        for (const [key, value] of params.entries()) {
+            allParams[key] = value;
+        }
+        return allParams;
+    } else {
+        // 传入 name：返回特定参数的值
+        const value = params.get(name);
+        return value === null ? undefined : value; // 参数不存在时返回 undefined
+    }
+}

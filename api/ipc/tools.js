@@ -18,7 +18,7 @@ ipcMain.handle('tools-notepad-get', (_, id) => {
 });
 
 // 保存笔记内容
-ipcMain.handle('tools-notepad-set', (_, id, content) => {
+ipcMain.handle('tools-notepad-set', (_, content, id) => {
     // 合规性和存储目录权限检查
     if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
@@ -65,7 +65,7 @@ ipcMain.handle('tools-code-get', async () => {
 
 
 // 保存代码编辑器内容
-ipcMain.handle('tools-code-set', (_, type, content) => {
+ipcMain.handle('tools-code-set', (_, content, type) => {
     // 合规性和存储目录权限检查
     if (!['html', 'css', 'js'].includes(type)) return { status: false, message: '类型错误' };
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
@@ -112,7 +112,7 @@ ipcMain.handle('tools-markdown-set', (_, content) => {
     if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
 
     try {
-        fs.writeFileSync(ToolsFile.markdown, 'utf-8');
+        fs.writeFileSync(ToolsFile.markdown, content, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
         return { status: false, message: err.stack }

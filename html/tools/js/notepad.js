@@ -1,18 +1,10 @@
-let permission;
 let noteID = 1;
+let deleting = false;
 let contentCache = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 数据目录权限检查
-    permission = await litebrowser.dataDirPermission();
-    if (!permission.read) {
-        const id = showMessage('error', '数据目录不可读, 所有项目将显示初始消息!');
-        setTimeout(() => closeMessage(id), 8000);
-    }
-    if (!permission.write) {
-        const id = showMessage('warning', '数据目录不可写, 所有修改将无法存储到磁盘!');
-        setTimeout(() => closeMessage(id), 8000);
-    }
+    await toolsFileControl.init('notepad');
     // 显示笔记
     showNote(noteID);
     setInterval(() => saveNote(noteID, true), 5 * 1000); // 自动保存
@@ -46,7 +38,13 @@ document.addEventListener('keydown', (e) => {
 
             case 'd': // 删除当前笔记
                 e.preventDefault();
-                deleteNote(noteID);
+                if (noteID == -1 || deleting) break;
+                deleting = true;
+                toolsFileControl.deleteFile(noteID)
+                    .then((isok) => {
+                        if (isok) showNote(-1)
+                        deleting = false;
+                    })
                 break;
 
             default:
@@ -89,6 +87,21 @@ document.addEventListener('keydown', (e) => {
                 formatImages('-');
                 break;
 
+            case '0': // 图片还原
+                e.preventDefault();
+                formatImages('0');
+                break;
+
+            case 'm': // 渲染数学公式
+                e.preventDefault();
+                renderMathInElement(document.querySelector('.note'), {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false }
+                    ]
+                });
+                break;
+
             default:
                 break;
         }
@@ -96,91 +109,53 @@ document.addEventListener('keydown', (e) => {
 });
 
 // 显示笔记
-function showNote(key) {
+async function showNote(key) {
     if (key === -1) {
         noteID = -1;
+        contentCache = '';
         document.querySelector('.note').innerHTML = `当前为临时笔记`;
         return;
     }
-    // 显示读取笔记的消息
-    const msgID = showMessage('warning', `正在读取笔记${key}...`);
     // 读取笔记内容
-    litebrowser.notepad.get(key)
-        .then(response => {
-            // 移除读取消息
-            closeMessage(msgID);
-            if (response.status) {
-                // 清理HTML
-                const rawSafeHtml = DOMPurify.sanitize(response.message);
-                // 替换<a>标签跳转方法(新窗口打开)
-                const safeHtml = rawSafeHtml.replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)"([^>]*)>/gi, (match, href, rest) => {
-                    // 检查是否已经有 target 属性
-                    if (!/target\s*=\s*['"]?_blank['"]?/i.test(rest)) {
-                        return `<a href="${href}"${rest} target="_blank">`;
-                    }
-                    return match;
-                });
+    const content = await toolsFileControl.getFile(key);
+    if (content === null) return;
 
-                // 显示笔记内容
-                document.querySelector('.note').innerHTML = safeHtml;
-                contentCache = safeHtml;
-                noteID = key;
-                // 显示成功消息
-                const okID = showMessage('success', `笔记${key}读取成功`);
-                setTimeout(() => closeMessage(okID), 500);
-            } else {
-                showMessage('error', response.message);
-            }
-        });
+    // 清理HTML
+    const rawSafeHtml = DOMPurify.sanitize(content);
+    // 替换<a>标签跳转方法(新窗口打开)
+    const safeHtml = rawSafeHtml.replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)"([^>]*)>/gi, (match, href, rest) => {
+        // 检查是否已经有 target 属性
+        if (!/target\s*=\s*['"]?_blank['"]?/i.test(rest)) {
+            return `<a href="${href}"${rest} target="_blank">`;
+        }
+        return match;
+    });
+
+    // 显示笔记内容
+    document.querySelector('.note').innerHTML = safeHtml;
+    contentCache = safeHtml;
+    noteID = key;
+
+    // 渲染数学公式
+    renderMathInElement(document.querySelector('.note'), {
+        delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+        ]
+    });
 }
 
 // 保存笔记
 function saveNote(key, isauto = false) {
-    if (noteID == -1) return;
-    if (!permission.write) return;
-    // 显示读取笔记的消息
-    const msgID = !isauto ? showMessage('warning', `正在保存笔记${key}...`) : null;
+    if (noteID == -1 || deleting) return;
     const note = document.querySelector('.note');
     if (note.innerHTML === contentCache && isauto) return; // 内容未更改
     // 保存笔记内容
-    litebrowser.notepad.set(key, note.innerHTML)
-        .then(response => {
-            if (!isauto) closeMessage(msgID);
-            if (response.status) {
-                contentCache = note.innerHTML;
-                // 显示成功消息
-                const okID = showMessage('success', `${isauto ? '自动' : `笔记${key}`}保存成功`);
-                setTimeout(() => closeMessage(okID), isauto ? 500 : 2000);
-            } else {
-                showMessage('error', `${isauto ? '自动' : ''}保存错误:` + response.message);
-            }
-        });
+    toolsFileControl.saveFile(note.innerHTML, isauto, key)
+        .then((isok) => { if (isok) contentCache = note.innerHTML })
 }
 
-// 删除笔记
-function deleteNote(key) {
-    if (noteID == -1) return;
-    if (!permission.write) return;
-    if (!confirm(`确定要删除笔记${key}吗？此操作不可撤销！`)) return;
-    // 显示删除笔记的消息
-    const msgID = showMessage('warning', `正在删除笔记${key}...`);
-    // 删除笔记内容
-    litebrowser.notepad.del(key)
-        .then(response => {
-            // 移除删除消息
-            closeMessage(msgID);
-            if (response.status) {
-                // 显示成功消息
-                const okID = showMessage('success', `笔记${key}删除成功`);
-                setTimeout(() => closeMessage(okID), 2000);
-                // 显示临时笔记
-                showNote(-1);
-            } else {
-                showMessage('error', response.message);
-            }
-        });
-}
-
+// 格式化文本
 function formatText(target) {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
@@ -218,6 +193,7 @@ function formatText(target) {
     selection.addRange(range);
 }
 
+// 修改图片大小
 function formatImages(control) {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
@@ -238,6 +214,8 @@ function formatImages(control) {
             img.style.width = (old + 1) + '%';
         } else if (control == "-" && old > 1) {
             img.style.width = (old - 1) + '%';
+        } else if (control == "0") {
+            img.style.width = '100%';
         }
     });
 }
