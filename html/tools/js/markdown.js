@@ -106,5 +106,5 @@ function saveMD(isauto = false) {
     if (deleting) return;
     if (input.value === contentCache && isauto) return; // 内容未更改
     toolsFileControl.saveFile(input.value, isauto)
-        .then(isok => { if (!isok) contentCache = input.value });
+        .then(isok => { if (isok) contentCache = input.value });
 }

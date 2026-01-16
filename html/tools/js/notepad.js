@@ -3,6 +3,7 @@ let deleting = false;
 let contentCache = '';
 
 document.addEventListener('DOMContentLoaded', async () => {
+    noteID = localStorage.noteID ?? 1;
     // 数据目录权限检查
     await toolsFileControl.init('notepad');
     // 显示笔记
@@ -134,6 +135,7 @@ async function showNote(key) {
     // 显示笔记内容
     document.querySelector('.note').innerHTML = safeHtml;
     contentCache = safeHtml;
+    localStorage.noteID = key;
     noteID = key;
 
     // 渲染数学公式

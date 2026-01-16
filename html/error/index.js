@@ -47,7 +47,7 @@ function getUrlParams(name) {
         }
         return allParams;
     } else {
-        // 传入 name：返回特定参数的值
+        // 传入 name 返回特定参数的值
         const value = params.get(name);
         return value === null ? undefined : value; // 参数不存在时返回 undefined
     }
