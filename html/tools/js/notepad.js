@@ -1,11 +1,17 @@
 let noteID = 1;
 let deleting = false;
 let contentCache = '';
+let tempNoteTip = "当前为临时笔记";
 
 document.addEventListener('DOMContentLoaded', async () => {
     noteID = localStorage.noteID ?? 1;
+    noteID = (isNaN(parseInt(noteID))) ? 1 : parseInt(noteID)
+    // 语言切换
+    const lang = await litebrowser.getLang();
+    document.title = lang.tools.notepad.title;
+    tempNoteTip = lang.tools.notepad.tempNote;
     // 数据目录权限检查
-    await toolsFileControl.init('notepad');
+    await toolsFileControl.init('notepad', lang);
     // 显示笔记
     showNote(noteID);
     setInterval(() => saveNote(noteID, true), 5 * 1000); // 自动保存
@@ -114,7 +120,8 @@ async function showNote(key) {
     if (key === -1) {
         noteID = -1;
         contentCache = '';
-        document.querySelector('.note').innerHTML = `当前为临时笔记`;
+        localStorage.noteID = 1;
+        document.querySelector('.note').innerHTML = tempNoteTip;
         return;
     }
     // 读取笔记内容

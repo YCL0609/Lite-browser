@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { isMac } from '../../lib/config.js';
 import { contextMenu, TopMenu } from '../menu.js';
+import { isMac } from '../../lib/config.js';
 
 // 右键菜单响应
 ipcMain.on('menu-contextmenu', (event, x, y) => {
@@ -12,6 +12,5 @@ ipcMain.on('menu-contextmenu', (event, x, y) => {
 ipcMain.on('menu-switch-top-menu', (event, isShow) => {
     if (isMac) return; // macOS 不支持隐藏菜单栏
     const win = BrowserWindow.fromWebContents(event.sender);
-    if (!win) return;
-    win.setMenu(isShow ? TopMenu : null);
+    if (win) win.setMenu(isShow ? TopMenu : null);
 });

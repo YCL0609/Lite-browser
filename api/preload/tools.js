@@ -1,6 +1,7 @@
 const { ipcRenderer, contextBridge } = require('electron');
 
 contextBridge.exposeInMainWorld('litebrowser', {
+    getLang: () => ipcRenderer.invoke('get-languageJson'),
     dataDirPermission: () => ipcRenderer.invoke('dataDir-permission'),
     notepad: {
         get: (id) => ipcRenderer.invoke('tools-notepad-get', id),

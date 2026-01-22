@@ -1,12 +1,17 @@
-import { isDataDirCanRead, isDataDirCanWrite, ToolsFile, defaultCode, defaultNote, defaultMarkDown } from '../../lib/config.js';
-import { getFile } from '../../lib/getFile.js';
+import { isDataDirCanRead, isDataDirCanWrite, ToolsFile } from '../../lib/config.js';
+import { getFile, getLocale } from '../../lib/functions.js';
 import { ipcMain } from 'electron';
 import fs from 'fs';
+const langRaw = getLocale();
+const lang = langRaw.ipc.tools;
+const defaultCode = langRaw.tools.code.default;
+const defaultNote = langRaw.tools.notepad.default;
+const defaultMarkDown = langRaw.tools.markdown.default;
 
 // 读取笔记内容
 ipcMain.handle('tools-notepad-get', (_, id) => {
     // 合规性和存储目录权限检查
-    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
+    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: lang.notepad.IDError };
     if (!isDataDirCanRead) return { status: true, message: defaultNote };
 
     try {
@@ -20,8 +25,8 @@ ipcMain.handle('tools-notepad-get', (_, id) => {
 // 保存笔记内容
 ipcMain.handle('tools-notepad-set', (_, content, id) => {
     // 合规性和存储目录权限检查
-    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
-    if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
+    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: lang.notepad.IDError };
+    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
 
     try {
         getFile(ToolsFile.notepad[id - 1], defaultNote); // 确保文件存在
@@ -35,8 +40,8 @@ ipcMain.handle('tools-notepad-set', (_, content, id) => {
 // 删除笔记内容
 ipcMain.handle('tools-notepad-del', (_, id) => {
     // 合规性和存储目录权限检查
-    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: '笔记ID错误' };
-    if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
+    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: lang.notepad.IDError };
+    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
 
     try {
         fs.unlinkSync(ToolsFile.notepad[id - 1]);
@@ -67,8 +72,8 @@ ipcMain.handle('tools-code-get', async () => {
 // 保存代码编辑器内容
 ipcMain.handle('tools-code-set', (_, content, type) => {
     // 合规性和存储目录权限检查
-    if (!['html', 'css', 'js'].includes(type)) return { status: false, message: '类型错误' };
-    if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
+    if (!['html', 'css', 'js'].includes(type)) return { status: false, message: lang.code.typeError };
+    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
 
     try {
         fs.writeFileSync(ToolsFile.code[type], content, 'utf-8');
@@ -81,7 +86,7 @@ ipcMain.handle('tools-code-set', (_, content, type) => {
 // 删除代码编辑器内容
 ipcMain.handle('tools-code-del', () => {
     // 存储目录权限检查
-    if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
+    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
 
     try {
         fs.unlinkSync(ToolsFile.code.html);
@@ -109,7 +114,7 @@ ipcMain.handle('tools-markdown-get', () => {
 // 保存MarkDown内容
 ipcMain.handle('tools-markdown-set', (_, content) => {
     // 存储目录权限检查
-    if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
+    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
 
     try {
         fs.writeFileSync(ToolsFile.markdown, content, 'utf-8');
@@ -122,7 +127,7 @@ ipcMain.handle('tools-markdown-set', (_, content) => {
 // 删除MarkDown内容
 ipcMain.handle('tools-markdown-del', () => {
     // 存储目录权限检查
-    if (!isDataDirCanWrite) return { status: false, message: '数据目录不可写' };
+    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
 
     try {
         fs.unlinkSync(ToolsFile.markdown);

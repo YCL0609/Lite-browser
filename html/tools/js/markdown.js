@@ -6,7 +6,24 @@ let deleting = false;
 
 // 初始化
 document.addEventListener("DOMContentLoaded", async () => {
-    await toolsFileControl.init('markdown');
+    // 语言切换
+    const langRaw = await litebrowser.getLang();
+    const lang = langRaw.tools.markdown;
+    if (langRaw.Info.lang != "zh") {
+        document.title = lang.title;
+        document.querySelectorAll('[data-langId]').forEach(e => {
+            const langId = e.dataset.langid.replace(/@/g, 'tools.markdown');
+            const langTo = e.dataset.langTo ?? "innerText";
+            const langIndex = langId.split('.');
+            let value = langRaw;
+            for (let i = 0; i < langIndex.length; i++) {
+                value = value[langIndex[i]] ?? "[Translation missing]";
+            }
+            e[langTo] = value;
+        });
+    }
+    
+    await toolsFileControl.init('markdown', langRaw);
     toolsFileControl.getFile()
         .then(response => {
             input.value = response;
@@ -21,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // 页面卸载时清理 Blob URL
 window.addEventListener('beforeunload', () => {
     if (BlobUrl) {
-        try { URL.revokeObjectURL(BlobUrl); } catch (_) { }
+        try { URL.revokeObjectURL(BlobUrl) } catch (_) { }
         BlobUrl = null;
     }
 });

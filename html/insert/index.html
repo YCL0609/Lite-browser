@@ -9,20 +9,20 @@
 </head>
 
 <body>
-    <h2>选择要注入的JavaScript文件</h2>
+    <h2 data-langId="@.title">选择要注入的JavaScript文件</h2>
     <div class="subtitle">
-        窗口ID:<a id="id">-1</a>&nbsp;&nbsp;
-        列表获取时间:<a id="time">未获取</a>&nbsp;&nbsp;
-        用时:<a id="used">0ms</a>
+        <a data-langId="@.subtitle.winid">窗口ID:</a><a id="id" class="info-text">-1</a>
+        <a data-langId="@.subtitle.gettime">列表获取时间:</a><a id="time" class="info-text"></a>
+        <a data-langId="@.subtitle.used">用时:</a><a id="used" class="info-text">0ms</a>
     </div>
     <div class="box">
         <div class="title">
-            <a id="box-title">文件列表</a>
+            <a id="box-title" data-langId="@.boxTitle">文件列表</a>
             <div class="menu-item">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
-                <b>菜单</b>
+                <b data-langId="@.menu.title">菜单</b>
             </div>
         </div>
         <div class="menu">
@@ -31,14 +31,14 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
                     </svg>
-                    <b>添加</b>
+                    <b data-langId="@.menu.add">添加</b>
                 </div>
                 <div class="menu-item" id="delete">
                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
                             fill="currentColor" />
                     </svg>
-                    <b>删除</b>
+                    <b data-langId="@.menu.delete">删除</b>
                 </div>
                 <div class="menu-item" id="rename">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"
@@ -46,7 +46,7 @@
                         <path
                             d="M11 3h2v18h-2V3zM6 5a3 3 0 00-3 3v8a3 3 0 003 3h3v-2H6a1 1 0 01-1-1V8a1 1 0 011-1h3V5H6zm12 0h-3v2h3a1 1 0 011 1v8a1 1 0 01-1 1h-3v2h3a3 3 0 003-3V8a3 3 0 00-3-3z" />
                     </svg>
-                    <b>重命名</b>
+                    <b data-langId="@.menu.rename">重命名</b>
                 </div>
             </div>
             <div class="menu-row">
@@ -56,7 +56,7 @@
                             d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
                             fill="currentColor" />
                     </svg>
-                    <b>打开目录</b>
+                    <b data-langId="@.menu.openDir">打开目录</b>
                 </div>
                 <div class="menu-item" id="refresh">
                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +64,7 @@
                             d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"
                             fill="currentColor" />
                     </svg>
-                    <b>刷新列表</b>
+                    <b data-langId="@.menu.refresh">刷新列表</b>
                 </div>
                 <div class="menu-item" id="auto">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -73,24 +73,24 @@
                             fill="currentColor" />
                         <path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" />
                     </svg>
-                    <b>自动注入</b>
+                    <b data-langId="@.menu.autojs">自动注入</b>
                 </div>
             </div>
         </div>
         <div class="jslist"></div>
-        <div class="activate">插入</div>
+        <div class="activate" data-langId="@.insert">插入</div>
     </div>
     <div class="overlay">
         <div class="overlay-box">
-            <b>原始名: <a id="rename-old">asd</a></b>
+            <b data-langId="@.renameTitle">重命名脚本</b>
             <input type="text" id="rename-input">
             <div class="overlay-btndiv">
-                <button type="button" id="rename-apply">确定</button>
-                <button type="button" id="rename-cancel">取消</button>
+                <button type="button" id="rename-apply" data-langId="public.OKBtn">确定</button>
+                <button type="button" id="rename-cancel" data-langId="public.applyBtn">取消</button>
             </div>
         </div>
     </div>
-    <script src="index.js"></script>
+    <script src="index.js" type="module"></script>
 </body>
 
 </html>

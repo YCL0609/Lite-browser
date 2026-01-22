@@ -6,24 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>简易浏览器</title>
     <link rel="stylesheet" href="index.css">
-    <script type="module">
-        import {NoteMessage } from '../lib/noteMessage.js'
-        window.NoteMessage = NoteMessage;
-    </script>
 </head>
 
 <body>
     <div class="main">
-        <h1 style="color:#60eeeec5">简易浏览器</h1>
+        <h1 style="color:#60eeeec5" data-langId="@.title">简易浏览器</h1>
         <!-- 搜索引擎 -->
-        <input id="word" placeholder="请输入需查询的内容或要访问的网址">
+        <input id="word" placeholder="请输入需查询的内容或要访问的网址" data-langId="@.inputTip" data-langTo="placeholder">
         <!-- 书签 -->
         <div class="box" style="background-color: #60eeeec5">
             <div class="title" style="color: #000">
-                <a>本地书签</a>
+                <a data-langId="@.bookmark.title">本地书签</a>
                 <div class="svg">
                     <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                        onclick="bookmark.edit(0)">
+                        id="edit-bookmark">
                         <path
                             d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
                             fill="currentColor" />
@@ -52,61 +48,64 @@
     <div id="poop" style="display: none">
         <!-- 设置页面 -->
         <div class="poop-div" id="poop-setting" style="display: none">
-            <a class="setting-title">主页面设置</a>
+            <a class="setting-title" data-langId="@.setting.title">主页面设置</a>
             <hr width="90%">
             <div class="setting-index">
                 <div style="width: 50%">
-                    <a>搜索引擎:</a>
+                    <a data-langId="@.setting.searchEngine.text">搜索引擎:</a>
                     <select id="search-engine">
                         <option value="0">Bing</option>
                         <option value="1">Google</option>
                         <option value="2">Baidu</option>
-                        <option value="-1">自定义...</option>
+                        <option value="-1" data-langId="@.setting.searchEngine.custom">自定义...</option>
                     </select>
-                    <input type="text" id="search-url" placeholder="搜索url, 使用%s代替搜索词" style="width: 90%" disabled />
+                    <input type="text" id="search-url" placeholder="搜索url, 使用%s代替搜索词" style="width: 90%" disabled
+                        data-langId="@.setting.searchEngine.inputTip" data-langTo="placeholder" />
                 </div>
                 <div style="width: 50%">
-                    <a>主样式颜色:</a>
+                    <a data-langId="@.setting.color.mainTip">主样式颜色:</a>
                     <input type="color" id="color-main" value="#60eeee" /><br>
-                    <a>副样式颜色:</a>
+                    <a data-langId="@.setting.color.subTip">副样式颜色:</a>
                     <input type="color" id="color-text" value="#000000" /><br>
-                    <a>背景图片:</a>
-                    <input type="file" accept="image/*" style="width: 155px" onchange="changeBackground(this)" />
+                    <a data-langId="@.setting.bgTip">背景图片:</a>
+                    <input type="file" accept="image/*" id="bgselect" style="width: 155px" />
                 </div>
             </div>
             <div class="poop-fooder">
-                <button onclick="changeSetting()">确认</button>
-                <button onclick="Poop()">取消</button>
+                <button id="applySetting" data-langId="public.applyBtn">应用</button>
+                <button onclick="Poop()" data-langId="public.cancelBtn">取消</button>
             </div>
         </div>
         <!-- 书签添加页面 -->
         <div class="poop-div" id="poop-add" style="display: none">
             <div style="margin: 10px;">
-                <a>书签名称:</a>
-                <input type="text" id="bookmark-name" placeholder="输入书签名称" /><br>
-                <a>书签网址:</a>
-                <input type="text" id="bookmark-url" placeholder="以 [协议头]:// 开头" /><br>
+                <a data-langId="@.bookmark.addNew_name">书签名称:</a>
+                <input type="text" id="bookmark-name" placeholder="输入书签名称" data-langId="@.bookmark.addNew_nameTip"
+                    data-langTo="placeholder" /><br>
+                <a data-langId="@.bookmark.addNew_url">书签网址:</a>
+                <input type="text" id="bookmark-url" placeholder="以 [协议头]:// 开头" data-langId="@.bookmark.addNew_urlTip"
+                    data-langTo="placeholder" /><br>
                 <div class="poop-fooder">
-                    <button id="bookmark-add-btn" onclick="bookmark.add(Date.now())">添加</button>
-                    <button id="cancel-btn0" onclick="Poop()">取消</button>
+                    <button id="bookmark-add-btn" data-langId="@.bookmark.addBtn">添加</button>
+                    <button id="cancel-btn0" onclick="Poop()" data-langId="public.cancelBtn">取消</button>
                 </div>
             </div>
         </div>
         <!-- 删除书签页面 -->
         <div class="poop-div" id="poop-del" style="display: none">
             <div style="margin: 10px;">
-                <a>选择要操作的书签:</a>
+                <a data-langId="@.bookmark.selectBoxTip">选择要操作的书签:</a>
                 <select id="bookmark-del">
                     <option value="-1" style="display: none" selected></option>
                 </select><br>
                 <div class="poop-fooder">
-                    <button id="bookmark-del-btn" onclick="bookmark.delete()">删除</button>
-                    <button id="cancel-btn1" onclick="Poop()">取消</button>
+                    <button id="bookmark-del-btn" data-langId="@.bookmark.deleteBtn">删除</button>
+                    <button id="cancel-btn1" onclick="Poop()" data-langId="public.cancelBtn">取消</button>
                 </div>
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="index.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
 
 </html>

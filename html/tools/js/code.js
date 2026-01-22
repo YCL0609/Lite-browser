@@ -1,7 +1,7 @@
 const htmlInput = document.getElementById("htmlInput");
 const cssInput = document.getElementById("cssInput");
 const jsInput = document.getElementById("jsInput");
-const codeCache = { html: '', css: '', js: '' }
+const codeCache = { html: '', css: '', js: '' };
 let deleting = false;
 
 // 快捷键保存
@@ -30,7 +30,6 @@ document.addEventListener('keydown', async (e) => {
 document.addEventListener("DOMContentLoaded", async () => {
     // 初始化文件控制器
     await toolsFileControl.init('code');
-
     // 实时预览和 Tab 键支持
     [htmlInput, cssInput, jsInput].forEach((textarea) => {
         textarea.addEventListener("input", updatePreview);

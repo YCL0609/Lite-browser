@@ -1,3 +1,29 @@
+let errorTip = "处理错误:";
+let processing = "正在处理...";
+let errorString = "Base64 字符串格式不正确，无法解码为文本";
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // 语言切换
+    const langRaw = await litebrowser.getLang();
+    const lang = langRaw.tools.base64;
+    if (langRaw.Info.lang != "zh") {
+        errorTip = lang.errorTip;
+        processing = lang.processing;
+        errorString = lang.errorString;
+        document.title = lang.title;
+        document.querySelectorAll('[data-langId]').forEach(e => {
+            const langId = e.dataset.langid.replace(/@/g, 'tools.base64');
+            const langTo = e.dataset.langTo ?? "innerText";
+            const langIndex = langId.split('.');
+            let value = langRaw;
+            for (let i = 0; i < langIndex.length; i++) {
+                value = value[langIndex[i]] ?? "[Translation missing]";
+            }
+            e[langTo] = value;
+        });
+    }
+});
+
 // 切换输入类型的显示/隐藏
 function switchType() {
     const type = document.getElementById('inputType').value;
@@ -13,7 +39,7 @@ function switchType() {
 
 // 处理输入并执行编码或解码
 async function processInput(operation) {
-    document.getElementById('errorMsg').innerHTML = '正在处理...';
+    document.getElementById('errorMsg').innerHTML = processing;
     const inputType = document.getElementById('inputType').value;
     try {
         if (inputType === 'text') {
@@ -41,7 +67,7 @@ async function processInput(operation) {
                     const decoded = new TextDecoder('utf-8').decode(bytes);
                     document.getElementById('outputArea').value = decoded;
                 } catch (e) {
-                    throw new Error("Base64 字符串格式不正确，无法解码为文本。");
+                    throw new Error(errorString);
                 }
             }
         } else if (inputType === 'file') {
@@ -65,6 +91,6 @@ async function processInput(operation) {
     } catch (e) {
         console.error(e);
         document.getElementById('outputArea').value = e.stack;
-        document.getElementById('errorMsg').innerHTML = `<a style="color:red">处理错误: ${e.message}</a>`;
+        document.getElementById('errorMsg').innerHTML = `<a style="color:red">${errorTip}: ${e.message}</a>`;
     }
 }

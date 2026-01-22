@@ -1,6 +1,6 @@
 import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
 import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
-import { getFile } from '../../lib/getFile.js';
+import { getFile, getLocale } from '../../lib/functions.js';
 import path from 'path';
 import fs from 'fs';
 const jsonPath_name = path.join(DataPath, 'insertjs', 'name.json');
@@ -10,6 +10,9 @@ const defaultJson_auto = '{"hosts":[]}';
 const defaultJson_name = '{}';
 const windowMap = new Map();
 let autoJSCache = null;
+
+const langRaw = getLocale();
+const lang = langRaw.ipc.insertjs;
 
 // 窗口注册
 ipcMain.on('insertjs-register-window', (event) => {
@@ -22,7 +25,7 @@ ipcMain.on('insertjs-register-window', (event) => {
 
 // 获取脚本列表
 ipcMain.handle('insertjs-get-jslist', async () => {
-    if (!isDataDirCanRead) return { used: 0, error: '数据目录不可读', list: [] };
+    if (!isDataDirCanRead) return { used: 0, error: lang.get.errorInfo, list: [] };
     let json;
     const startat = performance.now();
     try {
@@ -45,11 +48,11 @@ ipcMain.handle('insertjs-get-jslist', async () => {
 // 添加脚本
 ipcMain.on('insertjs-add-js', async (event) => {
     try {
-        if (!isDataDirCanWrite) throw new Error('数据目录不可写，无法添加脚本');
+        if (!isDataDirCanWrite) throw new Error(lang.add.errorInfo);
         const win = BrowserWindow.fromWebContents(event.sender);
         // 打开文件选择对话框
         const result = await dialog.showOpenDialog(win, {
-            title: '选择JavaScript文件',
+            title: lang.add.title,
             properties: ['openFile', 'multiSelections'],
             filters: [
                 { name: 'JavaScript', extensions: ['js'] },
@@ -58,7 +61,7 @@ ipcMain.on('insertjs-add-js', async (event) => {
         });
         // 处理用户选择
         if (result.canceled || result.filePaths.length === 0) {
-            return { success: false, message: '用户取消了选择' };
+            return { success: false, message: lang.add.userCancel };
         }
         for (const sourcePath of result.filePaths) {
             const fileName = path.basename(sourcePath);
@@ -70,7 +73,7 @@ ipcMain.on('insertjs-add-js', async (event) => {
             try {
                 await fs.promises.copyFile(sourcePath, targetPath);
             } catch (err) {
-                dialog.showErrorBox('文件复制错误', err.stack);
+                dialog.showErrorBox(lang.add.copyError, err.stack);
             }
             // 记录ID和名称对应关系
             try {
@@ -79,44 +82,38 @@ ipcMain.on('insertjs-add-js', async (event) => {
                 fs.writeFileSync(jsonPath_name, JSON.stringify(idJson, null, 2), 'utf-8');
                 win.reload();
             } catch (err) {
-                dialog.showErrorBox('文件ID记录错误', err.stack);
+                dialog.showErrorBox(lang.add.IDError, err.stack);
             }
         }
     } catch (err) {
-        dialog.showErrorBox('添加JavaScript文件错误', err.stack);
+        dialog.showErrorBox(lang.add.errorTitle, err.stack);
     }
 });
 
 // 重命名脚本
 ipcMain.on('insertjs-rename-js', (_, jsID, newName) => {
-    if (!isDataDirCanWrite || !isDataDirCanRead) {
-        dialog.showErrorBox('修改自动注入脚本错误', `数据目录不可${!isDataDirCanRead ? '读' : ''}${!isDataDirCanWrite ? '写' : ''}，无法修改自动注入脚本列表`);
-        return;
-    }
     try {
+        if (!isDataDirCanWrite || !isDataDirCanRead) throw new Error(lang.rename.errorInfo);
         // 更新配置文件
         const listJson = JSON.parse(getFile(jsonPath_name, defaultJson_name));
         listJson[jsID] = newName;
         fs.writeFileSync(jsonPath_name, JSON.stringify(listJson, null, 2), 'utf-8');
     } catch (err) {
-        dialog.showErrorBox('重命名脚本错误', err.stack);
+        dialog.showErrorBox(lang.rename.errorTitle, err.stack);
     }
 })
 
 // 删除脚本
 ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
     const jsPath = path.join(DataPath, 'insertjs');
-    if (!isDataDirCanWrite) {
-        dialog.showErrorBox('删除JavaScript文件错误', '数据目录不可写，无法删除脚本');
-        return;
-    }
     // 删除文件
     try {
+        if (!isDataDirCanWrite) throw new Error(lang.remove.errorInfo)
         jsIDs.forEach(async (id) => {
             await fs.promises.unlink(path.join(jsPath, id + '.js'))
         })
     } catch (err) {
-        dialog.showErrorBox('删除JavaScript文件错误', err.stack);
+        dialog.showErrorBox(lang.remove.fileErrorTitle, err.stack);
     }
     // 删除ID记录
     try {
@@ -125,7 +122,7 @@ ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
         jsIDs.forEach(id => delete idJson[id]);
         fs.writeFileSync(jsonPath, JSON.stringify(idJson, null, 2), 'utf-8');
     } catch (err) {
-        dialog.showErrorBox('删除JavaScript文件ID记录错误', err.stack);
+        dialog.showErrorBox(lang.remove.IDErrorTitle, err.stack);
     }
 });
 
@@ -136,14 +133,14 @@ ipcMain.on('insertjs-open-dir', async () => {
         await fs.promises.mkdir(dirpath, { recursive: true });
         shell.openPath(dirpath);
     } catch (err) {
-        dialog.showErrorBox('无法打开文件目录\n可尝试手动打开路径' + dirpath, err.stack);
+        dialog.showErrorBox(lang.opendir.errorTitle + dirpath, err.stack);
     }
 });
 
 // 注入脚本
 ipcMain.on('insertjs-insert-js', (event, winid, jsIDs) => {
     try {
-        if (!isDataDirCanRead) throw new Error('数据目录不可读，无法注入脚本');
+        if (!isDataDirCanRead) throw new Error(lang.insert.errorInfo);
         const mainWindow = BrowserWindow.fromId(winid);
         jsIDs.forEach(id => {
             const filepath = path.join(DataPath, 'insertjs', id + '.js');
@@ -154,7 +151,7 @@ ipcMain.on('insertjs-insert-js', (event, winid, jsIDs) => {
         const childwin = BrowserWindow.fromWebContents(event.sender);
         if (childwin && !childwin.isDestroyed()) childwin.close();
     } catch (err) {
-        dialog.showErrorBox('脚本注入错误', err.stack);
+        dialog.showErrorBox(lang.insert.errorTitle, err.stack);
     }
 });
 
@@ -163,56 +160,36 @@ ipcMain.handle('insertjs-get-auto-js', (_, winid) => {
     if (!isDataDirCanRead) return { errID: -1, hosts: [] };
     const win = BrowserWindow.fromId(winid);
     const url = new URL(win.webContents.getURL());
-    const host = (url.host === '') ? -1 : url.host;
-    if (host === -1) {
-        dialog.showMessageBox({
-            type: 'info',
-            title: '当前网址不支持',
-            message: '当前网页不支持自动注入脚本\n' + win.webContents.getURL()
-        });
-        return { errID: -1, hosts: [] };
-    };
+    if (url.host === '') return { errID: -1, hosts: [] };
     const listJson = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
-    return { errID: 0, hosts: (listJson.hosts.includes(host)) ? listJson[host] : [] };
+    return { errID: 0, hosts: (listJson.hosts.includes(url.host)) ? listJson[url.host] : [] };
 });
 
 // 更新当前网址的自动注入脚本列表
 ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
-    if (!isDataDirCanWrite || !isDataDirCanRead) {
-        dialog.showErrorBox('修改自动注入脚本错误', `数据目录不可${!isDataDirCanRead ? '读' : ''}${!isDataDirCanWrite ? '写' : ''}，无法修改自动注入脚本列表`);
-        return;
-    }
     try {
+        if (!isDataDirCanWrite || !isDataDirCanRead) throw new Error(lang.changeAuto.errorInfo)
         const win = BrowserWindow.fromId(winid);
         const url = new URL(win.webContents.getURL());
-        const host = (url.host === '') ? -1 : url.host;
-        if (host === -1) {
-            dialog.showMessageBox({
-                type: 'info',
-                title: '当前网址不支持',
-                message: '当前网页不支持自动注入脚本\n' + win.webContents.getURL()
-            });
-            return
-        };
+        if (url.host === '') return;
         // 更新配置文件
-        const listJson = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
         if (autoJSCache == null) autoJSCache = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
-        if (autoJSCache.hosts.includes(host)) {
+        if (autoJSCache.hosts.includes(url.host)) {
             if (jsIDs.length === 0) {
-                delete autoJSCache[host];
-                autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(host), 1);
+                delete autoJSCache[url.host];
+                autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(url.host), 1);
             } else {
-                autoJSCache[host] = jsIDs;
+                autoJSCache[url.host] = jsIDs;
             }
         } else {
             if (jsIDs.length !== 0) {
-                autoJSCache.hosts.push(host);
-                autoJSCache[host] = jsIDs;
+                autoJSCache.hosts.push(url.host);
+                autoJSCache[url.host] = jsIDs;
             }
         }
         fs.writeFileSync(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8');
     } catch (err) {
-        dialog.showErrorBox('修改自动注入脚本错误', err.stack);
+        dialog.showErrorBox(lang.changeAuto.errorTitle, err.stack);
     }
 });
 
@@ -220,16 +197,10 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
 ipcMain.on('insertjs-auto-js-insert', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
-        if (!isDataDirCanRead) throw new Error('数据目录不可读，无法自动注入脚本');
+        if (!isDataDirCanRead) throw new Error(lang.autoInsert.errorInfo);
         // 获取窗口网址
         const urlStr = win.webContents.getURL();
-        let urlObj;
-        try {
-            urlObj = new URL(urlStr);
-        } catch (e) {
-            dialog.showErrorBox('自动注入脚本错误', urlStr + '\n' + e.stack);
-            return;
-        }
+        const urlObj = new URL(urlStr);
         // 获取host对应的脚本列表
         const host = (urlObj.host === '') ? -1 : urlObj.host;
         if (host === -1) return;
@@ -262,6 +233,6 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
             }
         }
     } catch (err) {
-        dialog.showErrorBox('自动注入脚本错误', err.stack);
+        dialog.showErrorBox(lang.autoInsert.errorTitle, err.stack);
     }
 });

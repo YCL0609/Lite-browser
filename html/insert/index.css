@@ -24,14 +24,14 @@ h2 {
     text-align: center
 }
 
+.info-text{
+    color: var(--info-text-color)
+}
+
 .subtitle {
     display: block;
     text-align: center;
     font-weight: bolder;
-}
-
-.subtitle a {
-    color: var(--info-text-color)
 }
 
 .container {
@@ -154,8 +154,8 @@ h2 {
 
 .overlay-box b {
     display: block;
-    margin-left: 5%;
-    margin-top: 10px;
+    margin: 10px auto;
+    text-align: center;
     word-break: break-all;
 }
 

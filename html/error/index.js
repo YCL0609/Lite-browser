@@ -1,20 +1,38 @@
+const langRaw = await litebrowser.getLang();
+const lang = langRaw.errorpage;
+
+// 语言切换
+if (langRaw.Info.lang != "zh") {
+    document.title = lang.title;
+    document.querySelectorAll('[data-langId]').forEach(e => {
+        const langId = e.dataset.langid.replace(/@/g, 'errorpage');
+        const langTo = e.dataset.langTo ?? "innerText";
+        const langIndex = langId.split('.');
+        let value = langRaw;
+        for (let i = 0; i < langIndex.length; i++) {
+            value = value[langIndex[i]] ?? "[Translation missing]";
+        }
+        e[langTo] = value;
+    });
+}
+
 const infoDiv = document.getElementById('info');
 const info = getUrlParams();
 const message = {
     code: {
-        info: "错误代码:",
+        info: lang.message.code,
         default: "-999"
     },
     desc: {
-        info: "错误描述:",
+        info: lang.message.desc,
         default: "ERR_UNKNOWN_DISPLAY_ERROR"
     },
     time: {
-        info: "发生时间:",
+        info: lang.message.time,
         default: new Date().toTimeString()
     },
     url: {
-        info: "错误网址:",
+        info: lang.message.url,
         default: "N/A"
     }
 };

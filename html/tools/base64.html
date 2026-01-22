@@ -1,42 +1,43 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Base64 编码/解码工具</title>
     <link rel="stylesheet" href="./css/base64.css">
+    <script type="module"></script>
 </head>
 
 <body>
     <div class="left-panel">
         <div>
-            <label for="inputType">选择输入类型:</label>
+            <label for="inputType" data-langId="@.inputType">选择输入类型:</label>
             <select id="inputType" onchange="switchType()">
-                <option value="text">文本输入</option>
-                <option value="file">文件上传</option>
+                <option value="text" data-langId="@.textType">文本输入</option>
+                <option value="file" data-langId="@.fileType">文件上传</option>
             </select>
-            
+
             <div id="textInputDiv">
-                <label for="textInput">输入文本或 Base64 字符串:</label>
-                <textarea id="textInput" style="height: 300px;" placeholder="在此处输入或粘贴..."></textarea>
+                <label for="textInput" data-langId="textInfo">输入文本或 Base64 字符串:</label>
+                <textarea id="textInput" style="height: 300px;" placeholder="在此处输入或粘贴..." data-langId="@.textTip" data-langTo="placeholder"></textarea>
             </div>
-            
+
             <div id="fileInputDiv" style="display: none;">
-                <label for="fileInput">选择文件:</label>
+                <label for="fileInput" data-langId="@.fileInfo">选择文件:</label>
                 <input type="file" id="fileInput">
             </div>
         </div>
-        
+
         <div>
-            <button id="encodeBtn" onclick="processInput('encode')">Base64 编码</button>
-            <button id="decodeBtn" onclick="processInput('decode')">Base64 解码</button>
+            <button id="encodeBtn" onclick="processInput('encode')" data-langId="@.button.encode">Base64 编码</button>
+            <button id="decodeBtn" onclick="processInput('decode')" data-langId="@.button.decode">Base64 解码</button>
         </div>
-        
+
         <div id="errorMsg"></div>
     </div>
     <div class="right-panel">
-        结果显示:
+        <a data-langId="@.result">结果显示:</a>
         <textarea id="outputArea" style="resize: none" readonly></textarea>
     </div>
     <script src="./js/base64.js"></script>

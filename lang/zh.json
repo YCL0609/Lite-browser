@@ -1,0 +1,256 @@
+{
+    "Info": {
+        "lang": "zh",
+        "langLong": "zh-CN",
+        "version": "2026-01-21"
+    },
+    "public": {
+        "cancelBtn": "取消",
+        "applyBtn": "应用",
+        "OKBtn": "确认",
+        "retry": "重试",
+        "close": "关闭",
+        "details": "详细信息"
+    },
+    "permission": {
+        "write": {
+            "info": "数据目录不可写",
+            "tip": "数据目录不可写, 所有修改将在程序关闭后丢弃!"
+        },
+        "read": {
+            "info": "数据目录不可读",
+            "tip": "数据目录不可读, 所有修改将在程序关闭后丢弃!"
+        }
+    },
+    "mainWindow": {
+        "title": "简易浏览器",
+        "inputTip": "输入需查询的内容或要访问的网址",
+        "bookmark": {
+            "title": "本地书签",
+            "selectBoxTip": "选择要操作的书签:",
+            "selectBtn": "选择",
+            "addNew_name": "书签名称:",
+            "addNew_nameTip": "输入书签名称",
+            "addNew_url": "书签网址:",
+            "addNew_urlTip": "以 [协议头]:// 开头",
+            "changeBtn": "修改",
+            "chooseBtn": "选择",
+            "deleteBtn": "删除",
+            "addBtn": "添加"
+        },
+        "setting": {
+            "title": "主页面设置",
+            "searchEngine": {
+                "text": "搜索引擎",
+                "custom": "自定义...",
+                "inputTip": "搜索url, 使用%s代替搜索词"
+            },
+            "color": {
+                "mainTip": "主样式颜色:",
+                "subTip": "副样式颜色:"
+            },
+            "bgTip": "背景图片:"
+        }
+    },
+    "jsinsert": {
+        "title": "选择要注入的JavaScript文件",
+        "subtitle": {
+            "winid": "窗口ID:",
+            "gettime": "列表获取时间:",
+            "used": "用时:"
+        },
+        "boxTitle": "文件列表",
+        "boxTitleAuto": "文件列表 (自动注入模式)",
+        "menu": {
+            "title": "菜单",
+            "add": "添加",
+            "delete": "删除",
+            "rename": "重命名",
+            "openDir": "打开目录",
+            "refresh": "刷新列表",
+            "autojs": "自动注入"
+        },
+        "insert": "插入",
+        "apply": "应用列表",
+        "renameTitle": "重命名脚本",
+        "message": {
+            "noselent": "未选择操作项目",
+            "isdelete": "是否删除所选项目?",
+            "rename": "重命名操作仅允许操作单个条目"
+        }
+    },
+    "errorpage": {
+        "title": "页面加载失败",
+        "message": {
+            "code": "错误代码:",
+            "desc": "错误描述:",
+            "time": "发生时间:",
+            "url": "错误网址:"
+        }
+    },
+    "menu": {
+        "tools": {
+            "index": "工具..."
+        },
+        "edit": {
+            "index": "编辑...",
+            "undo": "撤销",
+            "redo": "重做",
+            "selectall": "全选",
+            "cut": "剪切",
+            "copy": "复制",
+            "paste": "粘贴",
+            "pastetext": "粘贴为纯文本"
+        },
+        "control": {
+            "index": "控制...",
+            "back": "后退",
+            "reload": "刷新",
+            "forceReload": "忽略缓存刷新",
+            "forward": "前进",
+            "fullScreen": "全屏",
+            "showurl": {
+                "index": "显示当前地址",
+                "title": "当前网址",
+                "copyBtn": "复制到剪切板"
+            },
+            "devTools": "开发者工具",
+            "openOutside": "用默认浏览器打开",
+            "switchTopMenu": "切换顶部菜单",
+            "switchContentMenu": "切换右键菜单",
+            "insertJS": "JavaScript注入"
+        }
+    },
+    "tools": {
+        "name": [
+            "笔记本",
+            "画图板",
+            "代码编辑器",
+            "Base64工具",
+            "Markdown编辑器"
+        ],
+        "notepad": {
+            "title": "笔记本",
+            "tempNote": "当前为临时笔记",
+            "default": "快捷键:<br>Ctrl + 0~9 切换到对应编号的笔记本 (0号为临时笔记);<br>Ctrl + S 手动保存当前笔记;<br>Ctrl + D 删除当前笔记;<br>Alt + 1~6 将当前行设置为对应编号的标题或恢复为普通文本;<br>Alt + I 将当前行设置为斜体或恢复为普通文本;<br>Alt + B 将当前行设置为粗体或恢复为普通文本;<br>Alt + U 将当前行添加下划线或恢复为普通文本;<br>Alt + M 手动触发KaTeX数学公式渲染。<br><br>使用的开源库:<br>DOMPurify - https://github.com/cure53/DOMPurify<br>KaTeX - https://github.com/KaTeX/KaTeX"
+        },
+        "paint": {
+            "title": "画图板",
+            "info": "左键绘制, 右键擦除, Ctrl+S保存图片"
+        },
+        "code": {
+            "title": "简易代码编辑器",
+            "default": {
+                "html": "<h1>简易代码编辑器</h1>",
+                "css": "/* 暗色模式支持 */\n@media (prefers-color-scheme: dark) {\n    body {\n        background-color: #333;\n        color: #fff;\n    }\n}",
+                "js": "document.writeln('hello World');"
+            }
+        },
+        "base64": {
+            "title": "Base64 编码/解码工具",
+            "inputType": "选择输入类型",
+            "textType": "文本输入",
+            "fileType": "文件上传",
+            "textInfo": "输入文本或 Base64 字符串:",
+            "textTip": "在此处输入或粘贴...",
+            "fileInfo": "选择文件:",
+            "button": {
+                "encode": "Base64 编码",
+                "decode": "Base64 解码"
+            },
+            "processing": "正在处理...",
+            "result": "结果显示:",
+            "errorTip": "处理错误:",
+            "errorString": "Base64 字符串格式不正确，无法解码为文本"
+        },
+        "markdown": {
+            "title": "MarkDown 实时预览",
+            "inputTip": "在此输入 Markdown 文本...",
+            "preview": "预览:",
+            "default": "# MarkDown 演示\n支持大部分MarkDown语法和数学公式\n## 使用的开源库\n| 名称 | 描述 | 仓库链接 |\n| :--- | :---: | :---: |\n| Marked | MarkDown转html | https://github.com/markedjs/marked |\n| DOMPurify | html清理 | https://github.com/cure53/DOMPurify |\n| KaTeX | 数学公式渲染 | https://github.com/KaTeX/KaTeX |"
+        }
+    },
+    "toolsFileControl": {
+        "loading": "正在读取历史文件...",
+        "saving": "正在保存文件...",
+        "deleting": "正在删除...",
+        "readOK": "读取成功",
+        "saveOK": "保存成功",
+        "autoSaveOK": "自动保存成功",
+        "deleteOK": "删除成功",
+        "delError": "删除失败:",
+        "unknow": "未知错误",
+        "delCheck": "确定删除吗?"
+    },
+    "ipc": {
+        "bookmark": {
+            "get": {
+                "errorTitle": "书签获取错误"
+            },
+            "add": {
+                "errorTitle": "书签添加错误",
+                "errorInfo": "数据目录不可写，无法添加书签"
+            },
+            "del": {
+                "errorTitle": "书签删除错误",
+                "errorInfo": "数据目录不可写，无法删除书签"
+            }
+        },
+        "insertjs": {
+            "get": {
+                "errorInfo": "数据目录不可读"
+            },
+            "add": {
+                "errorTitle": "添加JavaScript文件错误",
+                "errorInfo": "数据目录不可写，无法添加脚本",
+                "title": "选择JavaScript文件",
+                "userCancel": "用户取消了选择",
+                "copyError": "文件复制错误",
+                "IDError": "文件ID记录错误"
+            },
+            "rename": {
+                "errorTitle": "重命名脚本错误",
+                "errorInfo": "数据目录有权限问题"
+            },
+            "remove": {
+                "fileErrorTitle": "删除JavaScript文件错误",
+                "IDErrorTitle": "删除JavaScript文件ID记录错误",
+                "errorInfo": "数据目录不可写，无法删除脚本"
+            },
+            "opendir": {
+                "errorTitle": "无法打开文件目录\n可尝试手动打开路径"
+            },
+            "insert": {
+                "errorTitle": "脚本注入错误",
+                "errorInfo": "数据目录不可读，无法注入脚本"
+            },
+            "changeAuto": {
+                "errorTitle": "修改自动注入脚本错误",
+                "errorInfo": "数据目录有权限问题, 无法修改自动注入脚本列表"
+            },
+            "autoInsert": {
+                "errorTitle": "自动注入脚本错误",
+                "errorInfo": "数据目录不可读，无法自动注入脚本"
+            }
+        },
+        "setting": {
+            "change": {
+                "errorTitle": "配置修改错误"
+            },
+            "changeImg": {
+                "errorTitle": "图片配置修改错误",
+                "unknowMIME": "未知MIME类型: ",
+                "title": "旧图片删除警告",
+                "message": "旧图片删除失败, 可尝试手动删除\n文件路径:"
+            }
+        },
+        "tools": {
+            "notepad": {
+                "IDError": "笔记ID错误"
+            },
+            "code": {
+                "typeError": "类型错误"
+            }
+        }
+    }
+}

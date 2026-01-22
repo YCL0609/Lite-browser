@@ -8,16 +8,33 @@ const submitBtn = document.querySelector('.activate');
 document.getElementById('id').innerText = litebrowser.parentID;
 GetList();
 
+// 语言切换
+const langRaw = await litebrowser.getLang();
+const lang = langRaw.jsinsert;
+if (langRaw.Info.lang != "zh") {
+    document.title = lang.title;
+    document.querySelectorAll('[data-langId]').forEach(e => {
+        const langId = e.dataset.langid.replace(/@/g, 'jsinsert');
+        const langTo = e.dataset.langTo ?? "innerText";
+        const langIndex = langId.split('.');
+        let value = langRaw;
+        for (let i = 0; i < langIndex.length; i++) {
+            value = value[langIndex[i]] ?? "[Translation missing]";
+        }
+        e[langTo] = value;
+    });
+}
+
 // 添加按钮
 document.getElementById('add').addEventListener('click', litebrowser.addJS);
 
 // 删除按钮
 document.getElementById('delete').addEventListener('click', () => {
     if (selstedJsId.size === 0) {
-        alert('未选择操作项目');
+        alert(lang.message.noselent);
         return;
     }
-    if (confirm('是否删除所选项目?')) {
+    if (confirm(lang.message.isdelete)) {
         litebrowser.removeJS([...selstedJsId]);
         [...selstedJsId].forEach(id => document.getElementById(id).remove());
         selstedJsId.clear()
@@ -27,10 +44,10 @@ document.getElementById('delete').addEventListener('click', () => {
 // 重命名按钮
 document.getElementById('rename').addEventListener('click', () => {
     if (selstedJsId.size === 0) {
-        alert('未选择操作项目');
+        alert(lang.message.noselent);
         return;
     } else if (selstedJsId.size !== 1) {
-        alert('重命名操作仅允许操作单个条目');
+        alert(lang.message.rename);
         return;
     }
     renamedID = [...selstedJsId][0];
@@ -79,12 +96,12 @@ document.getElementById('auto').addEventListener('click', async () => {
     document.querySelectorAll('.jsrow').forEach(e => e.classList.remove('selected'));
     // GUI
     if (isAutoMode) {
-        boxTitle.innerText = "文件列表 (自动注入模式)";
-        submitBtn.innerText = "应用列表";
+        boxTitle.innerText = lang.boxTitleAuto;
+        submitBtn.innerText = lang.apply;
         autoBtn.classList.add('activated');
     } else {
-        boxTitle.innerText = "文件列表";
-        submitBtn.innerText = "插入";
+        boxTitle.innerText = lang.boxTitle;
+        submitBtn.innerText = lang.insert;
         autoBtn.classList.remove('activated');
         return;
     }
@@ -103,8 +120,8 @@ submitBtn.addEventListener('click', () => {
         // 应用自动注入配置
         litebrowser.changeAutoJS(litebrowser.parentID, [...selstedJsId]);
         document.querySelectorAll('.jsrow').forEach(e => e.classList.remove('selected'));
-        submitBtn.innerText = "插入";
-        document.getElementById('box-title').innerText = "文件列表";
+        submitBtn.innerText = lang.insert;
+        document.getElementById('box-title').innerText = lang.boxTitle;
         document.getElementById('auto').classList.remove('activated');
         selstedJsId.clear();
         isAutoMode = false;

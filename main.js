@@ -1,6 +1,6 @@
-import { appPath, DataPath, ToolsInfo, getNomenuSession, iconPath } from './lib/config.js';
+import { appPath, DataPath, iconPath } from './lib/config.js';
 import { app, session, BrowserWindow, Menu } from 'electron';
-import { openToolsWindow } from './lib/menuControl.js';
+import { cmdLineHandle, getNomenuSession } from './lib/functions.js';
 import { TopMenu } from './api/menu.js';
 import path from "path";
 const gotTheLock = app.requestSingleInstanceLock();
@@ -10,7 +10,8 @@ let mainWin = null;
 app.setPath('userData', path.join(DataPath, 'userData'));
 
 // 关闭第二实例
-if (!gotTheLock) app.quit();
+if (!gotTheLock) process.exit(0);
+// 语言设置
 
 // 主逻辑
 app.whenReady().then(() => {
@@ -106,41 +107,4 @@ function createMainWindow() {
   });
   mainWin.loadFile(path.join(appPath, 'html', 'index.html'));
   mainWin.on('closed', () => mainWin = null);
-}
-
-// 命令行参数处理
-function cmdLineHandle(params, callback) {
-  const urlRegex = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
-  const Urls = [];
-  const Tools = [];
-
-  for (const arg of params) {
-    // 提取URL
-    if (urlRegex.test(arg)) Urls.push(arg);
-    // 小工具参数
-    if (ToolsInfo.id.includes(arg.slice(2))) {
-      if (!Tools.includes(arg.slice(2))) Tools.push(arg.slice(2));
-    }
-  }
-
-  if (Urls.length === 0 && Tools.length === 0) {
-    // 无特殊参数时正常启动
-    if (typeof callback === 'function') callback();
-  } else {
-    // 打开对应页面
-    Promise.all([
-      Urls.forEach(url => new BrowserWindow({
-        width: 800, height: 600, icon: iconPath,
-        webPreferences: {
-          sandbox: true,
-          spellcheck: false,
-          webSecurity: true,
-          nodeIntegration: false,
-          contextIsolation: true,
-          session: session.defaultSession
-        }
-      }).loadURL(url)),
-      Tools.forEach(tool => openToolsWindow(tool + '.html'))
-    ])
-  }
 }

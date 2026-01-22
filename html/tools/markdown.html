@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,7 @@
     <script src="../../lib/katex/katex.min.js"></script>
     <script src="../../lib/katex/auto-render.min.js"></script>
     <script type="module">
-        import { toolsFileControl } from '../../lib/toolsFileControl.js';
+        import { toolsFileControl } from '../../lib/functions-front.js';
         window.toolsFileControl = toolsFileControl;
     </script>
 </head>
@@ -19,11 +19,11 @@
 <body>
     <div class="left-panel">
         <a>MarkDown:</a>
-        <textarea id="input" placeholder="在此输入 Markdown 文本..."></textarea>
+        <textarea id="input" placeholder="在此输入 Markdown 文本..." data-langId="@.inputTip" data-langTo="placeholder"></textarea>
     </div>
     <div class="right-panel">
-        <a>预览:</a>
-        <iframe id="preview" title="MarkDown预览"></iframe>
+        <a data-langId="@.preview">预览:</a>
+        <iframe id="preview"></iframe>
     </div>
     <script src="./js/markdown.js"></script>
 </body>

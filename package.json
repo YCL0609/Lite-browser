@@ -1,104 +1,22 @@
 {
-  "devDependencies": {
-    "electron": "^39.2.7",
-    "electron-builder": "^26.0.12"
-  },
   "name": "lite-browser",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "A browser for lightweight web environments",
   "main": "main.js",
   "type": "module",
-  "scripts": {
-    "start": "electron . --gtk-version=3",
-    "getlibs": "node getlibs.js",
-    "build": "npm run getlibs && electron-builder"
-  },
   "author": "YCL <email@ycl.cool>",
   "license": "MIT",
-  "build": {
-    "appId": "cool.ycl.desktop.browser",
-    "copyright": "Copyright (C) 2025 YCL",
-    "publish": null,
-    "files": [
-      "**/*", 
-      "!node_modules/**/*",
-      "!resources/**/*",
-      "!.vscode/**/*",
-      "!icons/**/*",
-      "!dist/**/*",
-      "!.git/**/*",
-      "!package-lock.json",
-      "!README_EN.md",
-      "!.gitignore",
-      "!getlibs.js",
-      "!README.md",
-      "!LICENSE"
-    ],
-    "asar": true,
-    "extraResources": [
-      {
-        "from": "icons",
-        "to": "./icons"
-      }
-    ],
-    "win": {
-      "icon": "icons/icon.ico",
-      "target": [
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64",
-            "ia32"
-          ]
-        }
-      ]
-    },
-    "linux": {
-      "icon": "icons/icon.png",
-      "target": [
-        {
-          "target": "tar.gz",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ]
-    },
-    "mac": {
-      "identity": null,
-      "icon": "icons/icon.icns",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ]
-    }
+  "scripts": {
+    "getlibs": "node getlibs.js",
+    "start": "electron . --gtk-version=3",
+    "build": "npm run getlibs && electron-forge make"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron/fuses": "^1.8.0",
+    "electron": "^40.0.0"
   },
   "dependencies": {
     "dompurify": "^3.3.1",

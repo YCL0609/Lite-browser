@@ -1,108 +1,158 @@
 # Lite Browser
-English Version: [README_EN.md](README_EN.md)<br><br>
-一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器，项目基于electron。<br>
-主页面默认背景图片[Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
-## 运行时数据
-DATA_DIR默认为可执行文件目录下的resources文件夹，可通过LITE_BROWSER_DATA_PATH环境变量覆盖。<br>
-运行时的electron网页数据默认存储在DATA_DIR/userData/文件夹，用户自定义js文件存储在DATA_DIR/insertjs/文件夹，其他文件默认存储在DATA_DIR/文件夹。
-## 主页面设置
-主页面设置文件存储在DATA_DIR/setting.json中。<br>
-更改或读取设置通过页面js调用预加载脚本中暴露的ipc模块发送给渲染进程。
+Chinese Version: [README_ZH.md](README_ZH.md)<br><br>
+<b><i>If the Chinese and English versions differ in meaning, the Chinese version takes precedence.</i></b><br>
+A lightweight browser suitable for lightweight network environments or certain web debugging needs, built on Electron.<br>
+The default background image for the home page: [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
+
+## Runtime Data
+The default data storage path DATA_DIR is the resources folder at the same level as app.asar (on macOS, it's the resources folder in the root of the LiteBrowser.app folder). All systems can override this using the `LITE_BROWSER_DATA_PATH` environment variable.Electron web data at runtime is stored in `DATA_DIR/userData/` by default, user-defined JavaScript files are stored in `DATA_DIR/insertjs/`, tool pages are stored locally in `DATA_DIR/tools/`, and other files are stored in `DATA_DIR/` by default.
+
+## Language Files and Switching Logic
+The program retrieves the user's preferred language list during initialization and takes the first preference. If it's not in the supported list, English is used as the primary language. All systems can override this using the `LITE_BROWSER_LANG` environment variable. All supported language IDs are stored in the `supportLang` variable in `lib/config.js`, and language files are stored in `lang/{lang}.json`. You can add language files and repackage as needed.
+
+## Home Page Settings
+Home page settings are stored in `DATA_DIR/setting.json`.<br>
+Settings can be modified or retrieved by calling the IPC module exposed in the preload script through page JavaScript to send to the renderer process.
 ```javascript
+/* api/preload/main.js */
 contextBridge.exposeInMainWorld('litebrowser', {
   // ....
-  getSetting: (isimg) => ipcRenderer.invoke('setting-get', isimg), // 获取设置
-  setSetting: (json) => ipcRenderer.send('setting-change', json), // 修改设置
-  imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64) // 获取或设置图片
+  getSetting: (isimg) => ipcRenderer.invoke('setting-get', isimg), // Get settings
+  setSetting: (json) => ipcRenderer.send('setting-change', json), // Modify settings
+  imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64) // Get or set image
 })
 ```
-setting.json文件结构：
+setting.json file structure:
 ```json
 {
-    "search": { // 搜索引擎相关
-        "id": 1, // 搜索引擎ID，若为-1则为自定义
-        "url": "" // 自定义搜索引擎URL
+    "search": { // Search engine related
+        "id": 1, // Search engine ID, -1 for custom
+        "url": "" // Custom search engine URL
     },
-    "theme": { // 主题相关
-        "color": { // 主题颜色
-            "main": "#60eeee", // 页面主要颜色,加载时会加上0.77的透明度
-            "text": "#000000" // 页面文字颜色
+    "theme": { // Theme related
+        "color": { // Theme colors
+            "main": "#60eeee", // Main page color, with 0.77 transparency applied on load
+            "text": "#000000" // Page text color
         },
-        "background": "background.jpg" // 背景图片路径，null为默认背景，若为其他背景则文件在DATA_DIR文件夹
+        "background": "background.jpg" // Background image path, null for default, other files in DATA_DIR folder
     }
 }
 ```
-## 书签设置
-书签设置文件存储在DATA_DIR/bookmark.json中。<br>
-更改或读取仍然通过页面js调用预加载脚本中暴露的ipc模块发送给渲染进程。
+
+## Bookmark Settings
+Bookmark settings are stored in `DATA_DIR/bookmark.json`.<br>
+Modifications or retrievals are still done by calling the IPC module exposed in the preload script through page JavaScript to send to the renderer process.
 ```javascript
+/* api/preload/main.js */
 contextBridge.exposeInMainWorld('litebrowser', {
   // ....
-  getBookmarks: () => ipcRenderer.invoke('bookmarks-get'), // 获取书签
-  addBookmark: (name, url, time) => ipcRenderer.send('bookmarks-add', name, url, time), // 添加书签
-  delBookmark: (name) => ipcRenderer.send('bookmarks-del', name), // 删除书签
+  getBookmarks: () => ipcRenderer.invoke('bookmarks-get'), // Get bookmarks
+  addBookmark: (name, url, time) => ipcRenderer.send('bookmarks-add', name, url, time), // Add bookmark
+  delBookmark: (name) => ipcRenderer.send('bookmarks-del', name), // Delete bookmark
   // ....
 })
 ```
-bookmarks.json 文件结构:
+bookmarks.json file structure:
 ```json
 {
     // ....
-    "1748138860808": { // 书签ID为添加时的时间戳
-        "title": "测试项目", // 书签名称
-        "url": "https://www.example.com/" // 书签URL
+    "1748138860808": { // Bookmark ID is the timestamp when added
+        "title": "Test Project", // Bookmark name
+        "url": "https://www.example.com/" // Bookmark URL
     },
     // ....
 }
 ```
-## 页面js插入
-用户自定义js文件存储在DATA_DIR/insertjs目录下，文件名为{32位随机字串}.js由name.json记录与原始文件名的对应关系，通过点击菜单中的"控制..."==>"注入JavaScript文件"或按下F1键，即可选择要插入的js文件。<br><br>
-插入js文件时程序会首先通过executeJavaScriptInIsolatedWorld在当前焦点窗口执行预加载脚本中暴露的litebrowser.registerWindow()方法向渲染进程中注册一个window对象，然后等待并通过executeJavaScript将用户选择的js文件插入到当前焦点窗口中。
+
+## Page JavaScript Injection
+User-defined JavaScript files are stored in the `DATA_DIR/insertjs/` directory with filenames as {32-character random string}.js, and name.json records the correspondence with the original filename. Click the `JavaScript Injection` button in the menu (on macOS: `"Control..." => "JavaScript Injection"`) or press <b>F1</b> to select a JavaScript file to inject.<br><br>
+When injecting a JavaScript file, the program first executes the `litebrowser.registerWindow()` method exposed in the preload script through the `executeJavaScriptInIsolatedWorld` function in the currently focused window to register a window object in the renderer process, then waits and injects the user-selected JavaScript file into the currently focused window through executeJavaScript.
 ```javascript
+/* lib/functions.js */
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();
-  mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()') // 向主进程中注册window对象
+  mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()') // Register window object in main process
   const childWindow = new BrowserWindow({
     // ....
     webPreferences: {
-      additionalArguments: [`--parent-window-id=${mainWindow.id}`], // 向js文件选择子窗口传递需要注入窗口的id
+      additionalArguments: [`--parent-window-id=${mainWindow.id}`], // Pass the ID of the window to be injected to the JavaScript file selection child window
       // ....
     }
   });
   // ....
-  ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // 监听并注入用户选择的js文件内容
+  ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // Listen and inject the selected JavaScript file content
 }
 ```
-js文件选择子窗口被加载时会读取父窗口的id并通过预加载脚本暴露的ipc通信获取可用文件列表，此页面用户通过单击可选择要修改或删除的脚本，双击js条目后会向父窗口发送文件内容，并由父窗口注入到页面中执行。
+When the JavaScript file selection child window is loaded, it reads the parent window's ID and obtains the list of available files through IPC communication exposed in the preload script. Users can click on this page to select the script to modify or delete. After double-clicking a JavaScript entry, the file content is sent to the parent window and injected into the page by the parent window for execution.
 ```javascript
-/* js插入子窗口预加载脚本 */
+/* api/preload/insertjs.js */
 
-// 获取父窗口id
+// Get parent window ID
 const arg = process.argv.find(arg => arg.startsWith('--parent-window-id='));
 const parentID = arg ? parseInt(arg.split('=')[1], 10) : null;
 
 contextBridge.exposeInMainWorld('litebrowser', {
-    parentID: parentID, // 父窗口id
-    getList: () => ipcRenderer.invoke('insertjs-get-jslist'), // 获取脚本列表
-    addJS: () => ipcRenderer.send('insertjs-add-js'), // 添加脚本
-    removeJS: (name) => ipcRenderer.send('insertjs-remove-js', name), // 删除脚本
-    openDir: () => ipcRenderer.send('insertjs-open-dir'), // 打开脚本目录
-    insertJS: (id, js) => ipcRenderer.send('insertjs-insert-js', id, js) // 插入脚本
+    parentID: parentID, // Parent window ID
+    getList: () => ipcRenderer.invoke('insertjs-get-jslist'), // Get script list
+    addJS: () => ipcRenderer.send('insertjs-add-js'), // Add script
+    removeJS: (name) => ipcRenderer.send('insertjs-remove-js', name), // Delete script
+    openDir: () => ipcRenderer.send('insertjs-open-dir'), // Open script directory
+    insertJS: (id, js) => ipcRenderer.send('insertjs-insert-js', id, js) // Inject script
 })
 ```
-### 自动js插入
-通过点击js插入页面的'
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23Z" fill="currentColor" /><path d="M16 12L10 16.3301V7.66987L16 12Z" fill="currentColor" /></svg>
-'按钮进入脚本选择，选择完成后再次单击即可保存，所有选择的文件名称都会保存在DATA_DIR/insertjs/auto.json中。
+
+### Automatic JavaScript Injection
+When each page loads, the preload script executes `ipcRenderer.send('insertjs-auto-js-insert')` to send an auto-injection signal to the backend. After receiving it, the backend obtains the triggered URL and checks if there is any auto-injection logic for this domain. After filtering out useless logic, it performs auto-injection. If there are changes to the injection configuration, they are saved to a file and cached in the `autoJSCache` local variable. All rules are in the `DATA_DIR/insertjs/auto.json` file.
+```javascript
+/* api/ipc/insertjs.js */
+
+// Auto-inject scripts
+ipcMain.on('insertjs-auto-js-insert', (event) => {
+    // ......
+    // Get the script list for the host
+    const host = (urlObj.host === '') ? -1 : urlObj.host;
+    if (host === -1) return;
+    if (autoJSCache == null) autoJSCache = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
+    let changed = false;
+    // Check if files exist, remove if not
+    if (autoJSCache.hosts.includes(host)) {
+      const jsList = autoJSCache[host];
+      for (let i = jsList.length - 1; i >= 0; i--) {
+        const jsid = jsList[i];
+        const filepath = path.join(DataPath, 'insertjs', jsid + '.js');
+        if (!fs.existsSync(filepath)) {
+          jsList.splice(i, 1);
+          changed = true;
+        }
+      }
+      // Inject remaining existing scripts
+      for (const jsid of jsList) {
+        const filepath = path.join(DataPath, 'insertjs', jsid + '.js');
+        const content = fs.readFileSync(filepath, 'utf-8');
+        win.webContents.executeJavaScript(content); // Inject script
+      }
+      // Save if list has changed
+      if (changed) {
+        if (jsList.length === 0) {
+          delete autoJSCache[host];
+          autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(host), 1);
+        }
+        fs.writeFileSync(path.join(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8'));
+      }
+    }
+ //......
+});
+```
+auto.json file structure:
 ```json
 {
-  "hosts": [ // 所有会自动执行的网站域名
+  "hosts": [ // All website domains that will auto-execute
     "example.net",
     "www.example.com"
     // ...
   ],
-  "example.net": [ // example.net域名的具体配置
-    "fnuplcuj0hbhheceb3std5w9gnr1cp9d", // 需要插入的js文件id
+  "example.net": [ // Specific configuration for example.net domain
+    "fnuplcuj0hbhheceb3std5w9gnr1cp9d", // ID of the JavaScript file to be injected
     "6df4zk44ub5mo1w59ix49yurcpwvfx8y",
     "eu9olax01oib7pwvjdxzjleabbc9w46o"
   ]

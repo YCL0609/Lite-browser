@@ -1,11 +1,29 @@
-let bookmark_list, search_url;
+import { NoteMessage } from '../lib/functions-front.js'
 const default_url = ['https://www.bing.com/search?q=%s', 'https://www.google.com/search?q=%s', 'https://www.baidu.com/s?wd=%s'];
+const langRaw = await litebrowser.getLang();
+const lang = langRaw.mainWindow;
+let bookmark_list, search_url;
+
+// 语言切换
+if (langRaw.Info.lang != "zh") {
+    document.title = lang.title;
+    document.querySelectorAll('[data-langId]').forEach(e => {
+        const langId = e.dataset.langid.replace(/@/g, 'mainWindow');
+        const langTo = e.dataset.langTo ?? "innerText";
+        const langIndex = langId.split('.');
+        let value = langRaw;
+        for (let i = 0; i < langIndex.length; i++) {
+            value = value[langIndex[i]] ?? "[Translation missing]";
+        }
+        e[langTo] = value;
+    });
+}
 
 // 数据目录权限检查
 litebrowser.dataDirPermission()
     .then(permission => {
-        if (!permission.read) NoteMessage.showMessage('error', '数据目录不可读, 程序运行在受限模式!');
-        if (!permission.write) NoteMessage.showMessage('warning', '数据目录不可写, 所有修改将在程序关闭后丢弃!');
+        if (!permission.read) NoteMessage.showMessage('error', langRaw.permission.read.tip);
+        if (!permission.write) NoteMessage.showMessage('warning', langRaw.permission.write.tip);
     });
 
 // 加载书签
@@ -49,7 +67,7 @@ litebrowser.getSetting(false)
 document.getElementById('word').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         const input = document.getElementById('word').value;
-        if (typeof input === 'string' && input.trim() === '') return; // 防止输入为空
+        if (input.trim() === '') return;
         const pattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//;
         if (pattern.test(input)) {
             litebrowser.newWindow(input)
@@ -67,6 +85,50 @@ document.getElementById('search-engine').addEventListener('change', (event) => {
     url.value = event.target.value == -1 ? "" : default_url[event.target.value]
 });
 
+// 更改设置
+document.getElementById('applySetting').addEventListener('click', () => {
+    const items = ['search-engine', 'search-url', 'color-main', 'color-text'];
+    const settings = items.map(e => document.getElementById(e).value);
+    const json = `{
+        "search": {
+            "id": ${settings[0]},
+            "url": "${settings[1]}"
+            },
+            "theme": {
+                "color": {
+                    "main": "${settings[2]}",
+                    "text": "${settings[3]}"
+            },
+            "background": @bgpic@
+            }
+            }`;
+    litebrowser.setSetting(json);
+    applyColor(settings[2], settings[3]);
+    search_url = settings[1];
+    Poop()
+})
+
+// 更换背景
+document.getElementById('bgselect').addEventListener('change', (input) => {
+    const files = input.currentTarget.files;
+    if (files.length === 0) return
+    const reader = new FileReader();
+    reader.onload = () => {
+        litebrowser.imgSetting(files[0].type, reader.result.split(',')[1]);
+        document.body.style.backgroundImage = `url(${reader.result})`;
+    };
+    reader.readAsDataURL(files[0]);
+});
+
+// 添加书签
+document.getElementById('bookmark-add-btn').onclick = () => bookmark.add(Date.now());
+
+// 书签删除
+document.getElementById('bookmark-del-btn').onclick = () => bookmark.delete();
+
+// 编辑书签
+document.getElementById('edit-bookmark').onclick = () => bookmark.edit(0);
+
 // 应用颜色设置
 function applyColor(main, text) {
     const color1 = main + "c5";
@@ -75,43 +137,8 @@ function applyColor(main, text) {
     document.getElementsByClassName('title')[0].style.color = text
 }
 
-// 更改设置
-function changeSetting() {
-    const items = ['search-engine', 'search-url', 'color-main', 'color-text'];
-    const settings = items.map(e => document.getElementById(e).value);
-    const json = `{
-        "search": {
-            "id": ${settings[0]},
-            "url": "${settings[1]}"
-        },
-        "theme": {
-            "color": {
-                "main": "${settings[2]}",
-                "text": "${settings[3]}"
-            },
-            "background": @@
-        }
-    }`;
-    litebrowser.setSetting(json);
-    applyColor(settings[2], settings[3]);
-    search_url = settings[1];
-    Poop()
-}
-
-// 更换背景
-function changeBackground(input) {
-    const files = input.files;
-    if (files.length === 0) return
-    const reader = new FileReader();
-    reader.onload = () => {
-        litebrowser.imgSetting(files[0].type, reader.result.split(',')[1]);
-        document.body.style.backgroundImage = `url(${reader.result})`;
-    };
-    reader.readAsDataURL(files[0]);
-}
-
 // 弹窗事件
-function Poop(id = -1) {
+window.Poop = (id = -1) => {
     const poop = document.getElementById('poop');
     const setting = document.getElementById('poop-setting');
     const add = document.getElementById('poop-add');
@@ -137,8 +164,9 @@ function Poop(id = -1) {
             break;
     }
 }
+
 // 书签事件
-window.bookmark = class bookmark {
+class bookmark {
     static delete(useipc = true) { // 删除书签
         const select = document.getElementById('bookmark-del');
         if (select.value == -1) return
@@ -170,39 +198,39 @@ window.bookmark = class bookmark {
         const cancelbtn0 = document.getElementById('cancel-btn0');
         const cancelbtn1 = document.getElementById('cancel-btn1');
         switch (process) {
-            case -1:
-                delbtn.innerText = '删除';
-                delbtn.onclick = () => bookmark.delete();
-                addbtn.innerText = '添加';
-                addbtn.onclick = () => bookmark.add(Date.now());
+            case -1: // 重置UI
+                delbtn.innerText = lang.bookmark.deleteBtn;
+                delbtn.onclick = () => this.delete();
+                addbtn.innerText = lang.bookmark.addBtn;
+                addbtn.onclick = () => this.add(Date.now());
                 cancelbtn0.onclick = () => Poop();
                 cancelbtn1.onclick = () => Poop();
                 Poop();
                 break;
             case 0: // 选择要修改的书签
-                delbtn.innerText = '选择';
-                delbtn.onclick = () => bookmark.edit(1);
-                cancelbtn1.onclick = () => bookmark.edit(-1);
+                delbtn.innerText = lang.bookmark.chooseBtn;
+                delbtn.onclick = () => this.edit(1);
+                cancelbtn1.onclick = () => this.edit(-1);
                 Poop(2);
                 break;
             case 1: // 加载书签
-                if (select.value == -1) bookmark.edit(-1);
-                Poop(-1)
-                addbtn.innerText = '修改';
-                addbtn.onclick = () => bookmark.edit(2);
-                cancelbtn0.onclick = () => bookmark.edit(-1);
+                if (select.value == -1) return;
+                Poop();
+                addbtn.innerText = lang.bookmark.changeBtn;
+                addbtn.onclick = () => this.edit(2);
+                cancelbtn0.onclick = () => this.edit(-1);
                 document.getElementById('bookmark-name').value = bookmark_list[select.value].title;
                 document.getElementById('bookmark-url').value = bookmark_list[select.value].url;
                 Poop(1);
                 break;
             case 2: // 修改书签
                 Poop(-1);
-                bookmark.add(select.value);
-                bookmark.delete(false);
-                delbtn.innerText = '删除';
-                delbtn.onclick = () => bookmark.delete();
-                addbtn.innerText = '添加';
-                addbtn.onclick = () => bookmark.add(Date.now());
+                this.add(select.value);
+                this.delete(false);
+                delbtn.innerText = lang.bookmark.deleteBtn;
+                delbtn.onclick = () => this.delete();
+                addbtn.innerText = lang.bookmark.addBtn;
+                addbtn.onclick = () => this.add(Date.now());
                 break;
             default: return
         }

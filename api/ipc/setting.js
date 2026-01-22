@@ -1,10 +1,12 @@
 import { DataPath, defaultSetting, imageMIME, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
-import { getFile } from '../../lib/getFile.js';
+import { getFile, getLocale } from '../../lib/functions.js';
 import { ipcMain, dialog } from 'electron';
 import { pathToFileURL } from 'url';
 import path from 'path';
 import fs from 'fs';
 const jsonPath = path.join(DataPath, 'setting.json');
+const langraw = getLocale();
+const lang = langraw.ipc.setting;
 
 // 获取配置
 ipcMain.handle('setting-get', (_, isimg) => {
@@ -22,10 +24,10 @@ ipcMain.on('setting-change', (_, json) => {
         const data = JSON.parse(getFile(jsonPath, JSON.stringify(defaultSetting)));
         const colon = (data.theme.background == null) ? '' : '"';
         const bgname = colon + data.theme.background + colon;
-        const setting = json.replace(/@@/g, bgname);
+        const setting = json.replace(/@bgpic@/g, bgname);
         fs.writeFileSync(jsonPath, setting);
     } catch (err) {
-        dialog.showErrorBox('配置修改错误', err.stack)
+        dialog.showErrorBox(lang.change.errorTitle, err.stack)
     }
 });
 
@@ -34,7 +36,7 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
     if (!isDataDirCanWrite) return;
     try {
         const extension = imageMIME[type];
-        if (!extension) throw new Error('未知MIME类型: ' + mimeType);
+        if (!extension) throw new Error(lang.changeImg.unknowMIME + mimeType);
         const buffer = Buffer.from(base64, 'base64');
         const output = `background.${extension}`
         fs.writeFileSync(path.join(DataPath, output), buffer);
@@ -46,31 +48,17 @@ ipcMain.on('setting-change-image', async (_, type, base64) => {
             } catch (err) {
                 dialog.showMessageBox({
                     type: 'warning',
-                    title: '旧图片删除警告',
-                    message: '旧图片删除失败, 可尝试手动删除\n文件路径:' + path.join(DataPath, json.theme.background),
+                    title: lang.changeImg.title,
+                    message: lang.changeImg.message + path.join(DataPath, json.theme.background),
                     defaultId: 0,
                     cancelId: 0,
-                    buttons: ['确定', '详细信息']
-                })
-                    .then(cho => {
-                        if (cho.response == 1) {
-                            dialog.showMessageBox({
-                                type: 'info',
-                                title: '详细信息',
-                                message: err.stack
-                            })
-                        }
-                    })
+                    buttons: [langraw.public.OKBtn, langraw.public.details]
+                }).then(cho => { if (cho == 1) dialog.showErrorBox(err.stack) })
             }
         }
         json.theme.background = output
         fs.writeFileSync(jsonPath, JSON.stringify(json));
     } catch (err) {
-        dialog.showErrorBox('图片保存错误', err.stack);
+        dialog.showErrorBox(lang.changeImg.errorTitle, err.stack);
     }
 })
-
-export default {
-    isDataDirCanRead,
-    isDataDirCanWrite
-};

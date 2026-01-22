@@ -4,12 +4,13 @@ let topmenu = true;
 
 // 主进程通信接口
 contextBridge.exposeInMainWorld('litebrowser', {
+  getLang: () => ipcRenderer.invoke('get-languageJson'),
   registerWindow: () => ipcRenderer.send('insertjs-register-window'),
+  switchContextMenu: () => contextmenu = !contextmenu,
   switchTopMenu: () => {
     topmenu = !topmenu;
     ipcRenderer.send('menu-switch-top-menu', topmenu);
   },
-  switchContextMenu: () => contextmenu = !contextmenu,
 });
 
 // 右键菜单事件

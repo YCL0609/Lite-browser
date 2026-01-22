@@ -2,7 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const filesToCopy = [
+const needDir = [
+  'lib/katex',
+  'extrares/license'
+]
+
+const filesCopy = [
   // DOMPurify
   {
     from: 'node_modules/dompurify/dist/purify.min.js',
@@ -10,7 +15,7 @@ const filesToCopy = [
   },
   {
     from: 'node_modules/dompurify/LICENSE',
-    to: 'lib/license/DOMPurify License.txt'
+    to: 'extrares/license/DOMPurify License.txt'
   },
   // Marked
   {
@@ -19,7 +24,7 @@ const filesToCopy = [
   },
   {
     from: 'node_modules/marked/LICENSE.md',
-    to: 'lib/license/Marked License.txt'
+    to: 'extrares/license/Marked License.txt'
   },
   // KaTeX
   {
@@ -36,17 +41,41 @@ const filesToCopy = [
   },
   {
     from: 'node_modules/katex/LICENSE',
-    to: 'lib/license/KaTeX License.txt'
+    to: 'extrares/license/KaTeX License.txt'
   }
 ];
 
-const dir = path.dirname(fileURLToPath(import.meta.url));
-fs.mkdirSync(path.join(dir, 'lib', 'katex', 'fonts'), { recursive: true });
-fs.mkdirSync(path.join(dir, 'lib', 'license'), { recursive: true });
-for (const file of filesToCopy) {
+const dirsCopy = [
+  // KaTeX字体文件
+  {
+    from: 'node_modules/katex/dist/fonts',
+    to: 'lib/katex/fonts',
+    deleteold: false
+  }
+]
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
+// 初始化文件夹
+console.log('==> Initialize folder ...');
+for (const dir of needDir) {
   try {
-    const src = path.join(dir, file.from);
-    const dest = path.join(dir, file.to);
+    const target = path.join(rootDir, dir);
+    console.log('Recreate folder: '+ target);
+    fs.rmSync(target, { recursive: true, force: true });
+    fs.mkdirSync(target, { recursive: true });
+  } catch (err) {
+    console.error(err.stack);
+    process.exit(1);
+  }
+}
+
+// 复制文件
+console.log('==> Copying Files ...');
+for (const file of filesCopy) {
+  try {
+    const src = path.join(rootDir, file.from);
+    const dest = path.join(rootDir, file.to);
     fs.copyFileSync(src, dest);
     console.log(src + " => " + dest);
   } catch (err) {
@@ -55,13 +84,22 @@ for (const file of filesToCopy) {
   }
 }
 
-// KaTeX字体文件
-const fontsSrcDir = path.join(dir, 'node_modules/katex/dist/fonts');
-const fontsDestDir = path.join(dir, 'lib/katex/fonts');
-fs.mkdirSync(path.join(dir, 'lib', 'katex', 'fonts'), { recursive: true });
-for (const fontFile of fs.readdirSync(fontsSrcDir)) {
-  const src = path.join(fontsSrcDir, fontFile);
-  const dest = path.join(fontsDestDir, fontFile);
-  fs.copyFileSync(src, dest);
-  console.log(src + " => " + dest);
+// 复制文件夹
+console.log('==> Copying folder ...');
+for (const dir of dirsCopy) {
+  try {
+    const src = path.join(rootDir, dir.from);
+    const dest = path.join(rootDir, dir.to);
+    if (dir.deleteold) fs.rmSync(dest, { recursive: true, force: true });
+    fs.mkdirSync(dest, { recursive: true });
+    for (const dirFile of fs.readdirSync(src)) {
+      const filesrc = path.join(src, dirFile);
+      const filedest = path.join(dest, dirFile);
+      fs.copyFileSync(filesrc, filedest);
+      console.log(filesrc + " => " + filedest);
+    }
+  } catch (err) {
+    console.error(err.stack);
+    process.exit(1);
+  }
 }

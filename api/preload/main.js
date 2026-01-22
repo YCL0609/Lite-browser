@@ -22,7 +22,9 @@ contextBridge.exposeInMainWorld('litebrowser', {
   // 设置相关
   getSetting: (isimg) => ipcRenderer.invoke('setting-get', isimg),
   setSetting: (json) => ipcRenderer.send('setting-change', json),
-  imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64)
+  imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64),
+  // 获取翻译文件
+  getLang: () => ipcRenderer.invoke('get-languageJson')
 });
 
 // 右键菜单事件

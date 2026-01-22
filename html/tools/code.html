@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/code.css">
     <script type="module">
-        import { toolsFileControl } from '../../lib/toolsFileControl.js';
+        import { toolsFileControl } from '../../lib/functions-front.js';
         window.toolsFileControl = toolsFileControl;
+        const lang = await litebrowser.getLang();
+        document.title = lang.tools.code.title;
     </script>
     <title>简易代码编辑器</title>
 </head>
@@ -15,11 +17,11 @@
 <body>
     <main style="height: 50%">
         <section class="editor">
-            <textarea id="htmlInput" placeholder="HTML" aria-label="HTML代码"></textarea>
-            <textarea id="cssInput" placeholder="CSS" aria-label="CSS样式"></textarea>
-            <textarea id="jsInput" placeholder="JavaScript" aria-label="JavaScript脚本"></textarea>
+            <textarea id="htmlInput" placeholder="HTML"></textarea>
+            <textarea id="cssInput" placeholder="CSS"></textarea>
+            <textarea id="jsInput" placeholder="JavaScript"></textarea>
         </section>
-        <iframe id="preview" title="代码预览"></iframe>
+        <iframe id="preview"></iframe>
     </main>
     <script src="./js/code.js"></script>
 </body>

@@ -40,15 +40,17 @@ canvas.addEventListener('mousemove', (e) => {
 window.addEventListener('resize', resizeCanvas);
 
 // 提示信息
-document.addEventListener('DOMContentLoaded', () => {
-    const noteID = NoteMessage.showMessage('info', '左键绘制, 右键擦除, Ctrl+S保存图片');
+document.addEventListener('DOMContentLoaded', async () => {
+    const lang = await litebrowser.getLang();
+    document.title = lang.tools.paint.title;
+    const noteID = NoteMessage.showMessage('info', lang.tools.paint.info);
     setTimeout(() => NoteMessage.closeMessage(noteID), 2000);
 });
 
 // 保存到本地
 document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === 's') {
-        e.preventDefault();        
+        e.preventDefault();
         canvas.toBlob(blob => {
             // 设置原始图像
             const rawImage = new Image();
@@ -60,11 +62,11 @@ document.addEventListener('keydown', (e) => {
             const bgctx = bgCanvas.getContext('2d');
             bgCanvas.width = canvas.width;
             bgCanvas.height = canvas.height;
-    
+
             // 添加背景颜色
             bgctx.fillStyle = isDark ? '#333' : '#fff';
             bgctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             // 下载图像
             rawImage.onload = () => {
                 bgctx.drawImage(rawImage, 0, 0);
