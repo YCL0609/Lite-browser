@@ -4,14 +4,10 @@ export default {
   packagerConfig: {
     icon: 'extrares/icons/icon',
     asar: true,
-
-    // 复制到与 app.asar 同级
     extraResource: [
       'extrares/icons',
       'extrares/license'
     ],
-
-    // 忽略列表
     ignore: [
       /node_modules/,
       /resources/,
@@ -29,6 +25,15 @@ export default {
   },
 
   makers: [
-    new MakerZIP({})
+    new MakerZIP({
+      name: (_forgeConfig, platform, arch) => {
+        const sys =
+          platform === 'win32' ? 'windows' :
+          platform === 'darwin' ? 'macos' :
+          platform === 'linux'  ? 'linux'  : platform;
+
+        return `lite-browser-${arch}-${sys}`;
+      }
+    })
   ]
 };
