@@ -204,7 +204,7 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
         // 获取host对应的脚本列表
         const host = (urlObj.host === '') ? -1 : urlObj.host;
         if (host === -1) return;
-        if (autoJSCache == null) autoJSCache = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
+        autoJSCache ??= JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
         let changed = false;
         // 检查文件是否存在，不存在则移除
         if (autoJSCache.hosts.includes(host)) {

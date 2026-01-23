@@ -4,6 +4,10 @@ let contentCache = '';
 let tempNoteTip = "当前为临时笔记";
 
 document.addEventListener('DOMContentLoaded', async () => {
+    DOMPurify.setConfig({
+        ALLOWED_URI_REGEXP: /^(?:(?:https?|file|ftp|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i
+    });
+
     noteID = localStorage.noteID ?? 1;
     noteID = (isNaN(parseInt(noteID))) ? 1 : parseInt(noteID)
     // 语言切换
@@ -109,8 +113,7 @@ document.addEventListener('keydown', (e) => {
                 });
                 break;
 
-            default:
-                break;
+            default: break;
         }
     }
 });
@@ -218,7 +221,6 @@ function formatImages(control) {
     root.querySelectorAll('img').forEach(img => {
         if (!range.intersectsNode(img)) return;
         const old = parseInt(img.style.width) || 100;
-        console.log(isNaN(img.style.width) || old == 0);
         if (control == "+") {
             img.style.width = (old + 1) + '%';
         } else if (control == "-" && old > 1) {
