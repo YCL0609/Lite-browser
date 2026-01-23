@@ -1,7 +1,7 @@
 # Lite Browser
-Chinese Version: [README_ZH.md](README_ZH.md)<br><br>
+中文版: [README_ZH.md](README_ZH.md)<br><br>
 <b><i>If the Chinese and English versions differ in meaning, the Chinese version takes precedence.</i></b><br>
-A lightweight browser suitable for lightweight network environments or certain web debugging needs, built on Electron.<br>
+A browser suitable for lightweight network environments or certain web debugging needs, built on the Electron framework.<br>
 The default background image for the home page: [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 
 ## Runtime Data

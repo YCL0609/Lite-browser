@@ -1,6 +1,6 @@
 # Lite Browser
 English Version: [README.md](README.md)<br><br>
-一个适用于适用于轻量级网络环境或部分网页调试需求的浏览器，项目基于electron。<br>
+一个适用于轻量级网络环境或部分网页调试需求的浏览器，项目基于electron构建。<br>
 主页面默认背景图片[Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 
 ## 运行时数据
