@@ -27,11 +27,13 @@ export default {
   makers: [
     new MakerZIP({
       name: (_forgeConfig, platform, arch) => {
-        const sys =
-          platform === 'win32' ? 'windows' :
-          platform === 'darwin' ? 'macos' :
-          platform === 'linux'  ? 'linux'  : platform;
+        const platformMap = {
+          win32: 'windows',
+          darwin: 'macos',
+          linux: 'linux'
+        };
 
+        const sys = platformMap[platform] || platform;
         return `lite-browser-${arch}-${sys}`;
       }
     })
