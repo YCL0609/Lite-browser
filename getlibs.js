@@ -8,6 +8,11 @@ const needDir = [
 ]
 
 const filesCopy = [
+  // 背景图像
+  {
+    from: 'extrares/Image source.txt',
+    to: 'extrares/license/Image source'
+  },
   // DOMPurify
   {
     from: 'node_modules/dompurify/dist/purify.min.js',

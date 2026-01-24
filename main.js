@@ -1,5 +1,5 @@
-import { app, session, BrowserWindow, Menu, protocol, net } from 'electron';
-import { appPath, DataPath, iconPath, ToolsPath } from './lib/config.js';
+import { app, session, BrowserWindow, Menu } from 'electron';
+import { appPath, DataPath, iconPath } from './lib/config.js';
 import { cmdLineHandle, getNomenuSession } from './lib/functions.js';
 import { TopMenu } from './api/menu.js';
 import path from "path";

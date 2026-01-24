@@ -37,8 +37,8 @@ const controlMenu_Page = [
   {
     label: ctrlText.back, accelerator: 'Alt+Left',
     click: () => {
-      const win = BrowserWindow.getFocusedWindow().navigationHistory;
-      if (win?.canGoBack()) win.goBack();
+      const win = BrowserWindow.getFocusedWindow()?.webContents.navigationHistory;
+      if (win && win.canGoBack()) win.goBack();
     }
   },
   { label: ctrlText.reload, accelerator: 'F5', role: 'reload' },
@@ -46,8 +46,8 @@ const controlMenu_Page = [
   {
     label: ctrlText.forward, accelerator: 'Alt+Right',
     click: () => {
-      const win = BrowserWindow.getFocusedWindow().navigationHistory;
-      if (win?.canGoForward()) win.goForward();
+      const win = BrowserWindow.getFocusedWindow()?.webContents.navigationHistory;
+      if (win && win.canGoForward()) win.goForward();
     }
   }
 ];

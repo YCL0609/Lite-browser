@@ -1,4 +1,6 @@
 import { MakerZIP } from '@electron-forge/maker-zip';
+import path from 'path';
+import fs from 'fs';
 
 export default {
   packagerConfig: {
@@ -15,7 +17,7 @@ export default {
       /out/,
       /\.git/,
       /package-lock\.json$/,
-      /README_EN\.md$/,
+      /README_ZH\.md$/,
       /\.gitignore$/,
       /getlibs\.js$/,
       /README\.md$/,
@@ -23,19 +25,27 @@ export default {
       /forge.config.js$/
     ]
   },
-
-  makers: [
-    new MakerZIP({
-      name: (_forgeConfig, platform, arch) => {
-        const platformMap = {
+  makers: [new MakerZIP({})],
+  hooks: {
+    postMake: async (_, results) => {
+      for (const result of results) {
+        const sysList = {
           win32: 'windows',
           darwin: 'macos',
           linux: 'linux'
         };
-
-        const sys = platformMap[platform] || platform;
-        return `lite-browser-${arch}-${sys}`;
+        const sys = sysList[result.platform] ? sysList[result.platform] : result.platform
+        const newBaseName = `lite-browser-${sys}-${result.arch}`;
+        for (let i = 0; i < result.artifacts.length; i++) {
+          const artifactPath = result.artifacts[i];
+          const ext = path.extname(artifactPath);
+          if (ext === '.zip') {
+            const dir = path.dirname(artifactPath);
+            const newPath = path.join(dir, `${newBaseName}${ext}`);
+            fs.renameSync(artifactPath, newPath);
+          }
+        }
       }
-    })
-  ]
+    }
+  }
 };
