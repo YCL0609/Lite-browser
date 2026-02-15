@@ -1,5 +1,5 @@
-import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
-import { getFile, getLocale } from '../../lib/functions.js';
+import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../libs/config.js';
+import { getFile, getLocale } from '../../libs/functions.js';
 import { ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs';

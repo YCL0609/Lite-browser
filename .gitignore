@@ -1,9 +1,9 @@
 extrares/license/
 node_modules/
-lib/license/
-lib/katex/
+libs/license/
+libs/katex/
 resources/
 .vscode/
 out/
-lib/purify.min.js
-lib/marked.min.js
+libs/purify.min.js
+libs/marked.min.js

@@ -107,7 +107,7 @@ function showMD() {
 
     // 构建css连接
     const maincss = new URL('./css/markdown-iframe.css', location.href).href;
-    const katexcss = new URL('../../lib/katex/katex.min.css', location.href).href;
+    const katexcss = new URL('../../libs/katex/katex.min.css', location.href).href;
     const cssLinks = `<link rel="stylesheet" href="${maincss}"><link rel="stylesheet" href="${katexcss}">`;
 
     // 构建BLOB

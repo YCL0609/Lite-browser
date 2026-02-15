@@ -3,20 +3,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const needDir = [
-  'lib/katex',
+  'libs/katex',
   'extrares/license'
 ]
 
 const filesCopy = [
-  // 背景图像
-  {
-    from: 'extrares/Image source.txt',
-    to: 'extrares/license/Image source'
-  },
   // DOMPurify
   {
     from: 'node_modules/dompurify/dist/purify.min.js',
-    to: 'lib/purify.min.js'
+    to: 'libs/purify.min.js'
   },
   {
     from: 'node_modules/dompurify/LICENSE',
@@ -25,7 +20,7 @@ const filesCopy = [
   // Marked
   {
     from: 'node_modules/marked/lib/marked.umd.js',
-    to: 'lib/marked.min.js'
+    to: 'libs/marked.min.js'
   },
   {
     from: 'node_modules/marked/LICENSE.md',
@@ -34,15 +29,15 @@ const filesCopy = [
   // KaTeX
   {
     from: 'node_modules/katex/dist/katex.min.js',
-    to: 'lib/katex/katex.min.js'
+    to: 'libs/katex/katex.min.js'
   },
   {
     from: 'node_modules/katex/dist/katex.min.css',
-    to: 'lib/katex/katex.min.css'
+    to: 'libs/katex/katex.min.css'
   },
   {
     from: 'node_modules/katex/dist/contrib/auto-render.min.js',
-    to: 'lib/katex/auto-render.min.js'
+    to: 'libs/katex/auto-render.min.js'
   },
   {
     from: 'node_modules/katex/LICENSE',
@@ -54,7 +49,7 @@ const dirsCopy = [
   // KaTeX字体文件
   {
     from: 'node_modules/katex/dist/fonts',
-    to: 'lib/katex/fonts',
+    to: 'libs/katex/fonts',
     deleteold: false
   }
 ]

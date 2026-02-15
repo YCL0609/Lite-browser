@@ -1,6 +1,6 @@
-import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
+import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../libs/config.js';
 import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
-import { getFile, getLocale } from '../../lib/functions.js';
+import { getFile, getLocale } from '../../libs/functions.js';
 import path from 'path';
 import fs from 'fs';
 const jsonPath_name = path.join(DataPath, 'insertjs', 'name.json');

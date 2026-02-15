@@ -1,4 +1,4 @@
-import { NoteMessage } from '../lib/functions-front.js'
+import { NoteMessage } from '../libs/functions-front.js'
 const default_url = ['https://www.bing.com/search?q=%s', 'https://www.google.com/search?q=%s', 'https://www.baidu.com/s?wd=%s'];
 const langRaw = await litebrowser.getLang();
 const lang = langRaw.mainWindow;
@@ -59,7 +59,7 @@ litebrowser.getSetting(false)
         document.getElementById('color-text').value = setting.theme.color.text;
         applyColor(setting.theme.color.main, setting.theme.color.text);
         // 背景
-        if (setting.theme.background != null) litebrowser.getSetting(true)
+        if (setting.theme.background !== null) litebrowser.getSetting(true)
             .then(imgurl => document.body.style.backgroundImage = `url('${imgurl}')`);
     });
 

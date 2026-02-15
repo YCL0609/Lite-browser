@@ -16,11 +16,11 @@
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/plugin-fuses": "^7.11.1",
     "@electron/fuses": "^1.8.0",
-    "electron": "^40.0.0"
+    "electron": "^40.4.1"
   },
   "dependencies": {
     "dompurify": "^3.3.1",
-    "katex": "^0.16.27",
-    "marked": "^17.0.1"
+    "katex": "^0.16.28",
+    "marked": "^17.0.2"
   }
 }

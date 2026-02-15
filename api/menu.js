@@ -1,6 +1,6 @@
 import { shell, clipboard, dialog, BrowserWindow, Menu } from 'electron';
-import { openToolsWindow, insertJS, getLocale } from '../lib/functions.js';
-import { isMac, ToolsID } from '../lib/config.js';
+import { openToolsWindow, insertJS, getLocale } from '../libs/functions.js';
+import { isMac, ToolsID } from '../libs/config.js';
 
 // 获取翻译文件
 const lang = getLocale();
@@ -109,7 +109,6 @@ const JSInsert = {
 
 // 右键菜单
 const contextMenu = Menu.buildFromTemplate([
-  ToolsMenu,
   EditMenu,
   {
     label: ctrlText.index,

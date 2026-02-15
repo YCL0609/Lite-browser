@@ -8,7 +8,7 @@ The default background image for the home page: [Pixiv ID: 76545259](https://www
 The default data storage path DATA_DIR is the resources folder at the same level as app.asar (on macOS, it's the resources folder in the root of the LiteBrowser.app folder). All systems can override this using the `LITE_BROWSER_DATA_PATH` environment variable.Electron web data at runtime is stored in `DATA_DIR/userData/` by default, user-defined JavaScript files are stored in `DATA_DIR/insertjs/`, tool pages are stored locally in `DATA_DIR/tools/`, and other files are stored in `DATA_DIR/` by default.
 
 ## Language Files and Switching Logic
-The program retrieves the user's preferred language list during initialization and takes the first preference. If it's not in the supported list, English is used as the primary language. All systems can override this using the `LITE_BROWSER_LANG` environment variable. All supported language IDs are stored in the `supportLang` variable in `lib/config.js`, and language files are stored in `lang/{lang}.json`. You can add language files and repackage as needed.
+The program retrieves the user's preferred language list during initialization and takes the first preference. If it's not in the supported list, English is used as the primary language. All systems can override this using the `LITE_BROWSER_LANG` environment variable. All supported language IDs are stored in the `supportLang` variable in `libs/config.js`, and language files are stored in `lang/{lang}.json`. You can add language files and repackage as needed.
 
 ## Home Page Settings
 Home page settings are stored in `DATA_DIR/setting.json`.<br>
@@ -68,7 +68,7 @@ bookmarks.json file structure:
 User-defined JavaScript files are stored in the `DATA_DIR/insertjs/` directory with filenames as {32-character random string}.js, and name.json records the correspondence with the original filename. Click the `JavaScript Injection` button in the menu (on macOS: `"Control..." => "JavaScript Injection"`) or press <b>F1</b> to select a JavaScript file to inject.<br><br>
 When injecting a JavaScript file, the program first executes the `litebrowser.registerWindow()` method exposed in the preload script through the `executeJavaScriptInIsolatedWorld` function in the currently focused window to register a window object in the renderer process, then waits and injects the user-selected JavaScript file into the currently focused window through executeJavaScript.
 ```javascript
-/* lib/functions.js */
+/* libs/functions.js */
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();
   mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()') // Register window object in main process

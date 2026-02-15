@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { contextMenu, TopMenu } from '../menu.js';
-import { isMac } from '../../lib/config.js';
+import { isMac } from '../../libs/config.js';
 
 // 右键菜单响应
 ipcMain.on('menu-contextmenu', (event, x, y) => {

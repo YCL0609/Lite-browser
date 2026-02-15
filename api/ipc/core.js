@@ -1,6 +1,6 @@
-import { isDataDirCanRead, isDataDirCanWrite, iconPath } from '../../lib/config.js';
+import { isDataDirCanRead, isDataDirCanWrite, iconPath } from '../../libs/config.js';
 import { ipcMain, BrowserWindow, session } from 'electron';
-import { getLocale } from '../../lib/functions.js';
+import { getLocale } from '../../libs/functions.js';
 
 // 正常新窗口
 ipcMain.on('new-window', (_, url) => {

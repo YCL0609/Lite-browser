@@ -7,7 +7,7 @@ English Version: [README.md](README.md)<br><br>
 默认数据存储路径DATA_DIR为与app.asar同级目录的resources文件夹(Mac OS上为LiteBrowser.app文件夹的根目录下的resources文件夹)，所有系统均通过`LITE_BROWSER_DATA_PATH`环境变量进行覆盖。运行时的electron网页数据默认存储在`DATA_DIR/userData/`文件夹，用户自定义js文件存储在`DATA_DIR/insertjs/`文件夹，工具页面本地存储在`DATA_DIR/tools/`文件夹,其他文件默认存储在`DATA_DIR/`文件夹。
 
 ## 语言文件及切换逻辑
-程序在初始化时会获取用户偏好语言列表并截取第一个偏好语言，若不在支持列表中则使用英文作为主语言，所有系统均可以通过`LITE_BROWSER_LANG`环境变量覆盖，所有受支持的语言id存储在`lib/config.js`中的`supportLang`变量中，语言文件存储在`lang/{lang}.json`中，可自行添加语言文件后进行打包。
+程序在初始化时会获取用户偏好语言列表并截取第一个偏好语言，若不在支持列表中则使用英文作为主语言，所有系统均可以通过`LITE_BROWSER_LANG`环境变量覆盖，所有受支持的语言id存储在`libs/config.js`中的`supportLang`变量中，语言文件存储在`lang/{lang}.json`中，可自行添加语言文件后进行打包。
 
 ## 主页面设置
 主页面设置文件存储在`DATA_DIR/setting.json`中。<br>
@@ -67,7 +67,7 @@ bookmarks.json 文件结构:
 用户自定义js文件存储在DATA_DIR/insertjs目录下，文件名为{32位随机字串}.js由name.json记录与原始文件名的对应关系，通过点击菜单中的`JavaScript注入`按钮(Mac OS为`"控制..."=>"JavaScript注入件"`)或按下<b>F1</b>键，即可选择要插入的js文件。<br><br>
 插入js文件时程序会首先通过`executeJavaScriptInIsolatedWorld`函数在当前焦点窗口执行预加载脚本中暴露的`litebrowser.registerWindow()`方法向渲染进程中注册一个window对象，然后等待并通过executeJavaScript将用户选择的js文件插入到当前焦点窗口中。
 ```javascript
-/* lib/functions.js */
+/* libs/functions.js */
 function insertJS() {
   const mainWindow = BrowserWindow.getFocusedWindow();
   mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()') // 向主进程中注册window对象

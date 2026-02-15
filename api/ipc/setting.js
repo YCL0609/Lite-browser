@@ -1,5 +1,5 @@
-import { DataPath, defaultSetting, imageMIME, isDataDirCanRead, isDataDirCanWrite } from '../../lib/config.js';
-import { getFile, getLocale } from '../../lib/functions.js';
+import { DataPath, defaultSetting, imageMIME, isDataDirCanRead, isDataDirCanWrite } from '../../libs/config.js';
+import { getFile, getLocale } from '../../libs/functions.js';
 import { ipcMain, dialog } from 'electron';
 import { pathToFileURL } from 'url';
 import path from 'path';

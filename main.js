@@ -1,6 +1,6 @@
 import { app, session, BrowserWindow, Menu } from 'electron';
-import { appPath, DataPath, iconPath } from './lib/config.js';
-import { cmdLineHandle, getNomenuSession } from './lib/functions.js';
+import { appPath, DataPath, iconPath } from './libs/config.js';
+import { cmdLineHandle, getNomenuSession } from './libs/functions.js';
 import { TopMenu } from './api/menu.js';
 import path from "path";
 const gotTheLock = app.requestSingleInstanceLock();

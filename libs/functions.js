@@ -1,4 +1,4 @@
-import { appPath, iconPath, supportLang, isDebug, ToolsID } from '../lib/config.js';
+import { appPath, iconPath, supportLang, isDebug, ToolsID } from '../libs/config.js';
 import { BrowserWindow, dialog, app, Menu, session } from 'electron';
 import { pathToFileURL } from 'url';
 import path from 'path';

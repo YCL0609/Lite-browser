@@ -19,7 +19,7 @@ const appPath = app.getAppPath();
 const supportLang = ['en', 'zh'];
 
 // 窗口图标
-const _iconDir = app.isPackaged ? path.join(appPath, '..', 'icons') : path.join(appPath, 'icons');
+const _iconDir = app.isPackaged ? path.join(appPath, '..', 'icons') : path.join(appPath, 'extrares', 'icons');
 const iconPath = (() => {
     const iconMap = {
         'win32': 'icon.ico',
