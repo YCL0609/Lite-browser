@@ -5,5 +5,7 @@ libs/katex/
 resources/
 .vscode/
 out/
+
 libs/purify.min.js
 libs/marked.min.js
+*.bdic

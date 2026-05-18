@@ -1,6 +1,13 @@
+/**
+ * 消息提示工具，支持 success/warning/error/info 四种消息类型
+ */
 class NoteMessage {
     static #isinit = false;
 
+    /**
+     * 初始化消息样式并插入页面，使用`#isinit`避免重复注入
+     * @returns {Promise<void>}
+     */
     static async #init() {
         if (this.#isinit) return;
         const css = ".LB-notes-container{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}.LB-note{min-width:200px;max-width:90vw;padding:8px 14px;border-radius:10px;box-shadow:0 2px 8px #00000033;color:#000;pointer-events:auto;cursor:pointer}.LB-info{background-color:#00ffffbb}.LB-error{background-color:#ff0000bb}.LB-success{background-color:#00ff00bb}.LB-warning{background-color:#ffff00bb}";
@@ -10,6 +17,12 @@ class NoteMessage {
         this.#isinit = true;
     }
 
+    /**
+     * 显示提示消息，消息被用户点击时会自动移除
+     * @param {'success'|'warning'|'error'|'info'} level 消息级别
+     * @param {string} message 提示内容文本
+     * @returns {string} 唯一消息元素 id
+     */
     static showMessage(level, message) {
         if (!this.#isinit) this.#init();
         // 获取或创建消息容器
@@ -54,6 +67,11 @@ class NoteMessage {
         return messageDiv.id;
     }
 
+    /**
+     * 移除指定 id 的提示消息，若消息不存在则无操作
+     * @param {string} id 消息元素的 id
+     * @returns {void}
+     */
     static closeMessage(id) {
         if (!this.#isinit || !id) return;
         const messageDiv = document.getElementById(id);
@@ -62,6 +80,9 @@ class NoteMessage {
     }
 }
 
+/**
+ * 工具文件操作控制器，用于读写删除工具数据文件并显示权限提示
+ */
 class toolsFileControl {
     static #permission = { read: false, write: false };
     static #toolName = "";
@@ -69,6 +90,12 @@ class toolsFileControl {
     static #lang = null;
     static #noLangText = "[Translation missing]";
 
+    /**
+     * 初始化文件操作控制器
+     * @param {string} toolName 当前工具名称，用于访问 litebrowser 对应接口
+     * @param {Object|null} lang 语言包对象，用于显示本地化消息
+     * @returns {Promise<void>}
+     */
     static async init(toolName = "", lang = null) {
         if (this.#isInit) return;
         try {
@@ -101,7 +128,12 @@ class toolsFileControl {
         }
     }
 
-    // 读取文件
+    /**
+     * 读取本地文件内容
+     * @param {string|null} name 待读取文件名
+     * @returns {Promise<string>} 文件内容文本
+     * @throws 读取失败时抛出异常
+     */
     static async getFile(name = null) {
         if (!this.#isInit) throw new Error('Uninitialized toolsFileControl!');
         const msgID = NoteMessage.showMessage('warning', this.#lang.toolsFileControl?.loading ?? this.#noLangText);
@@ -119,7 +151,14 @@ class toolsFileControl {
         return content.message;
     }
 
-    // 保存文件
+    /**
+     * 保存数据到本地文件
+     *  - 若 `isauto` 参数为 `true`，则表示自动保存，此时会显示不同的提示消息且提示持续时间更短
+     * @param {string} content 要保存的文本内容
+     * @param {boolean} [isauto=false] 是否为自动保存
+     * @param {any} [extparam=null] 额外参数，将传递给保存接口
+     * @returns {Promise<boolean>} 保存成功返回 true，否则 false
+     */
     static async saveFile(content = '', isauto = false, extparam = null) {
         if (!this.#isInit) throw new Error('Uninitialized toolsFileControl!');
         if (!this.#permission?.write) return;
@@ -142,7 +181,11 @@ class toolsFileControl {
         }
     }
 
-    // 删除文件
+    /**
+     * 删除指定文件
+     * @param {string|null} name 待删除文件名
+     * @returns {Promise<boolean>} 删除成功返回 true，否则 false
+     */
     static async deleteFile(name = null) {
         if (!this.#isInit) throw new Error('Uninitialized toolsFileControl!');
         if (!this.#permission?.write) return

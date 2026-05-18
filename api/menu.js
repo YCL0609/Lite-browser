@@ -1,23 +1,24 @@
+import { openToolsWindow, insertJS, getLocale, getSettings } from '../libs/functions.js';
 import { shell, clipboard, dialog, BrowserWindow, Menu } from 'electron';
-import { openToolsWindow, insertJS, getLocale } from '../libs/functions.js';
-import { isMac, ToolsID } from '../libs/config.js';
+import { isMac, toolsID } from '../libs/config.js';
 
-// 获取翻译文件
+// 获取翻译文件和配置文件
 const lang = getLocale();
+const settings = getSettings();
 
-// 工具菜单
-const ToolsMenu = {
+// 工具菜单：不满足条件时返回 null
+const toolsMenu = settings?.app.toolBox ? {
   label: lang.menu.tools.index,
-  submenu: ToolsID.map((id, index) => ({
+  submenu: toolsID.map((id, index) => ({
     label: lang.tools.name[index],
     accelerator: `Alt+${index + 1}`,
-    click: () => openToolsWindow(`${id}.html`)
+    click: () => openToolsWindow(id),
   }))
-};
+} : null;
 
 // 编辑菜单
 const editText = lang.menu.edit;
-const EditMenu = {
+const editMenu = {
   label: editText.index,
   submenu: [
     { label: editText.undo, accelerator: 'CmdOrCtrl+Z', role: 'undo' },
@@ -84,7 +85,7 @@ const controlMenu_Window = [
 ];
 
 // 菜单切换
-const MenuSwitch = [{
+const menuSwitch = [{
   label: ctrlText.switchTopMenu, accelerator: 'F8',
   click: () => {
     const win = BrowserWindow.getFocusedWindow();
@@ -98,36 +99,34 @@ const MenuSwitch = [{
   }
 }];
 
-// JavaScript注入
-const JSInsert = {
+// JavaScript注入：不满足条件时返回 null
+const JSInsert = settings?.app.insertjs ? {
   label: ctrlText.insertJS,
   accelerator: 'F1',
   click: insertJS
-};
-
-/****************************/
+} : null;
 
 // 右键菜单
-const contextMenu = Menu.buildFromTemplate([
-  EditMenu,
+const contextMenu = settings?.app.contentMenu ? Menu.buildFromTemplate([
+  editMenu,
   {
     label: ctrlText.index,
     submenu: [
       ...controlMenu_Window,
       ...(isMac ? [JSInsert] : [])
-    ]
+    ].filter(Boolean)
   },
   { type: 'separator' },
   ...controlMenu_Page,
   { type: 'separator' },
-  ...MenuSwitch,
+  ...menuSwitch,
   JSInsert,
-]);
+].filter(Boolean)) : null;
 
 // 顶部菜单
-const TopMenu = Menu.buildFromTemplate([
-  ToolsMenu,
-  EditMenu,
+const topMenu = settings?.app.topMenu ? Menu.buildFromTemplate([
+  toolsMenu,
+  editMenu,
   {
     label: ctrlText.index,
     submenu: [
@@ -135,11 +134,11 @@ const TopMenu = Menu.buildFromTemplate([
       { type: 'separator' },
       ...controlMenu_Window,
       { type: 'separator' },
-      ...MenuSwitch,
+      ...menuSwitch,
       ...(isMac ? [JSInsert] : [])
-    ]
+    ].filter(Boolean)
   },
   ...(isMac ? [] : [JSInsert]),
-]);
+].filter(Boolean)) : null;
 
-export { contextMenu, TopMenu };
+export { contextMenu, topMenu as TopMenu };

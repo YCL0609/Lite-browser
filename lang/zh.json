@@ -167,7 +167,7 @@
             "title": "MarkDown 实时预览",
             "inputTip": "在此输入 Markdown 文本...",
             "preview": "预览:",
-            "default": "# MarkDown 演示\n支持大部分MarkDown语法和数学公式\n## 使用的开源库\n| 名称 | 描述 | 仓库链接 |\n| :--- | :---: | :---: |\n| Marked | MarkDown转html | https://github.com/markedjs/marked |\n| DOMPurify | html清理 | https://github.com/cure53/DOMPurify |\n| KaTeX | 数学公式渲染 | https://github.com/KaTeX/KaTeX |"
+            "default": "# MarkDown 演示\n支持大部分MarkDown语法和数学公式\n## 使用的开源库\n| 名称 | 描述 | 仓库链接 |\n| :--- | :---: | :---: |\n| Marked | markdowm转html | https://github.com/markedjs/marked |\n| DOMPurify | html清理 | https://github.com/cure53/DOMPurify |\n| KaTeX | 数学公式渲染 | https://github.com/KaTeX/KaTeX |"
         }
     },
     "toolsFileControl": {

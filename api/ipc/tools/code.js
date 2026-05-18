@@ -1,21 +1,21 @@
-import { isDataDirCanRead, isDataDirCanWrite, ToolsPath } from '../../../libs/config.js';
-import { getFile, getLocale } from '../../../libs/functions.js';
+import { debugLog, getFile, getLocale } from '../../../libs/functions.js';
+import { DataPath } from '../../../libs/config.js';
 import { ipcMain } from 'electron';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 const langRaw = getLocale();
 const lang = langRaw.ipc.tools;
 const defaultCode = langRaw.tools.code.default;
-const imgListFile = path.join(ToolsPath, 'code', 'imglist.json');
-const imgDir = path.join(ToolsPath, 'code', 'imgs');
+const imgListFile = path.join(DataPath.tools, 'code', 'imglist.json');
+const imgDir = path.join(DataPath.tools, 'code', 'imgs');
 let imgIDsCache = null;
 let codeFiles = [];
-['html', 'css', 'js'].forEach(e => codeFiles[e] = path.join(ToolsPath, 'code', 'index.' + e));
+['html', 'css', 'js'].forEach(e => codeFiles[e] = path.join(DataPath.tools, 'code', 'index.' + e));
 
 // 读取代码编辑器内容
 ipcMain.handle('tools-code-get', async () => {
     // 存储目录权限检查
-    if (!isDataDirCanRead) return { status: true, message: { html: defaultCode.html, css: defaultCode.css, js: defaultCode.js } };
+    if (!DataPath.access.R) return { status: true, message: { html: defaultCode.html, css: defaultCode.css, js: defaultCode.js } };
 
     try {
         const [rawHtml, css, js] = await Promise.all([
@@ -31,7 +31,8 @@ ipcMain.handle('tools-code-get', async () => {
         });
         return { status: true, message: { html: html, css: css, js: js } };
     } catch (err) {
-        return { status: false, message: err.stack };
+        debugLog('error', 'Failed to get code tool content:', err.message);
+        return { status: false, message: err.message };
     }
 });
 
@@ -40,7 +41,7 @@ ipcMain.handle('tools-code-get', async () => {
 ipcMain.handle('tools-code-set', (_, content, type) => {
     // 合规性和存储目录权限检查
     if (!['html', 'css', 'js'].includes(type)) return { status: false, message: lang.code.typeError };
-    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
+    if (!DataPath.access.W) return { status: false, message: langRaw.permission.write.info };
 
     try {
         if (type == 'html') {
@@ -57,19 +58,21 @@ ipcMain.handle('tools-code-set', (_, content, type) => {
         fs.writeFileSync(codeFiles[type], content, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
-        return { status: false, message: err.stack }
+        debugLog('error', `Code tool content '${type}' update failed:`, err.message);
+        return { status: false, message: err.message };
     }
 });
 
 // 删除代码编辑器内容
 ipcMain.handle('tools-code-del', () => {
     // 存储目录权限检查
-    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
+    if (!DataPath.access.W) return { status: false, message: langRaw.permission.write.info };
 
     try {
-        fs.rmSync(path.join(ToolsPath, 'code'), { force: true, recursive: true });
+        fs.rmSync(path.join(DataPath.tools, 'code'), { force: true, recursive: true });
         return { status: true, message: 'OK' };
     } catch (err) {
-        return { status: false, message: err.stack }
+        debugLog('error', 'Failed to delete code tool content:', err.message);
+        return { status: false, message: err.message };
     }
 });

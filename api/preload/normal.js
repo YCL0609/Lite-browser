@@ -2,23 +2,53 @@ const { ipcRenderer, contextBridge } = require('electron');
 let contextmenu = true;
 let topmenu = true;
 
-// 主进程通信接口
-contextBridge.exposeInMainWorld('litebrowser', {
-  getLang: () => ipcRenderer.invoke('get-languageJson'),
-  registerWindow: () => ipcRenderer.send('insertjs-register-window'),
-  switchContextMenu: () => contextmenu = !contextmenu,
-  switchTopMenu: () => {
-    topmenu = !topmenu;
-    ipcRenderer.send('menu-switch-top-menu', topmenu);
-  },
-});
+// 参数获取
+const configArg = process.argv.find(arg => arg.startsWith('--app-config='));
+let passedConfig = {};
+if (configArg) {
+  try {
+    const jsonString = configArg.substring(configArg.indexOf('=') + 1);
+    passedConfig = JSON.parse(jsonString);
+  } catch (_) { }
+}
+const cfg = {
+  topMenu: true,
+  insertjs: true,
+  contentMenu: true,
+  ...passedConfig
+};
 
-// 右键菜单事件
-window.addEventListener('contextmenu', (e) => {
-  if (!contextmenu) return;
-  e.preventDefault();
-  ipcRenderer.send('menu-contextmenu', { x: e.clientX, y: e.clientY });
-});
+let api = {};
 
-// 自动插入JS
-ipcRenderer.send('insertjs-auto-js-insert')
+// 顶部菜单
+if (cfg.topMenu) api.switchTopMenu = () => {
+  topmenu = !topmenu;
+  ipcRenderer.send('menu-switch-top-menu', topmenu);
+};
+
+// JS 注入
+if (cfg.insertjs) api.registerWindow = () => ipcRenderer.send('insertjs-register-window');
+
+
+// 右键菜单
+if (cfg.contentMenu) api.switchContextMenu = () => contextmenu = !contextmenu;
+
+// 暴露接口
+contextBridge.exposeInMainWorld('litebrowser', api);
+
+// 页面加载完成事件
+window.addEventListener('DOMContentLoaded', () => {
+  // 自动化 JS 注入
+  if (cfg.insertjs) {
+    ipcRenderer.send('insertjs-auto-js-insert');
+  }
+
+  // 右键菜单事件
+  if (cfg.contentMenu) {
+    window.addEventListener('contextmenu', (e) => {
+      if (!contextmenu) return;
+      e.preventDefault();
+      ipcRenderer.send('menu-contextmenu', { x: e.clientX, y: e.clientY });
+    });
+  }
+});

@@ -5,7 +5,7 @@ A browser suitable for lightweight network environments or certain web debugging
 The default background image for the home page: [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 
 ## Runtime Data
-The default data storage path DATA_DIR is the resources folder at the same level as app.asar (on macOS, it's the resources folder in the root of the LiteBrowser.app folder). All systems can override this using the `LITE_BROWSER_DATA_PATH` environment variable.Electron web data at runtime is stored in `DATA_DIR/userData/` by default, user-defined JavaScript files are stored in `DATA_DIR/insertjs/`, tool pages are stored locally in `DATA_DIR/tools/`, and other files are stored in `DATA_DIR/` by default.
+The default data storage path DATA_DIR is the resources folder at the same level as app.asar (on macOS, it's the resources folder in the root of the LiteBrowser.app folder). All systems can override this using the `LB_DATA_PATH` environment variable.Electron web data at runtime is stored in `DATA_DIR/userData/` by default, user-defined JavaScript files are stored in `DATA_DIR/insertjs/`, tool pages are stored locally in `DATA_DIR/tools/`, and other files are stored in `DATA_DIR/` by default.
 
 ## Language Files and Switching Logic
 The program retrieves the user's preferred language list during initialization and takes the first preference. If it's not in the supported list, English is used as the primary language. All systems can override this using the `LITE_BROWSER_LANG` environment variable. All supported language IDs are stored in the `supportLang` variable in `libs/config.js`, and language files are stored in `lang/{lang}.json`. You can add language files and repackage as needed.

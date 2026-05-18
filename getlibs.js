@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const needDir = [
   'libs/katex',
@@ -23,7 +23,7 @@ const filesCopy = [
     to: 'libs/marked.min.js'
   },
   {
-    from: 'node_modules/marked/LICENSE.md',
+    from: 'node_modules/marked/LICENSE',
     to: 'extrares/license/Marked License.txt'
   },
   // KaTeX

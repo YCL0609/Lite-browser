@@ -1,11 +1,10 @@
-import { DataPath, isDataDirCanRead, isDataDirCanWrite } from '../../libs/config.js';
 import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
-import { getFile, getLocale } from '../../libs/functions.js';
-import path from 'path';
-import fs from 'fs';
-const jsonPath_name = path.join(DataPath, 'insertjs', 'name.json');
-const jsonPath_auto = path.join(DataPath, 'insertjs', 'auto.json');
-const targetDir = path.join(DataPath, 'insertjs');
+import { debugLog, getFile, getLocale } from '../../libs/functions.js';
+import { DataPath } from '../../libs/config.js';
+import path from 'node:path';
+import fs from 'node:fs';
+const jsonPath_name = path.join(DataPath.insertjs, 'name.json');
+const jsonPath_auto = path.join(DataPath.insertjs, 'auto.json');
 const defaultJson_auto = '{"hosts":[]}';
 const defaultJson_name = '{}';
 const windowMap = new Map();
@@ -25,7 +24,7 @@ ipcMain.on('insertjs-register-window', (event) => {
 
 // 获取脚本列表
 ipcMain.handle('insertjs-get-jslist', async () => {
-    if (!isDataDirCanRead) return { used: 0, error: lang.get.errorInfo, list: [] };
+    if (!DataPath.access.R) return { used: 0, error: lang.get.errorInfo, list: [] };
     let json;
     const startat = performance.now();
     try {
@@ -42,13 +41,15 @@ ipcMain.handle('insertjs-get-jslist', async () => {
             list: []
         }
     }
+
+    debugLog(json.error === -1 ? 'info' : 'warn', 'Get list of inserted JS files: Used:', json.used, 'Length:', json.list.length)
     return json
 });
 
 // 添加脚本
 ipcMain.on('insertjs-add-js', async (event) => {
     try {
-        if (!isDataDirCanWrite) throw new Error(lang.add.errorInfo);
+        if (!DataPath.access.W) throw new Error(lang.add.errorInfo);
         const win = BrowserWindow.fromWebContents(event.sender);
         // 打开文件选择对话框
         const result = await dialog.showOpenDialog(win, {
@@ -68,12 +69,14 @@ ipcMain.on('insertjs-add-js', async (event) => {
             const ext = path.extname(fileName);
             const name = path.basename(fileName, ext);
             const nameID = crypto.randomUUID();
-            const targetPath = path.join(targetDir, nameID + '.js');
+            const targetPath = path.join(DataPath.insertjs, nameID + '.js');
             // 复制文件
             try {
                 await fs.promises.copyFile(sourcePath, targetPath);
             } catch (err) {
-                dialog.showErrorBox(lang.add.copyError, err.stack);
+                debugLog('error', `Failed to copy JS file ${sourcePath}:`, err.message);
+                dialog.showErrorBox(lang.add.copyError, err.message);
+                return;
             }
             // 记录ID和名称对应关系
             try {
@@ -82,24 +85,27 @@ ipcMain.on('insertjs-add-js', async (event) => {
                 fs.writeFileSync(jsonPath_name, JSON.stringify(idJson, null, 2), 'utf-8');
                 win.reload();
             } catch (err) {
-                dialog.showErrorBox(lang.add.IDError, err.stack);
+                debugLog('error', 'Record ID mapping error:', err.message);
+                dialog.showErrorBox(lang.add.IDError, err.message);
             }
         }
     } catch (err) {
-        dialog.showErrorBox(lang.add.errorTitle, err.stack);
+        debugLog('error', 'Add new entry error:', err.message);
+        dialog.showErrorBox(lang.add.errorTitle, err.message);
     }
 });
 
 // 重命名脚本
 ipcMain.on('insertjs-rename-js', (_, jsID, newName) => {
     try {
-        if (!isDataDirCanWrite || !isDataDirCanRead) throw new Error(lang.rename.errorInfo);
+        if (!DataPath.access.RW) throw new Error(lang.rename.errorInfo);
         // 更新配置文件
         const listJson = JSON.parse(getFile(jsonPath_name, defaultJson_name));
         listJson[jsID] = newName;
         fs.writeFileSync(jsonPath_name, JSON.stringify(listJson, null, 2), 'utf-8');
     } catch (err) {
-        dialog.showErrorBox(lang.rename.errorTitle, err.stack);
+        debugLog('error', 'Rename entry error:', err.message);
+        dialog.showErrorBox(lang.rename.errorTitle, err.message);
     }
 })
 
@@ -108,12 +114,14 @@ ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
     const jsPath = path.join(DataPath, 'insertjs');
     // 删除文件
     try {
-        if (!isDataDirCanWrite) throw new Error(lang.remove.errorInfo)
+        if (!DataPath.access.W) throw new Error(lang.remove.errorInfo)
         jsIDs.forEach(async (id) => {
             await fs.promises.unlink(path.join(jsPath, id + '.js'))
         })
     } catch (err) {
-        dialog.showErrorBox(lang.remove.fileErrorTitle, err.stack);
+        debugLog('error', 'Failed to delete JS file:', err.message);
+        dialog.showErrorBox(lang.remove.fileErrorTitle, err.message);
+        return;
     }
     // 删除ID记录
     try {
@@ -122,7 +130,8 @@ ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
         jsIDs.forEach(id => delete idJson[id]);
         fs.writeFileSync(jsonPath, JSON.stringify(idJson, null, 2), 'utf-8');
     } catch (err) {
-        dialog.showErrorBox(lang.remove.IDErrorTitle, err.stack);
+        debugLog('error', 'Error deleting mapping record:', err.message);
+        dialog.showErrorBox(lang.remove.IDErrorTitle, err.message);
     }
 });
 
@@ -133,14 +142,15 @@ ipcMain.on('insertjs-open-dir', async () => {
         await fs.promises.mkdir(dirpath, { recursive: true });
         shell.openPath(dirpath);
     } catch (err) {
-        dialog.showErrorBox(lang.opendir.errorTitle + dirpath, err.stack);
+        debugLog('warn', 'Can not open dir out side app:', dirpath);
+        dialog.showErrorBox(lang.opendir.errorTitle + dirpath, err.message);
     }
 });
 
 // 注入脚本
 ipcMain.on('insertjs-insert-js', (event, winid, jsIDs) => {
     try {
-        if (!isDataDirCanRead) throw new Error(lang.insert.errorInfo);
+        if (!DataPath.access.R) throw new Error(lang.insert.errorInfo);
         const mainWindow = BrowserWindow.fromId(winid);
         jsIDs.forEach(id => {
             const filepath = path.join(DataPath, 'insertjs', id + '.js');
@@ -151,13 +161,14 @@ ipcMain.on('insertjs-insert-js', (event, winid, jsIDs) => {
         const childwin = BrowserWindow.fromWebContents(event.sender);
         if (childwin && !childwin.isDestroyed()) childwin.close();
     } catch (err) {
-        dialog.showErrorBox(lang.insert.errorTitle, err.stack);
+        debugLog('error', 'Script injection error:', err.message);
+        dialog.showErrorBox(lang.insert.errorTitle, err.message);
     }
 });
 
 // 获取当前网址的自动注入脚本列表
 ipcMain.handle('insertjs-get-auto-js', (_, winid) => {
-    if (!isDataDirCanRead) return { errID: -1, hosts: [] };
+    if (!DataPath.access.R) return { errID: -1, hosts: [] };
     const win = BrowserWindow.fromId(winid);
     const url = new URL(win.webContents.getURL());
     if (url.host === '') return { errID: -1, hosts: [] };
@@ -168,7 +179,7 @@ ipcMain.handle('insertjs-get-auto-js', (_, winid) => {
 // 更新当前网址的自动注入脚本列表
 ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
     try {
-        if (!isDataDirCanWrite || !isDataDirCanRead) throw new Error(lang.changeAuto.errorInfo)
+        if (!DataPath.access.RW) throw new Error(lang.changeAuto.errorInfo)
         const win = BrowserWindow.fromId(winid);
         const url = new URL(win.webContents.getURL());
         if (url.host === '') return;
@@ -189,7 +200,8 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
         }
         fs.writeFileSync(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8');
     } catch (err) {
-        dialog.showErrorBox(lang.changeAuto.errorTitle, err.stack);
+        debugLog('error', 'Error modifying the automatic injection list:', err.message);
+        dialog.showErrorBox(lang.changeAuto.errorTitle, err.message);
     }
 });
 
@@ -197,7 +209,7 @@ ipcMain.on('insertjs-change-auto-js', (_, winid, jsIDs) => {
 ipcMain.on('insertjs-auto-js-insert', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
-        if (!isDataDirCanRead) throw new Error(lang.autoInsert.errorInfo);
+        if (!DataPath.access.R) throw new Error(lang.autoInsert.errorInfo);
         // 获取窗口网址
         const urlStr = win.webContents.getURL();
         const urlObj = new URL(urlStr);
@@ -229,10 +241,11 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
                     delete autoJSCache[host];
                     autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(host), 1);
                 }
-                fs.writeFileSync(path.join(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8'));
+                fs.writeFileSync(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8');
             }
         }
     } catch (err) {
-        dialog.showErrorBox(lang.autoInsert.errorTitle, err.stack);
+        debugLog('error', 'Auto script injection error:', err.message);
+        dialog.showErrorBox(lang.autoInsert.errorTitle, err.message);
     }
 });

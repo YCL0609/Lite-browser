@@ -48,7 +48,8 @@ litebrowser.getBookmarks()
 // 加载设置
 litebrowser.getSetting(false)
     .then(json => {
-        const setting = JSON.parse(json);
+        const settingRaw = JSON.parse(json) 
+        const setting = settingRaw.mainWin;
         // 搜索引擎
         document.getElementById('search-engine').value = setting.search.id;
         const url = (setting.search.id == -1) ? setting.search.url : default_url[setting.search.id];

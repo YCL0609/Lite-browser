@@ -1,26 +1,30 @@
 import { app } from 'electron';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
+import os from 'node:os';
 
 /**************** 程序基础 ****************/
 
 // 调试相关
-const _debugValue = (process.env.LITE_BROWSER_DEBUG || '').trim().toLowerCase();
+const _debugValue = (process.env.LB_DEBUG || '').trim().toLowerCase();
+const _traceValue = (process.env.LB_DEBUG_TRACE || '').trim().toLowerCase();
+const _LogValue = (process.env.LB_LOG || '').trim().toLowerCase();
 const isDebug = ['true', '1', 'yes'].includes(_debugValue);
-if (isDebug) console.log('\x1b[36m\x1b[1m%s\x1b[0m', 'Debug mode activated!');
+const isTrace = ['true', '1', 'yes'].includes(_traceValue);
+const isLog = isDebug || ['true', '1', 'yes'].includes(_LogValue);
 
 // 是否为 Mac 环境
 const isMac = process.platform === 'darwin';
 
 // 代码文件主目录
-const appPath = app.getAppPath();
+const AppPath = app.getAppPath();
 
 // 支持的语言
 const supportLang = ['en', 'zh'];
 
 // 窗口图标
-const _iconDir = app.isPackaged ? path.join(appPath, '..', 'icons') : path.join(appPath, 'extrares', 'icons');
-const iconPath = (() => {
+const _iconDir = app.isPackaged ? path.join(AppPath, '..', 'icons') : path.join(AppPath, 'extrares', 'icons');
+const IconPath = (() => {
     const iconMap = {
         'win32': 'icon.ico',
         'darwin': 'icon.icns',
@@ -31,86 +35,120 @@ const iconPath = (() => {
 })();
 
 // 小工具
-const ToolsID = ["notepad", "paint", "code", "base64", "markdown"];
-
-/**************** 数据目录 ****************/
-
-// 数据目录
-const _defaultDataPath = (() => {
-    // 生产环境
-    if (app.isPackaged) {
-        // macOS (.app 同级目录)
-        if (process.platform === 'darwin') {
-            return path.resolve(appPath, '../../..');
-        }
-        // Windows/Linux (resources 目录)
-        return path.resolve(path.dirname(appPath));
-    }
-
-    // 开发环境
-    return path.join(appPath, 'resources');
-})();
-const DataPath = process.env.LITE_BROWSER_DATA_PATH || _defaultDataPath;
-if (isDebug) console.log('\x1b[36m\x1b[1m%s\x1b[0m', 'Data Dir: ' + DataPath);
-
-// 数据目录读权限检测
-const isDataDirCanWrite = (() => {
-    try {
-        fs.accessSync(DataPath, fs.constants.W_OK | fs.constants.X_OK);
-        return true;
-    } catch (_) {
-        return false;
-    }
-})();
-
-// 数据目录写权限检测
-const isDataDirCanRead = (() => {
-    try {
-        fs.accessSync(DataPath, fs.constants.R_OK | fs.constants.X_OK);
-        return true;
-    } catch (_) {
-        return false;
-    }
-})();
-if (isDebug) console.log('\x1b[36m\x1b[1m%s\x1b[0m', `Dir Permission: R:${isDataDirCanRead} W:${isDataDirCanWrite}`);
-
-// 小工具存储目录
-const ToolsPath = path.join(DataPath, 'tools');
-
-/**************** 主页面 ******************/
+const toolsID = ["notepad", "paint", "code", "base64", "markdown"];
 
 // 默认配置
 const defaultSetting = {
-    search: { id: 1, url: '' },
-    theme: { color: { main: '#60eeee', text: '#000000' }, background: null }
+    app: {
+        useGPU: true,
+        toolBox: true,
+        topMenu: true,
+        insertjs: true,
+        contentMenu: true,
+    },
+    mainWin: {
+        search: { id: 1, url: '' },
+        custom: { js: false, css: false },
+        theme: { color: { main: '#60eeee', text: '#000000' }, background: null },
+    },
 };
 
-// 支持的图片MIME类型
-const imageMIME = {
-    'image/gif': 'gif',
-    'image/bmp': 'bmp',
-    'image/png': 'png',
-    'image/jpeg': 'jpg',
-    'image/webp': 'webp',
-    'image/tiff': 'tiff',
-    'image/avif': 'avif',
-    'image/apng': 'apng',
-    'image/heic': 'heic',
-    'image/heif': 'heif',
-    'image/svg+xml': 'svg'
-};
+/**************** 数据目录 ****************/
+
+// 默认数据目录
+const _defaultDataPath = (() => {
+    // 生产环境
+    if (app.isPackaged) {
+        // macOS
+        if (process.platform === 'darwin') {
+            const pwd = path.normalize(AppPath).toLowerCase();
+            const homeDir = os.homedir();
+            const systemApps = path.normalize('/Applications') + '/';
+            const userApps = path.join(homeDir, 'Applications').toLowerCase() + '/';
+            if (pwd.startsWith(systemApps) || pwd.startsWith(userApps)) {
+                // 位于系统或用户的 Applications 目录下 (使用 ~/Library/Application Support/LiteBrowser 文件夹)
+                return path.join(homeDir, 'Library', 'Application Support', 'LiteBrowser');
+            } else {
+                // 便携版本使用 .app 同级目录的 Data 文件夹
+                return path.resolve(AppPath, '../../../../Data');
+            }
+        }
+
+        // Windows/Linux (主程序同级目录的 Data 文件夹)
+        return path.resolve(AppPath, '../../Data');
+    }
+
+    // 开发环境
+    return path.join(AppPath, 'resources');
+})();
+
+// 是否使用临时目录
+let _useTempPath = false
+
+// 最终主数据目录
+const _dirPath = (() => {
+    let dir = process.env.LB_DATA_PATH || _defaultDataPath;
+    if (dir === '/dev/null') return dir;
+
+    try {
+        const stat = fs.statSync(dir);
+        _useTempPath = !stat.isDirectory();
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            try {
+                fs.mkdirSync(dir, { recursive: true });
+            } catch (_) { _useTempPath = true }
+        } else { _useTempPath = true }
+    }
+
+    // 临时目录
+    if (_useTempPath) {
+        try {
+            dir = fs.mkdtempSync(path.join(os.tmpdir(), 'lite-browser-'));
+        } catch (err) { dir = "" }
+    }
+    return dir
+})();
+
+// 数据目录读权限检测
+const _dirCanWrite = (() => {
+    try {
+        fs.accessSync(_dirPath, fs.constants.W_OK | fs.constants.X_OK);
+        return true;
+    } catch (_) { return false }
+})();
+
+// 数据目录写权限检测
+const _dirCanRead = (() => {
+    try {
+        fs.accessSync(_dirPath, fs.constants.R_OK | fs.constants.X_OK);
+        return true;
+    } catch (_) { return false }
+})();
+
+// 数据目录
+const DataPath = Object.freeze({
+    basic: _dirPath,
+    tools: path.join(_dirPath, 'tools'), // 小工具存储目录
+    insertjs: path.join(_dirPath, 'insertjs'), // js插入相关文件存储目录
+    userData: process.env.LB_USERDATA_PATH || path.join(_dirPath, 'userData'), // chromium用户数据存储目录
+    usetmp: _useTempPath,
+    access: Object.freeze({
+        R: _dirCanRead,
+        W: _dirCanWrite,
+        RW: _dirCanRead && _dirCanWrite,
+    }),
+})
 
 export {
     isMac,
-    appPath,
+    isLog,
+    AppPath,
     isDebug,
-    ToolsID,
+    isTrace,
+    toolsID,
     DataPath,
-    iconPath,
-    ToolsPath,
-    imageMIME,
+    IconPath,
     supportLang,
     defaultSetting,
-    isDataDirCanRead,
-    isDataDirCanWrite
 }

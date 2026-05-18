@@ -4,7 +4,7 @@ English Version: [README.md](README.md)<br><br>
 主页面默认背景图片[Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 
 ## 运行时数据
-默认数据存储路径DATA_DIR为与app.asar同级目录的resources文件夹(Mac OS上为LiteBrowser.app文件夹的根目录下的resources文件夹)，所有系统均通过`LITE_BROWSER_DATA_PATH`环境变量进行覆盖。运行时的electron网页数据默认存储在`DATA_DIR/userData/`文件夹，用户自定义js文件存储在`DATA_DIR/insertjs/`文件夹，工具页面本地存储在`DATA_DIR/tools/`文件夹,其他文件默认存储在`DATA_DIR/`文件夹。
+默认数据存储路径DATA_DIR为与app.asar同级目录的resources文件夹(Mac OS上为LiteBrowser.app文件夹的根目录下的resources文件夹)，所有系统均通过`LB_DATA_PATH`环境变量进行覆盖。运行时的electron网页数据默认存储在`DATA_DIR/userData/`文件夹，用户自定义js文件存储在`DATA_DIR/insertjs/`文件夹，工具页面本地存储在`DATA_DIR/tools/`文件夹,其他文件默认存储在`DATA_DIR/`文件夹。
 
 ## 语言文件及切换逻辑
 程序在初始化时会获取用户偏好语言列表并截取第一个偏好语言，若不在支持列表中则使用英文作为主语言，所有系统均可以通过`LITE_BROWSER_LANG`环境变量覆盖，所有受支持的语言id存储在`libs/config.js`中的`supportLang`变量中，语言文件存储在`lang/{lang}.json`中，可自行添加语言文件后进行打包。

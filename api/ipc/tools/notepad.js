@@ -1,26 +1,26 @@
-import { isDataDirCanRead, isDataDirCanWrite, ToolsPath } from '../../../libs/config.js';
-import { getFile, getLocale, isolateImage } from '../../../libs/functions.js';
+import { debugLog, getFile, getLocale, isolateImage } from '../../../libs/functions.js';
+import { DataPath } from '../../../libs/config.js';
 import { ipcMain } from 'electron';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 const langRaw = getLocale();
 const lang = langRaw.ipc.tools;
 const defaultNote = langRaw.tools.notepad.default;
-const imgListFile = path.join(ToolsPath, 'notepad', 'imglist.json');
+const imgListFile = path.join(DataPath.tools, 'notepad', 'imglist.json');
 let imgIDsCache = null;
 let notepadFiles = [];
-for (let i = 0; i < 9; i++) notepadFiles.push(path.join(ToolsPath, 'notepad', (i + 1) + '.txt'));
+for (let i = 0; i < 9; i++) notepadFiles.push(path.join(DataPath.tools, 'notepad', (i + 1) + '.txt'));
 
 // 读取笔记内容
 ipcMain.handle('tools-notepad-get', (_, id) => {
     // 合规性和存储目录权限检查
     if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: lang.notepad.IDError };
-    if (!isDataDirCanRead) return { status: true, message: defaultNote };
+    if (!DataPath.access.R) return { status: true, message: defaultNote };
 
     try {
         const rawHtml = getFile(notepadFiles[id - 1], defaultNote);
         // 还原图像url
-        const imgDir = path.join(ToolsPath, 'notepad', id.toString());
+        const imgDir = path.join(DataPath.tools, 'notepad', id.toString());
         const content = rawHtml.replace(/\$([^$]+)\$/g, (_, filename) => {
             const filePath = path.join(imgDir, filename);
             const fileUrl = `file://${filePath.replace(/\\/g, '/')}`;
@@ -29,7 +29,8 @@ ipcMain.handle('tools-notepad-get', (_, id) => {
 
         return { status: true, message: content };
     } catch (err) {
-        return { status: false, message: err.stack };
+        debugLog('error', 'Failed to get notepad tool content - ID:', id, 'Error:', err.message);
+        return { status: false, message: err.message };
     }
 });
 
@@ -37,12 +38,15 @@ ipcMain.handle('tools-notepad-get', (_, id) => {
 // 保存笔记内容
 ipcMain.handle('tools-notepad-set', (_, content, id) => {
     // 合规性和存储目录权限检查
-    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: lang.notepad.IDError };
-    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
+    if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) {
+        debugLog('warn', `Invalid parameter 'id': ${String(id)}`)
+        return { status: false, message: lang.notepad.IDError };
+    }
+    if (!DataPath.access.W) return { status: false, message: langRaw.permission.write.info };
 
     try {
         // 分离图像
-        const imgDir = path.join(ToolsPath, 'notepad', id.toString());
+        const imgDir = path.join(DataPath.tools, 'notepad', id.toString());
         if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir, { recursive: true });
         imgIDsCache ??= JSON.parse(getFile(imgListFile, '{}'));
         imgIDsCache[id] ??= [];
@@ -55,7 +59,8 @@ ipcMain.handle('tools-notepad-set', (_, content, id) => {
         fs.writeFileSync(notepadFiles[id - 1], resualt.html, 'utf-8');
         return { status: true, message: 'OK' };
     } catch (err) {
-        return { status: false, message: err.stack }
+        debugLog('error', 'Code tool content update failed - ID:', id, 'Error:', err.message);
+        return { status: false, message: err.message }
     }
 });
 
@@ -63,11 +68,11 @@ ipcMain.handle('tools-notepad-set', (_, content, id) => {
 ipcMain.handle('tools-notepad-del', (_, id) => {
     // 合规性和存储目录权限检查
     if (typeof id !== 'number' || id < 1 || id > 9 || !Number.isInteger(id)) return { status: false, message: lang.notepad.IDError };
-    if (!isDataDirCanWrite) return { status: false, message: langRaw.permission.write.info };
+    if (!DataPath.access.W) return { status: false, message: langRaw.permission.write.info };
 
     try {
         // 删除图片文件夹和id记录
-        const imgDir = path.join(ToolsPath, 'notepad', id.toString());
+        const imgDir = path.join(DataPath.tools, 'notepad', id.toString());
         if (fs.existsSync(imgDir)) fs.rmSync(imgDir, { force: true, recursive: true });
         imgIDsCache ??= JSON.parse(getFile(imgListFile, '{}'));
         if (imgIDsCache[id]) delete imgIDsCache[id];
@@ -77,6 +82,7 @@ ipcMain.handle('tools-notepad-del', (_, id) => {
 
         return { status: true, message: 'OK' };
     } catch (err) {
-        return { status: false, message: err.stack }
+        debugLog('error', 'Failed to delete notepad tool content - ID:', id, 'Error:', err.message);
+        return { status: false, message: err.message }
     }
 });

@@ -1,6 +1,6 @@
 import { MakerZIP } from '@electron-forge/maker-zip';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 
 export default {
   packagerConfig: {
@@ -27,22 +27,28 @@ export default {
   },
   makers: [new MakerZIP({})],
   hooks: {
-    postMake: async (_, results) => {
-      for (const result of results) {
+    postMake: async (forgeConfig, makeResults) => {
+      for (const result of makeResults) {
         const sysList = {
           win32: 'windows',
           darwin: 'macos',
           linux: 'linux'
         };
-        const sys = sysList[result.platform] ? sysList[result.platform] : result.platform
+
+        // 确定系统标识
+        const sys = sysList[result.platform] || result.platform;
         const newBaseName = `lite-browser-${sys}-${result.arch}`;
-        for (let i = 0; i < result.artifacts.length; i++) {
-          const artifactPath = result.artifacts[i];
+        for (const artifactPath of result.artifacts) {
           const ext = path.extname(artifactPath);
           if (ext === '.zip') {
             const dir = path.dirname(artifactPath);
             const newPath = path.join(dir, `${newBaseName}${ext}`);
-            fs.renameSync(artifactPath, newPath);
+
+            try {
+              if (fs.existsSync(artifactPath)) fs.renameSync(artifactPath, newPath);
+            } catch (err) {
+              console.error(err.stack);
+            }
           }
         }
       }
