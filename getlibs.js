@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const needDir = [
-  'libs/katex',
+  'html/tools/common/katex',
   'extrares/license'
 ]
 
@@ -11,7 +11,7 @@ const filesCopy = [
   // DOMPurify
   {
     from: 'node_modules/dompurify/dist/purify.min.js',
-    to: 'libs/purify.min.js'
+    to: 'html/tools/common/purify.min.js'
   },
   {
     from: 'node_modules/dompurify/LICENSE',
@@ -20,24 +20,24 @@ const filesCopy = [
   // Marked
   {
     from: 'node_modules/marked/lib/marked.umd.js',
-    to: 'libs/marked.min.js'
+    to: 'html/tools/markdown/marked.min.js'
   },
   {
-    from: 'node_modules/marked/LICENSE',
+    from: 'node_modules/marked/LICENSE.md',
     to: 'extrares/license/Marked License.txt'
   },
   // KaTeX
   {
     from: 'node_modules/katex/dist/katex.min.js',
-    to: 'libs/katex/katex.min.js'
+    to: 'html/tools/common/katex/katex.min.js'
   },
   {
     from: 'node_modules/katex/dist/katex.min.css',
-    to: 'libs/katex/katex.min.css'
+    to: 'html/tools/common/katex/katex.min.css'
   },
   {
     from: 'node_modules/katex/dist/contrib/auto-render.min.js',
-    to: 'libs/katex/auto-render.min.js'
+    to: 'html/tools/common/katex/auto-render.min.js'
   },
   {
     from: 'node_modules/katex/LICENSE',
@@ -49,8 +49,9 @@ const dirsCopy = [
   // KaTeX字体文件
   {
     from: 'node_modules/katex/dist/fonts',
-    to: 'libs/katex/fonts',
-    deleteold: false
+    to: 'html/tools/common/katex/fonts',
+    deleteOld: true,
+    ext: 'woff2'
   }
 ]
 
@@ -90,10 +91,24 @@ for (const dir of dirsCopy) {
   try {
     const src = path.join(rootDir, dir.from);
     const dest = path.join(rootDir, dir.to);
-    if (dir.deleteold) fs.rmSync(dest, { recursive: true, force: true });
+    if (dir.deleteOld) fs.rmSync(dest, { recursive: true, force: true });
     fs.mkdirSync(dest, { recursive: true });
     for (const dirFile of fs.readdirSync(src)) {
       const filesrc = path.join(src, dirFile);
+      try {
+        const stat = fs.statSync(filesrc);
+        if (!stat.isFile()) continue; // 跳过目录或其它非文件项
+      } catch (err) {
+        console.error('Skip unreadable file:', filesrc, err.message);
+        continue;
+      }
+
+      // 如果指定了 ext，只复制匹配扩展名的文件
+      if (dir.ext) {
+        const fileExt = path.extname(dirFile).replace(/^\./, '').toLowerCase();
+        if (fileExt !== String(dir.ext).toLowerCase()) continue;
+      }
+
       const filedest = path.join(dest, dirFile);
       fs.copyFileSync(filesrc, filedest);
       console.log(filesrc + " => " + filedest);

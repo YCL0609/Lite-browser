@@ -1,5 +1,5 @@
-import { getFile, getLocale, isolateImage } from '../../../libs/functions.js';
-import { DataPath } from '../../../libs/config.js';
+import { DataPath, getFile, getLocale } from '../../../core/index.js';
+import { isolateImage } from './common.js';
 import { ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';

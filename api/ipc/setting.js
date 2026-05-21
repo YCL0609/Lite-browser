@@ -1,5 +1,4 @@
-import { DataPath, defaultSetting } from '../../libs/config.js';
-import { debugLog, getFile, getLocale } from '../../libs/functions.js';
+import { debugLog, getFile, getLocale, DataPath, defaultSetting } from '../../core/index.js';
 import { ipcMain, dialog } from 'electron';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';

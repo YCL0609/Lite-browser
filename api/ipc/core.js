@@ -1,10 +1,11 @@
-import { getLocale, getSettings } from '../../libs/functions.js';
+import { getLocale, getSettings, IconPath } from '../../core/index.js';
 import { ipcMain, BrowserWindow, session } from 'electron';
-import { DataPath, IconPath } from '../../libs/config.js';
-const settings = getSettings();
+const settingsRaw = getSettings();
+const cfg = JSON.stringify(settingsRaw?.app)
 
 // 正常新窗口
-ipcMain.on('new-window', (_, url) => {
+ipcMain.on('window-open', (_, url) => {
+  if (!url?.trim() === '') return;
   const newwin = new BrowserWindow({
     width: 800,
     height: 600,
@@ -16,15 +17,12 @@ ipcMain.on('new-window', (_, url) => {
       nodeIntegration: false,
       contextIsolation: true,
       session: session.defaultSession,
-      additionalArguments: [`--app-config=${JSON.stringify(settings?.app)}`],
+      additionalArguments: ['--app-config=' + cfg],
     },
   });
-  newwin.loadURL(url);
+  newwin.loadURL(url.trim());
 });
-
-// 数据目录权限查询
-ipcMain.handle('dataDir-permission', () => ({ read: DataPath.access.R, write: DataPath.access.W }));
 
 // 获取语言文件
 const lang = getLocale();
-ipcMain.handle('get-languageJson', () => lang);
+ipcMain.handle('languageJson-get', () => lang);

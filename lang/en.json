@@ -7,7 +7,7 @@
     "public": {
         "cancelBtn": "Cancel",
         "applyBtn": "Apply",
-        "OKBtn": "OK",
+        "OKBtn": "Confirm",
         "retry": "Retry",
         "close": "Close",
         "details": "Details"
@@ -23,33 +23,15 @@
         }
     },
     "mainWindow": {
-        "title": "Simple Browser",
         "inputTip": "Enter the content to search or the URL to visit",
         "bookmark": {
             "title": "Local Bookmarks",
             "selectBoxTip": "Select a bookmark to operate:",
             "selectBtn": "Select",
-            "addNew_name": "Bookmark Name:",
+            "addNew_AddTip": "Add Bookmark",
+            "addNew_changeTip": "Edit Bookmark",
             "addNew_nameTip": "Enter bookmark name",
-            "addNew_url": "Bookmark URL:",
-            "addNew_urlTip": "Start with [protocol]://",
-            "changeBtn": "Modify",
-            "chooseBtn": "Choose",
-            "deleteBtn": "Delete",
-            "addBtn": "Add"
-        },
-        "setting": {
-            "title": "Home Page Settings",
-            "searchEngine": {
-                "text": "Search Engine",
-                "custom": "Custom...",
-                "inputTip": "Search URL, use %s to replace the search term"
-            },
-            "color": {
-                "mainTip": "Primary theme color:",
-                "subTip": "Secondary theme color:"
-            },
-            "bgTip": "Background image:"
+            "addNew_urlTip": "Start with [protocol]://"
         }
     },
     "jsinsert": {
@@ -77,15 +59,6 @@
             "noselent": "No item selected",
             "isdelete": "Delete selected item?",
             "rename": "Rename operation only allows a single item"
-        }
-    },
-    "errorpage": {
-        "title": "Page Load Failed",
-        "message": {
-            "code": "Error Code:",
-            "desc": "Error Description:",
-            "time": "Time Occurred:",
-            "url": "Error URL:"
         }
     },
     "menu": {

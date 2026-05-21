@@ -1,6 +1,5 @@
+import { debugLog, getFile, getLocale, DataPath } from '../../core/index.js';
 import { ipcMain, dialog, shell, BrowserWindow } from 'electron';
-import { debugLog, getFile, getLocale } from '../../libs/functions.js';
-import { DataPath } from '../../libs/config.js';
 import path from 'node:path';
 import fs from 'node:fs';
 const jsonPath_name = path.join(DataPath.insertjs, 'name.json');

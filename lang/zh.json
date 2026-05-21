@@ -23,33 +23,16 @@
         }
     },
     "mainWindow": {
-        "title": "简易浏览器",
-        "inputTip": "输入需查询的内容或要访问的网址",
+        "inputTip": "搜索或输入网址...",
         "bookmark": {
-            "title": "本地书签",
-            "selectBoxTip": "选择要操作的书签:",
+            "title": "书签",
             "selectBtn": "选择",
-            "addNew_name": "书签名称:",
-            "addNew_nameTip": "输入书签名称",
-            "addNew_url": "书签网址:",
-            "addNew_urlTip": "以 [协议头]:// 开头",
-            "changeBtn": "修改",
-            "chooseBtn": "选择",
-            "deleteBtn": "删除",
-            "addBtn": "添加"
-        },
-        "setting": {
-            "title": "主页面设置",
-            "searchEngine": {
-                "text": "搜索引擎",
-                "custom": "自定义...",
-                "inputTip": "搜索url, 使用%s代替搜索词"
-            },
-            "color": {
-                "mainTip": "主样式颜色:",
-                "subTip": "副样式颜色:"
-            },
-            "bgTip": "背景图片:"
+            "confirmDel": "确认删除[$name$]?",
+            "selectBoxTip": "选择要操作的书签:",
+            "addTip": "添加书签",
+            "changeTip": "修改书签",
+            "nameTip": "输入书签名称",
+            "urlTip": "输入Url (以 [协议头]:// 开头)"
         }
     },
     "jsinsert": {
@@ -77,15 +60,6 @@
             "noselent": "未选择操作项目",
             "isdelete": "是否删除所选项目?",
             "rename": "重命名操作仅允许操作单个条目"
-        }
-    },
-    "errorpage": {
-        "title": "页面加载失败",
-        "message": {
-            "code": "错误代码:",
-            "desc": "错误描述:",
-            "time": "发生时间:",
-            "url": "错误网址:"
         }
     },
     "menu": {
@@ -183,17 +157,12 @@
         "delCheck": "确定删除吗?"
     },
     "ipc": {
-        "bookmark": {
+        "file": {
             "get": {
-                "errorTitle": "书签获取错误"
+                "errorTitle": "文件读取错误"
             },
             "add": {
-                "errorTitle": "书签添加错误",
-                "errorInfo": "数据目录不可写，无法添加书签"
-            },
-            "del": {
-                "errorTitle": "书签删除错误",
-                "errorInfo": "数据目录不可写，无法删除书签"
+                "errorTitle": "文件写入错误"
             }
         },
         "insertjs": {

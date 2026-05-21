@@ -1,5 +1,4 @@
-import { debugLog, getFile, getLocale } from '../../../libs/functions.js';
-import { DataPath } from '../../../libs/config.js';
+import { debugLog, getFile, getLocale, DataPath } from '../../../core/index.js';
 import { ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';

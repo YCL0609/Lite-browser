@@ -1,6 +1,5 @@
-import { cmdLineHandle, debugLog, getNomenuSession, getSettings } from './libs/functions.js';
+import { cmdLineHandle, debugLog, getSettings, AppPath, DataPath, IconPath} from './core/index.js';
 import { app, session, BrowserWindow, Menu, dialog } from 'electron';
-import { AppPath, DataPath, IconPath, isLog } from './libs/config.js';
 import { TopMenu } from './api/menu.js';
 import path from "node:path";
 const gotTheLock = app.requestSingleInstanceLock();
@@ -46,10 +45,13 @@ function createMainWindow() {
       contextIsolation: true,
       session: session.fromPartition('persist:main'),
       preload: path.join(AppPath, 'api', 'preload', 'main.js'),
-      additionalArguments: [`--app-config=${JSON.stringify(settings?.app)}`],
+      additionalArguments: [
+        '--app-config=' + btoa(JSON.stringify(settings)),
+        '--dir-access=' + ((DataPath.access.R ? 1 : 0) | (DataPath.access.W ? 2 : 0))
+      ],
     }
   });
-  mainWin.loadFile(path.join(AppPath, 'html', 'index.html'));
+  mainWin.loadFile(path.join(AppPath, 'html', 'normal', 'main', 'index.html'));
   mainWin.on('closed', () => mainWin = null);
 }
 
@@ -67,7 +69,6 @@ app.whenReady().then(() => {
   }
   // 设置应用菜单
   Menu.setApplicationMenu(TopMenu);
-  getNomenuSession();
 
   // 命令行参数处理
   cmdLineHandle(process.argv, createMainWindow);

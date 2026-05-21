@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Lite Browser</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div id="homeView" class="view">
+        <div class="home-container">
+            <!-- 搜索栏 -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" placeholder="搜索或输入网址..." data-langId="@.inputTip"
+                        data-langTo="placeholder">
+                    <button class="search-btn" id="search-button">
+                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+                            <circle cx="10.5" cy="10.5" r="6.5" />
+                            <path d="M15 15 L21 21" stroke-linecap="round" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- 书签栏 -->
+            <div class="bookmark-panel">
+                <div class="bookmark-header">
+                    <h3 data-langId="@.bookmark.title">书签</h3>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="settings-open">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="bookmark-add-Btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 5v14M5 12h14" stroke-linecap="round" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="bookmark-list" class="bookmark-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 书签修改/新增框 -->
+    <div id="bookmark-card" class="card-mask">
+        <div class="card">
+            <h3 id="bookmark-card-title" data-langId="@.bookmark.addTip">添加书签</h3>
+            <input type="text" id="bookmark-card-name" placeholder="输入书签名称" data-langId="@.bookmark.nameTip"
+                data-langTo="placeholder">
+            <input type="text" id="bookmark-card-url" placeholder="输入Url (以 [协议头]:// 开头)"
+                data-langId="@.bookmark.urlTip" data-langTo="placeholder">
+            <div class="card-buttons">
+                <button id="bookmark-card-okBtn" data-langId="public.OKBtn">确认</button>
+                <button id="bookmark-card-noBtn" data-langId="public.cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+    <script src="index.js" type="module"></script>
+</body>
+
+</html>

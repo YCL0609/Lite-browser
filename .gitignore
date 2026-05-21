@@ -1,11 +1,9 @@
 extrares/license/
 node_modules/
-libs/license/
-libs/katex/
+html/tools/common
 resources/
 .vscode/
 out/
 
-libs/purify.min.js
-libs/marked.min.js
+html/tools/markdown/marked.min.js
 *.bdic

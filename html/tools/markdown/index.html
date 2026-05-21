@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MarkDown 实时预览</title>
-    <link rel="stylesheet" href="./css/markdown.css">
-    <script src="../../libs/purify.min.js"></script>
-    <script src="../../libs/marked.min.js"></script>
-    <script src="../../libs/katex/katex.min.js"></script>
-    <script src="../../libs/katex/auto-render.min.js"></script>
+    <link rel="stylesheet" href="./index.css">
+    <script src="../common/purify.min.js"></script>
+    <script src="./marked.min.js"></script>
+    <script src="../common/katex/katex.min.js"></script>
+    <script src="../common/katex/auto-render.min.js"></script>
     <script type="module">
-        import { toolsFileControl } from '../../libs/functions-front.js';
+        import { toolsFileControl } from '../common/basicRuntime.js';
         window.toolsFileControl = toolsFileControl;
     </script>
 </head>
@@ -25,7 +25,7 @@
         <a data-langId="@.preview">预览:</a>
         <iframe id="preview"></iframe>
     </div>
-    <script src="./js/markdown.js"></script>
+    <script src="./index.js"></script>
 </body>
 
 </html>

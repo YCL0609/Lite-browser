@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/code.css">
+    <link rel="stylesheet" href="./index.css">
     <script type="module">
-        import { toolsFileControl } from '../../libs/functions-front.js';
+        import { toolsFileControl } from '../common/basicRuntime.js';
         window.toolsFileControl = toolsFileControl;
         const lang = await litebrowser.getLang();
         document.title = lang.tools.code.title;
@@ -23,7 +23,7 @@
         </section>
         <iframe id="preview"></iframe>
     </main>
-    <script src="./js/code.js"></script>
+    <script src="./index.js"></script>
 </body>
 
 </html>

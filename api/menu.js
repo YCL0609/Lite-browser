@@ -1,6 +1,5 @@
-import { openToolsWindow, insertJS, getLocale, getSettings } from '../libs/functions.js';
+import { openToolsWindow, insertJS, getLocale, getSettings, isMac, toolsID } from '../core/index.js';
 import { shell, clipboard, dialog, BrowserWindow, Menu } from 'electron';
-import { isMac, toolsID } from '../libs/config.js';
 
 // 获取翻译文件和配置文件
 const lang = getLocale();

@@ -70,8 +70,6 @@ function updatePreview() {
     document.getElementById('preview').srcdoc = html;
 };
 
-
-
 // 保存代码
 function saveCode(isauto = false) {
     if (deleting) return;

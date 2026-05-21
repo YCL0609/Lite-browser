@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/paint.css">
+    <link rel="stylesheet" href="./index.css">
     <script type="module">
-        import { NoteMessage } from '../../libs/functions-front.js';
+        import { NoteMessage } from '../common/basicRuntime.js';
         window.NoteMessage = NoteMessage;
     </script>
     <title>画图板</title>
@@ -14,7 +14,7 @@
 
 <body>
     <canvas id="pad"></canvas>
-    <script src="./js/paint.js" defer></script>
+    <script src="./index.js" defer></script>
 </body>
 
 </html>

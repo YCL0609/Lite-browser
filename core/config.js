@@ -42,14 +42,15 @@ const defaultSetting = {
     app: {
         useGPU: true,
         toolBox: true,
+        history: true,
         topMenu: true,
         insertjs: true,
         contentMenu: true,
     },
     mainWin: {
-        search: { id: 1, url: '' },
+        searchUrl: 'https://www.bing.com/search?q=%s',
         custom: { js: false, css: false },
-        theme: { color: { main: '#60eeee', text: '#000000' }, background: null },
+        background: '',
     },
 };
 

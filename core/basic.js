@@ -1,0 +1,198 @@
+import { AppPath, IconPath, supportLang, toolsID, DataPath, defaultSetting } from './config.js';
+import { BrowserWindow, dialog, app, session } from 'electron';
+import path from 'node:path';
+import fs from 'node:fs';
+
+/**
+ * 处理命令行参数，支持直接打开 URL 和打开内置小工具
+ * - 识别以 http(s):// 开头的 URL 并在新窗口中打开
+ * - 识别以 `--<toolID>` 形式的小工具 id 并打开对应工具窗口
+ * @param {string[]} [params=[]] - 命令行参数数组
+ * @param {Function} [callback] - 当未检测到特殊参数时要调用的回调函数
+ * @returns {void}
+ */
+function cmdLineHandle(params = [], callback) {
+  const urlRegex = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
+  const Urls = [];
+  const Tools = [];
+  debugLog('info', 'Command Line Parameters:', ...params);
+
+  for (const arg of params) {
+    // 提取URL
+    if (urlRegex.test(arg)) Urls.push(arg);
+    // 小工具参数
+    const tool = arg.slice(2); // 去掉前缀 "--"
+    if (toolsID.includes(tool) && !Tools.includes(tool)) {
+      Tools.push(tool);
+    }
+  }
+
+  if (Urls.length === 0 && Tools.length === 0) {
+    // 无特殊参数时正常启动
+    if (typeof callback === 'function') callback();
+  } else {
+    // 打开对应页面
+    Promise.all([
+      Urls.forEach(url => new BrowserWindow({
+        width: 800, height: 600, icon: IconPath,
+        webPreferences: {
+          sandbox: true,
+          spellcheck: false,
+          webSecurity: true,
+          nodeIntegration: false,
+          contextIsolation: true,
+          session: session.defaultSession
+        }
+      }).loadURL(url)),
+      Tools.forEach(tool => openToolsWindow(tool + '.html'))
+    ])
+  }
+}
+
+let _localejson = null;
+/**
+ * 加载并返回本地化语言 JSON 对象 (缓存后复用)
+ * - 优先使用系统首选语言或环境变量 `LITE_BROWSER_LANG` 指定的语言，失败时回退到英文
+ * @returns {Object} 本地化字符串映射对象
+ */
+function getLocale() {
+  if (_localejson !== null) return _localejson;
+  const preferredLangs = app.getPreferredSystemLanguages();
+  const topLocale = (preferredLangs[0] || 'en').split('-')[0];
+  const cmdLocale = process.env.LB_LANG;
+  const usrlocale = supportLang.includes(topLocale) ? topLocale : 'en';
+  const locale = supportLang.includes(cmdLocale) ? cmdLocale : usrlocale;
+
+  let rawjson;
+  try {
+    // 尝试加载对应语言文件
+    rawjson = fs.readFileSync(path.join(AppPath, 'lang', `${locale}.json`), 'utf-8');
+    _localejson = JSON.parse(rawjson);
+    debugLog('info', `Localization language: ${locale}`);
+  } catch (err0) {
+
+    // 首选语言不可用
+    debugLog('warn', `Unable to load localization language file ${locale}.json, using default language instead.`);
+    app.whenReady().then(() => dialog.showMessageBox({
+      type: 'warning',
+      title: 'Not use localization language',
+      message: `Unable to load localization language file ${locale}.json, using default language instead.`,
+      buttons: ['Confirm', 'Details'],
+      defaultId: 0,
+      cancelId: 0
+    }).then(cho => { if (cho == 1) dialog.showErrorBox('Error Details', err0.stack) }));
+
+    // 加载默认语言文件
+    try {
+      rawjson = fs.readFileSync(path.join(AppPath, 'lang', 'en.json'), 'utf-8');
+      _localejson = JSON.parse(rawjson);
+      debugLog('info', 'Localization language: en (fallback)');
+    } catch (err1) {
+      debugLog('error', 'Fatal Error: Language file load failed!');
+      dialog.showErrorBox('Fatal Error: Language file missing', 'Unable to load default localization language file en.json. The application will exit.');
+      process.exit(1);
+    }
+  }
+
+  return _localejson;
+}
+
+/**
+ * 读取并返回指定文件的文本内容
+ * - 若文件或目录不存在且`defaultData`不为`null`则创建并写入默认值
+ * @param {string|null} [filePath=null] - 要读取的文件路径
+ * @param {string} [defaultData=''] - 当文件不存在时写入并返回的默认内容
+ * @param {string} [type='utf-8'] - 读取时使用的编码格式
+ * @returns {string|undefined} 文件内容；当 `filePath` 为 `null` 时返回 `undefined`
+ * @throws fs 子函数调用时可能抛出的错误
+ */
+function getFile(filePath = null, defaultData = '', type = 'utf-8') {
+  if (filePath === null || !DataPath.access.R) return defaultData;
+  if (fs.existsSync(filePath)) {
+    return fs.readFileSync(filePath, type);
+  } else {
+    if (DataPath.access.W) {
+      debugLog('info', 'File not exit, trying to created width default content - File:', filePath);
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      if (defaultData !== null) fs.writeFileSync(filePath, defaultData);
+    }
+    return defaultData;
+  }
+}
+
+/**
+ * 递归校验配置对象并补全默认值
+ *
+ * @template T
+ * @param {*} cfg 待校验配置
+ * @param {T} defaultCfg 默认配置
+ * @returns {T} 校验后的配置对象
+ */
+function jsonCheck(cfg, defaultCfg) {
+  if (cfg == null) return defaultCfg;
+
+  // 基础类型
+  if (typeof cfg !== 'object') {
+    return typeof cfg === typeof defaultCfg
+      ? cfg
+      : defaultCfg;
+  }
+
+  // 数组
+  if (Array.isArray(cfg)) {
+    return Array.isArray(defaultCfg)
+      ? cfg
+      : defaultCfg;
+  }
+
+  // default 不是 object
+  if (
+    defaultCfg == null ||
+    typeof defaultCfg !== 'object' ||
+    Array.isArray(defaultCfg)
+  ) {
+    return defaultCfg;
+  }
+
+  const result = {};
+  for (const key of Object.keys(defaultCfg)) {
+    result[key] = jsonCheck(cfg[key], defaultCfg[key]);
+  }
+
+  return result;
+}
+
+let _settings = null;
+/**
+ * 获取当前的程序配置，若不存在配置文件则会静默尝试写入默认配置 (缓存后复用)
+ * @returns {Object} 当前的用户自定义配置或默认配置
+ */
+function getSettings() {
+  if (_settings !== null) return _settings;
+  const file = path.join(DataPath.basic, 'settings.json')
+  if (!DataPath.access.R) return defaultSetting
+
+  try {
+    let rawFile = getFile(file, JSON.stringify(defaultSetting))
+    _settings = jsonCheck(JSON.parse(rawFile), defaultSetting);
+  } catch (err) {
+    debugLog('warn', 'Failed to load local configuration file, using default configuration file:', err.message);
+    _settings = defaultSetting;
+  }
+
+  const cmdNoGPU = app.commandLine.hasSwitch('no-gpu')
+  if (cmdNoGPU) _settings.app.useGPU = false;
+
+  return _settings
+}
+
+
+
+export {
+  getFile,
+  getLocale,
+  jsonCheck,
+  getSettings,
+  cmdLineHandle,
+};

@@ -1,53 +1,58 @@
 const { ipcRenderer, contextBridge } = require('electron');
 let contextmenu = true;
 let topmenu = true;
+let accessR, accessW, cfg;
 
-// 参数获取
-const configArg = process.argv.find(arg => arg.startsWith('--app-config='));
-let passedConfig = {};
-if (configArg) {
-  try {
-    const jsonString = configArg.substring(configArg.indexOf('=') + 1);
-    passedConfig = JSON.parse(jsonString);
-  } catch (_) { }
+try {
+  // 配置参数获取
+  const configArg = process.argv.find(arg => arg.startsWith('--app-config='));
+  const cfgRaw = configArg.substring(configArg.indexOf('=') + 1);
+  cfg = JSON.parse(atob(cfgRaw));
+
+  // 目录权限参数获取
+  const accessArg = process.argv.find(arg => arg.startsWith('--dir-access='));
+  const dirAccess = parseInt(accessArg.split('=')[1]) ?? 0;
+  accessR = (dirAccess >> 0) & 1
+  accessW = (dirAccess >> 1) & 1
+} catch (err) {
+  alert('Preload script error: Unable to parse command line arguments!')
+  console.error('Preload script error:', err.stack)
 }
-const cfg = {
-  topMenu: true,
-  insertjs: true,
-  contentMenu: true,
-  ...passedConfig
-};
-
 let api = {};
 
-// 顶部菜单
-if (cfg.topMenu) api.switchTopMenu = () => {
-  topmenu = !topmenu;
-  ipcRenderer.send('menu-switch-top-menu', topmenu);
-};
+try {
+  // 顶部菜单
+  if (cfg.topMenu) api.switchTopMenu = () => {
+    topmenu = !topmenu;
+    ipcRenderer.send('menu-switch-top-menu', topmenu);
+  };
 
-// JS 注入
-if (cfg.insertjs) api.registerWindow = () => ipcRenderer.send('insertjs-register-window');
+  // JS 注入
+  if (cfg.insertjs) api.registerWindow = () => ipcRenderer.send('insertjs-register-window');
 
-// 右键菜单
-if (cfg.contentMenu) api.switchContextMenu = () => contextmenu = !contextmenu;
+  // 右键菜单
+  if (cfg.contentMenu) api.switchContextMenu = () => contextmenu = !contextmenu;
+} catch (err) { console.error('Preload script error:', err.stack) }
 
 // 暴露接口
 contextBridge.exposeInMainWorld('litebrowser', {
+  // 主页面设置
+  background: cfg.mainWin.background,
+  searchUrl: cfg.mainWin.searchUrl,
+  custom: cfg.mainWin.custom,
+  // 数据目录权限
+  dataDirAccess: { R: accessR, W: accessW },
   // 新建窗口
-  newWindow: (url) => ipcRenderer.send('new-window', url),
-  // 数据目录权限查询
-  dataDirPermission: () => ipcRenderer.invoke('dataDir-permission'),
+  newWindow: (url) => ipcRenderer.send('window-open', url),
   // 书签相关
   getBookmarks: () => ipcRenderer.invoke('bookmarks-get'),
-  addBookmark: (name, url, time) => ipcRenderer.send('bookmarks-add', name, url, time),
-  delBookmark: (name) => ipcRenderer.send('bookmarks-del', name),
-  // 设置相关
-  getSetting: (isimg) => ipcRenderer.invoke('setting-get', isimg),
-  setSetting: (json) => ipcRenderer.send('setting-change', json),
-  imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64),
+  setBookmark: (data) => ipcRenderer.send('bookmarks-set', data),
   // 获取翻译文件
-  getLang: () => ipcRenderer.invoke('get-languageJson'),
+  getLang: () => ipcRenderer.invoke('languageJson-get'),
+  // 获取文件
+  getFile: (name, type) => ipcRenderer.invoke('localFile-get', name, type),
+  setFile: (name, base64) => ipcRenderer.invoke('localFile-get', name, base64),
+  // 动态api
   ...api,
 });
 

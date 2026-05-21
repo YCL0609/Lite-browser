@@ -1,39 +1,21 @@
-const langRaw = await litebrowser.getLang();
-const lang = langRaw.errorpage;
-
-// 语言切换
-if (langRaw.Info.lang != "zh") {
-    document.title = lang.title;
-    document.querySelectorAll('[data-langId]').forEach(e => {
-        const langId = e.dataset.langid.replace(/@/g, 'errorpage');
-        const langTo = e.dataset.langTo ?? "innerText";
-        const langIndex = langId.split('.');
-        let value = langRaw;
-        for (let i = 0; i < langIndex.length; i++) {
-            value = value[langIndex[i]] ?? "[Translation missing]";
-        }
-        e[langTo] = value;
-    });
-}
-
 const infoDiv = document.getElementById('info');
 const info = getUrlParams();
 const message = {
     code: {
-        info: lang.message.code,
-        default: "-999"
+        info: 'Error Code: ',
+        default: '-999'
     },
     desc: {
-        info: lang.message.desc,
-        default: "ERR_UNKNOWN_DISPLAY_ERROR"
+        info: 'Error Info: ',
+        default: 'ERR_UNKNOWN_DISPLAY_ERROR'
     },
     time: {
-        info: lang.message.time,
+        info: 'Time: ',
         default: new Date().toTimeString()
     },
     url: {
-        info: lang.message.url,
-        default: "N/A"
+        info: 'Url: ',
+        default: 'N/A'
     }
 };
 
@@ -41,7 +23,7 @@ const message = {
 ['code', 'desc', 'time', 'url'].forEach(id => {
     const p = document.createElement('p');
     const a = document.createElement('a');
-    const isEmpty = ['', undefined].includes(info[id])
+    const isEmpty = !info[id] || info[id].trim() === '';
 
     p.id = id;
     a.id = id + '-content';
