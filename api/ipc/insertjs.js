@@ -41,7 +41,7 @@ ipcMain.handle('insertjs-get-jslist', async () => {
         }
     }
 
-    debugLog(json.error === -1 ? 'info' : 'warn', 'Get list of inserted JS files: Used:', json.used, 'Length:', json.list.length)
+    debugLog(json.error === -1 ? 'info' : 'warn', 'Get list of inserted JS files: Used:', json.used)
     return json
 });
 
@@ -110,12 +110,11 @@ ipcMain.on('insertjs-rename-js', (_, jsID, newName) => {
 
 // 删除脚本
 ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
-    const jsPath = path.join(DataPath, 'insertjs');
     // 删除文件
     try {
         if (!DataPath.access.W) throw new Error(lang.remove.errorInfo)
         jsIDs.forEach(async (id) => {
-            await fs.promises.unlink(path.join(jsPath, id + '.js'))
+            await fs.promises.unlink(path.join(DataPath.insertjs, id + '.js'))
         })
     } catch (err) {
         debugLog('error', 'Failed to delete JS file:', err.message);
@@ -124,7 +123,7 @@ ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
     }
     // 删除ID记录
     try {
-        const jsonPath = path.join(jsPath, 'name.json');
+        const jsonPath = path.join(DataPath.insertjs, 'name.json');
         const idJson = JSON.parse(getFile(jsonPath, defaultJson_name));
         jsIDs.forEach(id => delete idJson[id]);
         fs.writeFileSync(jsonPath, JSON.stringify(idJson, null, 2), 'utf-8');
@@ -136,13 +135,12 @@ ipcMain.on('insertjs-remove-js', (_, jsIDs) => {
 
 // 打开脚本存放目录
 ipcMain.on('insertjs-open-dir', async () => {
-    const dirpath = path.join(DataPath, 'insertjs')
     try {
-        await fs.promises.mkdir(dirpath, { recursive: true });
-        shell.openPath(dirpath);
+        await fs.promises.mkdir(DataPath.insertjs, { recursive: true });
+        shell.openPath(DataPath.insertjs);
     } catch (err) {
-        debugLog('warn', 'Can not open dir out side app:', dirpath);
-        dialog.showErrorBox(lang.opendir.errorTitle + dirpath, err.message);
+        debugLog('warn', 'Can not open dir out side app:', DataPath.insertjs);
+        dialog.showErrorBox(lang.opendir.errorTitle + DataPath.insertjs, err.message);
     }
 });
 
@@ -152,9 +150,12 @@ ipcMain.on('insertjs-insert-js', (event, winid, jsIDs) => {
         if (!DataPath.access.R) throw new Error(lang.insert.errorInfo);
         const mainWindow = BrowserWindow.fromId(winid);
         jsIDs.forEach(id => {
-            const filepath = path.join(DataPath, 'insertjs', id + '.js');
+            const filepath = path.join(DataPath.insertjs, id + '.js');
             const content = fs.readFileSync(filepath, 'utf-8');
-            mainWindow.webContents.executeJavaScript(content); // 插入脚本
+            // 插入脚本
+            mainWindow.webContents.executeJavaScript(content).catch(err => {
+                debugLog('error', 'Script execution failed:', err?.message || err);
+            });
         });
         // 关闭子窗口
         const childwin = BrowserWindow.fromWebContents(event.sender);
@@ -222,7 +223,7 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
             const jsList = autoJSCache[host];
             for (let i = jsList.length - 1; i >= 0; i--) {
                 const jsid = jsList[i];
-                const filepath = path.join(DataPath, 'insertjs', jsid + '.js');
+                const filepath = path.join(DataPath.insertjs, jsid + '.js');
                 if (!fs.existsSync(filepath)) {
                     jsList.splice(i, 1);
                     changed = true;
@@ -230,9 +231,11 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
             }
             // 插入剩余存在的脚本
             for (const jsid of jsList) {
-                const filepath = path.join(DataPath, 'insertjs', jsid + '.js');
+                const filepath = path.join(DataPath.insertjs, jsid + '.js');
                 const content = fs.readFileSync(filepath, 'utf-8');
-                win.webContents.executeJavaScript(content); // 插入脚本
+                win.webContents.executeJavaScript(content).catch(err => {
+                    debugLog('error', 'Auto script execution failed:', err?.message || err);
+                }); // 插入脚本
             }
             // 如列表有变更则保存
             if (changed) {

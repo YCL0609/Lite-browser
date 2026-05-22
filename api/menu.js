@@ -1,14 +1,14 @@
-import { openToolsWindow, insertJS, getLocale, getSettings, isMac, toolsID } from '../core/index.js';
+import { openToolsWindow, openInsertJS, getLocale, getSettings, isMac, toolList, debugLog } from '../core/index.js';
 import { shell, clipboard, dialog, BrowserWindow, Menu } from 'electron';
 
 // 获取翻译文件和配置文件
 const lang = getLocale();
 const settings = getSettings();
 
-// 工具菜单：不满足条件时返回 null
+// 工具菜单
 const toolsMenu = settings?.app.toolBox ? {
   label: lang.menu.tools.index,
-  submenu: toolsID.map((id, index) => ({
+  submenu: toolList.map((id, index) => ({
     label: lang.tools.name[index],
     accelerator: `Alt+${index + 1}`,
     click: () => openToolsWindow(id),
@@ -88,21 +88,23 @@ const menuSwitch = [{
   label: ctrlText.switchTopMenu, accelerator: 'F8',
   click: () => {
     const win = BrowserWindow.getFocusedWindow();
-    if (win) win.webContents.executeJavaScript('litebrowser.switchTopMenu()');
+    if (win) win.webContents.executeJavaScript('litebrowser.switchTopMenu()')
+      .catch(err => debugLog('warn', 'executeJavaScript error:', err?.message || err));
   }
 }, {
   label: ctrlText.switchContentMenu, accelerator: 'F7',
   click: () => {
     const win = BrowserWindow.getFocusedWindow();
-    if (win) win.webContents.executeJavaScript('litebrowser.switchContextMenu()');
+    if (win) win.webContents.executeJavaScript('litebrowser.switchContextMenu()')
+      .catch(err => debugLog('warn', 'executeJavaScript error:', err?.message || err));
   }
 }];
 
-// JavaScript注入：不满足条件时返回 null
+// JavaScript注入
 const JSInsert = settings?.app.insertjs ? {
   label: ctrlText.insertJS,
   accelerator: 'F1',
-  click: insertJS
+  click: openInsertJS
 } : null;
 
 // 右键菜单

@@ -1,4 +1,4 @@
-import { cmdLineHandle, debugLog, getSettings, AppPath, DataPath, IconPath} from './core/index.js';
+import { cmdLineHandle, debugLog, getSettings, AppPath, DataPath, IconPath } from './core/index.js';
 import { app, session, BrowserWindow, Menu, dialog } from 'electron';
 import { TopMenu } from './api/menu.js';
 import path from "node:path";
@@ -17,8 +17,12 @@ if (DataPath.basic === '') {
 }
 app.setPath('userData', DataPath.userData);
 
-// GPU加速相关
-if (!settings?.app.useGPU) app.disableHardwareAcceleration();
+// GPU加速禁用
+if (!settings?.app.useGPU) {
+  app.disableHardwareAcceleration();
+  app.commandLine.appendSwitch('disable-gpu');
+  app.commandLine.appendSwitch('disable-software-rasterizer'); // 禁用软件光栅化，防止 CPU 爆炸
+}
 
 // 日志输出
 debugLog('info', 'Data path:')
@@ -51,7 +55,7 @@ function createMainWindow() {
       ],
     }
   });
-  mainWin.loadFile(path.join(AppPath, 'html', 'normal', 'main', 'index.html'));
+  mainWin.loadFile(path.join(AppPath, 'html', settings.app.normalMode ? 'normal' : 'limited', 'main', 'index.html'));
   mainWin.on('closed', () => mainWin = null);
 }
 
@@ -63,7 +67,7 @@ app.whenReady().then(() => {
     dialog.showMessageBox({
       type: 'warning',
       title: 'Not use normal data path',
-      message: 'Unable to use the specified data path. Using temporary directory instead.\n\nTemporary data path: ' + DataPath.basic,
+      message: 'Unable to use the scmdpecified data path. Using temporary directory instead.\n\nTemporary data path: ' + DataPath.basic,
       buttons: ['OK'],
     });
   }

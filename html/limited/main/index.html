@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lite Browser</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <!-- 主容器 -->
+    <div class="container">
+        <div class="search-bar">
+            <input id="search-input" type="text" placeholder="搜索或输入网址..." data-langId="@.inputTip"
+                data-langTo="placeholder">
+            <button id="search-button">Go</button>
+        </div>
+        <div class="toolbar">
+            <span data-langId="@.bookmark.title">书签</span>
+            <div class="toolbar-buttons">
+                <button id="settings-open">S</button>
+                <button id="bookmark-add-Btn">+</button>
+            </div>
+        </div>
+
+        <div id="bookmark-list" class="bookmark-list"></div>
+    </div>
+    <!-- 书签卡片 -->
+    <div id="bookmark-card" class="dialog-mask">
+        <div class="dialog">
+            <h3 id="bookmark-card-title" data-langId="@.bookmark.addTip">添加书签</h3>
+            <input id="bookmark-card-name" type="text" placeholder="输入书签名称" data-langId="@.bookmark.nameTip"
+                data-langTo="placeholder">
+            <input id="bookmark-card-url" type="text" placeholder="输入Url" data-langId="@.bookmark.urlTip"
+                data-langTo="placeholder">
+            <div class="dialog-buttons">
+                <button id="bookmark-card-okBtn">OK</button>
+                <button id="bookmark-card-noBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="index.js"></script>
+</body>
+
+</html>

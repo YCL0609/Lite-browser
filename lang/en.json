@@ -2,7 +2,7 @@
     "Info": {
         "lang": "en",
         "langLong": "en-US",
-        "version": "2026-01-21"
+        "version": "2026-05-21"
     },
     "public": {
         "cancelBtn": "Cancel",
@@ -15,49 +15,49 @@
     "permission": {
         "write": {
             "info": "Data directory is not writable",
-            "tip": "Data directory is not writable, all changes will be discarded after the program closes!"
+            "tip": "Data directory is not writable, all changes will be discarded when the application closes!"
         },
         "read": {
             "info": "Data directory is not readable",
-            "tip": "Data directory is not readable, all changes will be discarded after the program closes!"
+            "tip": "Data directory is not readable, all changes will be discarded when the application closes!"
         }
     },
     "mainWindow": {
-        "inputTip": "Enter the content to search or the URL to visit",
+        "inputTip": "Search or enter a URL...",
         "bookmark": {
-            "title": "Local Bookmarks",
-            "selectBoxTip": "Select a bookmark to operate:",
+            "title": "Bookmarks",
             "selectBtn": "Select",
-            "addNew_AddTip": "Add Bookmark",
-            "addNew_changeTip": "Edit Bookmark",
-            "addNew_nameTip": "Enter bookmark name",
-            "addNew_urlTip": "Start with [protocol]://"
+            "confirmDel": "Confirm deletion of [$name$]?",
+            "selectBoxTip": "Select the bookmark(s) to operate on:",
+            "addTip": "Add bookmark",
+            "changeTip": "Edit bookmark",
+            "nameTip": "Enter bookmark name",
+            "urlTip": "Enter URL (must start with [protocol]://)"
         }
     },
     "jsinsert": {
-        "title": "Select JavaScript File to Inject",
+        "title": "Select JavaScript files to inject",
         "subtitle": {
             "winid": "Window ID:",
-            "gettime": "List Fetch Time:",
+            "gettime": "List retrieved at:",
             "used": "Elapsed:"
         },
-        "boxTitle": "File List",
-        "boxTitleAuto": "File List (Auto-Inject Mode)",
+        "boxTitle": "File list",
+        "boxTitleAuto": "File list (Auto-inject mode)",
         "menu": {
-            "title": "Menu",
             "add": "Add",
             "delete": "Delete",
             "rename": "Rename",
-            "openDir": "Open Directory",
-            "refresh": "Refresh List",
-            "autojs": "Auto Inject"
+            "openDir": "Open directory",
+            "refresh": "Refresh list",
+            "autojs": "Auto inject"
         },
         "insert": "Insert",
-        "apply": "Apply List",
-        "renameTitle": "Rename Script",
+        "apply": "Apply list",
+        "renameTitle": "Rename script",
         "message": {
             "noselent": "No item selected",
-            "isdelete": "Delete selected item?",
+            "isdelete": "Are you sure you want to delete the selected item(s)?",
             "rename": "Rename operation only allows a single item"
         }
     },
@@ -73,31 +73,31 @@
             "cut": "Cut",
             "copy": "Copy",
             "paste": "Paste",
-            "pastetext": "Paste as Plain Text"
+            "pastetext": "Paste as plain text"
         },
         "control": {
             "index": "Control...",
             "back": "Back",
             "reload": "Reload",
-            "forceReload": "Reload Ignoring Cache",
+            "forceReload": "Force reload (ignore cache)",
             "forward": "Forward",
-            "fullScreen": "Full Screen",
+            "fullScreen": "Full screen",
             "showurl": {
-                "index": "Show Current URL",
+                "index": "Show current address",
                 "title": "Current URL",
-                "copyBtn": "Copy to Clipboard"
+                "copyBtn": "Copy to clipboard"
             },
             "devTools": "Developer Tools",
-            "openOutside": "Open with Default Browser",
-            "switchTopMenu": "Toggle Top Menu",
-            "switchContentMenu": "Toggle Context Menu",
-            "insertJS": "JavaScript Injection"
+            "openOutside": "Open in default browser",
+            "switchTopMenu": "Toggle top menu",
+            "switchContentMenu": "Toggle context menu",
+            "insertJS": "Insert JavaScript"
         }
     },
     "tools": {
         "name": [
             "Notepad",
-            "Drawing Board",
+            "Paint",
             "Code Editor",
             "Base64 Tool",
             "Markdown Editor"
@@ -105,11 +105,11 @@
         "notepad": {
             "title": "Notepad",
             "tempNote": "Currently a temporary note",
-            "default": "Shortcuts:<br>Ctrl + 0~9 to switch to the corresponding notebook (0 is temporary);<br>Ctrl + S to manually save the current note;<br>Ctrl + D to delete the current note;<br>Alt + 1~6 to set the current line as a heading or revert to normal text;<br>Alt + I to toggle italic;<br>Alt + B to toggle bold;<br>Alt + U to toggle underline;<br>Alt + M to manually trigger KaTeX rendering.<br><br>Open-source libraries used:<br>DOMPurify - https://github.com/cure53/DOMPurify<br>KaTeX - https://github.com/KaTeX/KaTeX"
+            "default": "Shortcuts:<br>Ctrl + 0~9 switch to the corresponding note number (0 is the temporary note);<br>Ctrl + S manually save the current note;<br>Ctrl + D delete the current note;<br>Alt + 1~6 set the current line as the corresponding heading or restore to normal text;<br>Alt + I toggle italic for the current line;<br>Alt + B toggle bold for the current line;<br>Alt + U toggle underline for the current line;<br>Alt + M manually trigger KaTeX math rendering.<br><br>Open source libraries used:<br>DOMPurify - https://github.com/cure53/DOMPurify<br>KaTeX - https://github.com/KaTeX/KaTeX"
         },
         "paint": {
-            "title": "Drawing Board",
-            "info": "Left-click to draw, right-click to erase, Ctrl+S to save image"
+            "title": "Paint",
+            "info": "Left click to draw, right click to erase, Ctrl+S to save image"
         },
         "code": {
             "title": "Simple Code Editor",
@@ -121,52 +121,47 @@
         },
         "base64": {
             "title": "Base64 Encode/Decode Tool",
-            "inputType": "Select Input Type",
-            "textType": "Text Input",
-            "fileType": "File Upload",
+            "inputType": "Select input type",
+            "textType": "Text input",
+            "fileType": "File upload",
             "textInfo": "Enter text or Base64 string:",
             "textTip": "Type or paste here...",
-            "fileInfo": "Select file:",
+            "fileInfo": "Choose file:",
             "button": {
-                "encode": "Encode Base64",
-                "decode": "Decode Base64"
+                "encode": "Base64 Encode",
+                "decode": "Base64 Decode"
             },
             "processing": "Processing...",
             "result": "Result:",
-            "errorTip": "Processing Error:",
-            "errorString": "Invalid Base64 string, cannot decode to text"
+            "errorTip": "Processing error:",
+            "errorString": "The Base64 string format is invalid and cannot be decoded to text"
         },
         "markdown": {
             "title": "Markdown Live Preview",
             "inputTip": "Enter Markdown text here...",
             "preview": "Preview:",
-            "default": "# Markdown Demo\nSupports most Markdown syntax and math formulas\n## Open-source Libraries Used\n| Name | Description | Repository |\n| :--- | :---: | :---: |\n| Marked | Markdown to HTML | https://github.com/markedjs/marked |\n| DOMPurify | HTML Sanitization | https://github.com/cure53/DOMPurify |\n| KaTeX | Math Rendering | https://github.com/KaTeX/KaTeX |"
-        },
-        "toolsFileControl": {
-            "loading": "Loading history files...",
-            "saving": "Saving file...",
-            "deleting": "Deleting...",
-            "readOK": "Read successfully",
-            "saveOK": "Saved successfully",
-            "autoSaveOK": "Auto-saved successfully",
-            "deleteOK": "Deleted successfully",
-            "delError": "Delete failed:",
-            "unknow": "Unknown error",
-            "delCheck": "Are you sure to delete?"
+            "default": "# Markdown demo\nSupports most Markdown syntax and math formulas\n## Open source libraries used\n| Name | Description | Repo |\n| :--- | :---: | :---: |\n| Marked | markdown to html | https://github.com/markedjs/marked |\n| DOMPurify | html sanitizer | https://github.com/cure53/DOMPurify |\n| KaTeX | math rendering | https://github.com/KaTeX/KaTeX |"
         }
     },
+    "toolsFileControl": {
+        "loading": "Reading history files...",
+        "saving": "Saving file...",
+        "deleting": "Deleting...",
+        "readOK": "Read successful",
+        "saveOK": "Save successful",
+        "autoSaveOK": "Auto-save successful",
+        "deleteOK": "Delete successful",
+        "delError": "Delete failed:",
+        "unknow": "Unknown error",
+        "delCheck": "Are you sure you want to delete?"
+    },
     "ipc": {
-        "bookmark": {
+        "file": {
             "get": {
-                "errorTitle": "Bookmark Retrieval Error"
+                "errorTitle": "File read error"
             },
             "add": {
-                "errorTitle": "Bookmark Add Error",
-                "errorInfo": "Data directory is not writable, cannot add bookmark"
-            },
-            "del": {
-                "errorTitle": "Bookmark Delete Error",
-                "errorInfo": "Data directory is not writable, cannot delete bookmark"
+                "errorTitle": "File write error"
             }
         },
         "insertjs": {
@@ -174,55 +169,55 @@
                 "errorInfo": "Data directory is not readable"
             },
             "add": {
-                "errorTitle": "Add JavaScript File Error",
+                "errorTitle": "Error adding JavaScript file",
                 "errorInfo": "Data directory is not writable, cannot add script",
-                "title": "Select JavaScript File",
-                "userCancel": "User canceled selection",
+                "title": "Select JavaScript file",
+                "userCancel": "User canceled the selection",
                 "copyError": "File copy error",
                 "IDError": "File ID record error"
             },
             "rename": {
-                "errorTitle": "Rename Script Error",
-                "errorInfo": "Data directory permission issue"
+                "errorTitle": "Script rename error",
+                "errorInfo": "Data directory has permission issues"
             },
             "remove": {
-                "fileErrorTitle": "Delete JavaScript File Error",
-                "IDErrorTitle": "Delete JavaScript File ID Record Error",
+                "fileErrorTitle": "Error deleting JavaScript file",
+                "IDErrorTitle": "Error deleting JavaScript file ID record",
                 "errorInfo": "Data directory is not writable, cannot delete script"
             },
             "opendir": {
-                "errorTitle": "Unable to open directory\nTry opening the path manually"
+                "errorTitle": "Cannot open file directory\nYou may try opening the path manually"
             },
             "insert": {
-                "errorTitle": "Script Injection Error",
+                "errorTitle": "Script injection error",
                 "errorInfo": "Data directory is not readable, cannot inject script"
             },
             "changeAuto": {
-                "errorTitle": "Modify Auto-Inject Script Error",
-                "errorInfo": "Data directory permission issue, cannot modify auto-inject list"
+                "errorTitle": "Error modifying auto-inject scripts",
+                "errorInfo": "Data directory has permission issues, cannot modify auto-inject script list"
             },
             "autoInsert": {
-                "errorTitle": "Auto-Inject Script Error",
-                "errorInfo": "Data directory is not readable, cannot auto-inject script"
+                "errorTitle": "Auto-inject script error",
+                "errorInfo": "Data directory is not readable, cannot auto-inject scripts"
             }
         },
         "setting": {
             "change": {
-                "errorTitle": "Configuration Change Error"
+                "errorTitle": "Configuration modification error"
             },
             "changeImg": {
-                "errorTitle": "Image Configuration Change Error",
+                "errorTitle": "Image configuration modification error",
                 "unknowMIME": "Unknown MIME type: ",
-                "title": "Old Image Deletion Warning",
-                "message": "Failed to delete old image, try deleting manually\nFile path:"
+                "title": "Old image delete warning",
+                "message": "Failed to delete old image, you may try deleting it manually\nFile path:"
             }
         },
         "tools": {
             "notepad": {
-                "IDError": "Note ID Error"
+                "IDError": "Note ID error"
             },
             "code": {
-                "typeError": "Type Error"
+                "typeError": "Type error"
             }
         }
     }

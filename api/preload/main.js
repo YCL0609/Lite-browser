@@ -22,16 +22,16 @@ let api = {};
 
 try {
   // 顶部菜单
-  if (cfg.topMenu) api.switchTopMenu = () => {
+  if (cfg.app.topMenu) api.switchTopMenu = () => {
     topmenu = !topmenu;
     ipcRenderer.send('menu-switch-top-menu', topmenu);
-  };
+  }
 
   // JS 注入
-  if (cfg.insertjs) api.registerWindow = () => ipcRenderer.send('insertjs-register-window');
+  if (cfg.app.insertjs) api.registerWindow = () => ipcRenderer.send('insertjs-register-window');
 
   // 右键菜单
-  if (cfg.contentMenu) api.switchContextMenu = () => contextmenu = !contextmenu;
+  if (cfg.app.contentMenu) api.switchContextMenu = () => contextmenu = !contextmenu;
 } catch (err) { console.error('Preload script error:', err.stack) }
 
 // 暴露接口
@@ -58,9 +58,8 @@ contextBridge.exposeInMainWorld('litebrowser', {
 
 // 页面加载完成事件
 window.addEventListener('DOMContentLoaded', () => {
-  if (cfg.contentMenu) {
+  if (cfg.app.contentMenu) {
     window.addEventListener('contextmenu', (e) => {
-      if (!contextmenu) return;
       e.preventDefault();
       ipcRenderer.send('menu-contextmenu', { x: e.clientX, y: e.clientY });
     });

@@ -1,4 +1,4 @@
-import { NoteMessage } from '../../../libs/functions-front.js';
+// import { NoteMessage } from '../../../libs/functions-front.js';
 const cardTitle = document.getElementById('bookmark-card-title');
 const cardTxt = document.getElementById('bookmark-card-name');
 const cardUrl = document.getElementById('bookmark-card-url');
@@ -100,9 +100,18 @@ if (langRaw.Info.lang != "zh") {
     });
 }
 
-// 数据目录权限检查
-if (!litebrowser.dataDirAccess.R) NoteMessage.showMessage('error', langRaw.permission.read.tip);
-if (!litebrowser.dataDirAccess.W) NoteMessage.showMessage('warning', langRaw.permission.write.tip);
+// 数据目录权限提示
+if (!litebrowser.dataDirAccess.R || !litebrowser.dataDirAccess.W) {
+    const tips = document.getElementById('tips');
+    const txtR = !litebrowser.dataDirAccess.R ? langRaw.permission.read.tip : '';
+    const txtW = !litebrowser.dataDirAccess.W ? langRaw.permission.write.tip : '';
+    const sep = (txtR && txtW) ? ' --- ' : '';
+    tips.innerText = txtR + sep + txtW;
+    tips.className = 'show warning';
+    setTimeout(() => {
+        tips.classList.remove('show');
+    }, 5000);
+}
 
 // 背景
 if (litebrowser.background?.trim() !== '') litebrowser.getFile(litebrowser.background?.trim(), 'base64')
@@ -147,7 +156,7 @@ document.getElementById('bookmark-card-noBtn').addEventListener('click', () => {
     cardTitle.innerText = lang.bookmark.addTip;
     cardTxt.value = '';
     cardUrl.value = '';
-    editID == null;
+    editID = null;
 });
 document.getElementById('bookmark-card-okBtn').addEventListener('click', () => {
     if (editID === null) return;

@@ -1,8 +1,10 @@
 import { AppPath, DataPath, IconPath, isDebug, debugLog, getSettings } from '../core/index.js';
 import { app, session, BrowserWindow } from 'electron';
-import path from "node:path";
-const historyPath = path.join(DataPath.basic, 'history.txt')
+import path from 'node:path';
+import fs from 'node:fs'
 const settings = getSettings();
+const errorPath = path.join(AppPath, 'html', settings.app.normalMode ? 'normal' : 'limited', 'error', 'index.html');
+const historyPath = path.join(DataPath.basic, 'history.txt')
 
 // 所有窗口在独立线程中打开
 app.on('web-contents-created', (_, contents) => {
@@ -37,8 +39,7 @@ app.on('browser-window-created', (_, window) => {
     if (isDebug) console.log(`[Error] URL Load: Code:${code} - Errdesc:${desc} - URL:${errURL}`);
 
     // 拼接URL
-    const rawPath = path.join(AppPath, 'html', 'normal', 'error', 'index.html');
-    const url = `file://${rawPath}?code=${code}&desc=${desc}&time=${new Date().toTimeString()}&url=${encodeURIComponent(errURL)}`;
+    const url = `file://${errorPath}?code=${code}&desc=${desc}&time=${new Date().toTimeString()}&url=${encodeURIComponent(errURL)}`;
 
     // 加载本地错误页面
     window.loadURL(url)

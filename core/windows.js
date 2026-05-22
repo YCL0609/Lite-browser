@@ -1,9 +1,15 @@
 import { AppPath, IconPath, DataPath } from './config.js';
 import { BrowserWindow, session } from 'electron';
+import { debugLog, debugMenu } from './debug.js';
 import { pathToFileURL } from 'node:url';
-import { debugMenu } from './debug.js';
+import { getSettings } from './basic.js';
 import path from 'node:path';
-let _nomenuSession = session.fromPartition('persist:nomenu');
+const settings = getSettings();
+let _nomenuSession = null;
+
+function _getNomenuSession() {
+    return _nomenuSession ??= session.fromPartition('persist:nomenu');
+}
 
 /**
  * 打开一个独立的工具窗口 (位于 `html/tools/<name>.html`)
@@ -23,7 +29,7 @@ function openToolsWindow(name = '') {
             webSecurity: true,
             nodeIntegration: false,
             contextIsolation: true,
-            session: _nomenuSession,
+            session: _getNomenuSession(),
             preload: path.join(AppPath, 'api', 'preload', 'tools.js'),
             additionalArguments: [
                 '--dir-access=' + ((DataPath.access.R ? 1 : 0) | (DataPath.access.W ? 2 : 0))
@@ -31,7 +37,7 @@ function openToolsWindow(name = '') {
         }
     });
     newwin.setMenu(debugMenu);
-    newwin.loadURL(pathToFileURL(path.join(AppPath, 'html', 'tools', name + '.html')).href);
+    newwin.loadURL(pathToFileURL(path.join(AppPath, 'html', 'tools', name, 'index.html')).href);
 }
 
 /**
@@ -43,7 +49,9 @@ function openInsertJS() {
     const mainWindow = BrowserWindow.getFocusedWindow();
     if (!mainWindow || mainWindow.isDestroyed()) return;
     debugLog('info', 'Opening Insert JS Window for window: ID ', mainWindow.id);
-    mainWindow.webContents.executeJavaScript('litebrowser.registerWindow()');
+    mainWindow.webContents.executeJavaScript('litebrowser.registerWindow()').catch(err => {
+        debugLog('warn', 'executeJavaScript failed:', err?.message || err);
+    });
     const childWindow = new BrowserWindow({
         parent: mainWindow,
         width: 500,
@@ -55,13 +63,13 @@ function openInsertJS() {
             webSecurity: true,
             nodeIntegration: false,
             contextIsolation: true,
-            session: _nomenuSession,
+            session: _getNomenuSession(),
             preload: path.join(AppPath, 'api', 'preload', 'insertjs.js'),
             additionalArguments: [`--parent-window-id=${mainWindow.id}`]
         }
     });
     childWindow.setMenu(debugMenu);
-    childWindow.loadFile(path.join(AppPath, 'html', 'insert', 'index.html'));
+    childWindow.loadFile(path.join(AppPath, 'html', settings.app.normalMode ? 'normal' : 'limited', 'insert', 'index.html'));
 }
 
 export {

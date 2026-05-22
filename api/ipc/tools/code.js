@@ -1,4 +1,5 @@
 import { debugLog, getFile, getLocale, DataPath } from '../../../core/index.js';
+import { isolateImage } from './common.js';
 import { ipcMain } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';

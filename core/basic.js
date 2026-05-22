@@ -1,5 +1,6 @@
-import { AppPath, IconPath, supportLang, toolsID, DataPath, defaultSetting } from './config.js';
+import { AppPath, IconPath, supportLang, toolList, DataPath, defaultSetting } from './config.js';
 import { BrowserWindow, dialog, app, session } from 'electron';
+import { debugLog } from './debug.js';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -13,21 +14,24 @@ import fs from 'node:fs';
  */
 function cmdLineHandle(params = [], callback) {
   const urlRegex = /^(https?:\/\/[^\s/$.?#].[^\s]*)$/i;
+  const settings = getSettings();
   const Urls = [];
-  const Tools = [];
+  const tools = [];
   debugLog('info', 'Command Line Parameters:', ...params);
 
   for (const arg of params) {
     // 提取URL
     if (urlRegex.test(arg)) Urls.push(arg);
     // 小工具参数
-    const tool = arg.slice(2); // 去掉前缀 "--"
-    if (toolsID.includes(tool) && !Tools.includes(tool)) {
-      Tools.push(tool);
+    if (settings?.app.toolsBox) {
+      const cmd = arg.slice(2); // 去前缀
+      if (toolList.includes(cmd) && !tools.includes(cmd)) {
+        tools.push(cmd);
+      }
     }
   }
 
-  if (Urls.length === 0 && Tools.length === 0) {
+  if (Urls.length === 0 && tools.length === 0) {
     // 无特殊参数时正常启动
     if (typeof callback === 'function') callback();
   } else {
@@ -44,7 +48,7 @@ function cmdLineHandle(params = [], callback) {
           session: session.defaultSession
         }
       }).loadURL(url)),
-      Tools.forEach(tool => openToolsWindow(tool + '.html'))
+      tools.forEach(tool => openToolsWindow(tool))
     ])
   }
 }
@@ -171,18 +175,36 @@ let _settings = null;
 function getSettings() {
   if (_settings !== null) return _settings;
   const file = path.join(DataPath.basic, 'settings.json')
-  if (!DataPath.access.R) return defaultSetting
 
-  try {
-    let rawFile = getFile(file, JSON.stringify(defaultSetting))
-    _settings = jsonCheck(JSON.parse(rawFile), defaultSetting);
-  } catch (err) {
-    debugLog('warn', 'Failed to load local configuration file, using default configuration file:', err.message);
-    _settings = defaultSetting;
+  if (DataPath.access.R) {
+    try {
+      let rawFile = getFile(file, JSON.stringify(defaultSetting))
+      _settings = jsonCheck(JSON.parse(rawFile), defaultSetting);
+    } catch (err) {
+      debugLog('warn', 'Failed to load local configuration file, using default configuration file:', err.message);
+      _settings = defaultSetting;
+    }
+  } else { _settings = defaultSetting }
+
+  // 命令行参数处理
+  const hwLimitMode = app.commandLine.hasSwitch('app-hw-limit');
+  const noGPUMode = hwLimitMode || app.commandLine.hasSwitch('app-disable-gpu');
+  const toolsBox = app.commandLine.hasSwitch('app-disable-toolbox');
+  const history = app.commandLine.hasSwitch('app-disable-history-file');
+  const insertjs = app.commandLine.hasSwitch('app-disable-insert-js');
+  const menuAll = app.commandLine.hasSwitch('app-disable-menu-all');
+  const menuTop = menuAll || app.commandLine.hasSwitch('app-disable-menu-top');
+  const menuContent = menuAll || app.commandLine.hasSwitch('app-disable-menu-content');
+  const cmdAppcfg = {
+    useGPU: noGPUMode ? false : _settings.app.useGPU,
+    toolsBox: toolsBox ? false : _settings.app.toolBox,
+    history: history ? false : _settings.app.history,
+    topMenu: menuTop ? false : _settings.app.topMenu,
+    insertjs: insertjs ? false : _settings.app.insertjs,
+    normalMode: hwLimitMode ? false : _settings.app.normalMode,
+    contentMenu: menuContent ? false : _settings.app.contentMenu,
   }
-
-  const cmdNoGPU = app.commandLine.hasSwitch('no-gpu')
-  if (cmdNoGPU) _settings.app.useGPU = false;
+  _settings.app = cmdAppcfg;
 
   return _settings
 }

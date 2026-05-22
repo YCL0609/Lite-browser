@@ -35,7 +35,7 @@ const IconPath = (() => {
 })();
 
 // 小工具
-const toolsID = ["notepad", "paint", "code", "base64", "markdown"];
+const toolList = ["notepad", "paint", "code", "base64", "markdown"];
 
 // 默认配置
 const defaultSetting = {
@@ -45,6 +45,7 @@ const defaultSetting = {
         history: true,
         topMenu: true,
         insertjs: true,
+        normalMode: true,
         contentMenu: true,
     },
     mainWin: {
@@ -147,7 +148,7 @@ export {
     AppPath,
     isDebug,
     isTrace,
-    toolsID,
+    toolList,
     DataPath,
     IconPath,
     supportLang,

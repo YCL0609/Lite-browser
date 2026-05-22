@@ -16,7 +16,7 @@
 body {
     min-height: 100vh;
     font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Roboto', sans-serif;
-    background: #f4f7fc;
+    background: #d0e0ff;
     background-size: cover !important;
     background-position: center center !important;
     background-attachment: fixed !important;
@@ -41,17 +41,16 @@ body {
     justify-content: flex-start;
 }
 
-/* 搜索栏区域 — 距离顶部 20% 视口高度 */
+/* 搜索栏区域 */
 .search-section {
     width: 100%;
     max-width: 720px;
     margin-top: 20vh;
-    /* 顶部 20% */
     margin-bottom: 2rem;
     transition: margin 0.2s;
 }
 
-/* 搜索框玻璃外壳 */
+/* 搜索框外壳 */
 .search-wrapper {
     display: flex;
     gap: 12px;
@@ -60,8 +59,6 @@ body {
     backdrop-filter: blur(8px);
     border-radius: 64px;
     padding: 4px 4px 4px 20px;
-    /* box-shadow: var(--shadow-sm), 0 0 0 1px rgba(0, 0, 0, 0.02); */
-    /* transition: var(--transition); */
 }
 
 .search-wrapper:focus-within {
@@ -153,7 +150,7 @@ body {
     transform: scale(1.08);
 }
 
-/* 书签网格 - 优雅卡片布局 + 入场动画 */
+/* 书签网格 */
 .bookmark-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -195,7 +192,7 @@ body {
     text-overflow: ellipsis;
 }
 
-/* 卡片操作按钮 (编辑/删除，由js动态生成) */
+/* 卡片操作按钮 */
 .card-actions {
     display: flex;
     gap: 8px;
@@ -234,7 +231,7 @@ body {
     grid-column: 1 / -1;
 }
 
-/* 模态框 (新增/编辑书签) */
+/* 卡片窗口 */
 .card-mask {
     position: fixed;
     top: 0;
@@ -317,7 +314,49 @@ body {
     transform: scale(0.97);
 }
 
-/* 自定义滚动条 (书签面板) */
+/* 信息提示条 */
+#tips {
+    position: fixed;
+    width: 100%;
+    padding: 5px;
+    background: rgba(32, 32, 32, 0.95);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    word-break: break-word;
+    text-align: center;
+}
+
+#tips.show {
+    max-height: 80px;
+    opacity: 1;
+}
+
+#tips.success {
+    border-bottom-color: #4caf50;
+    background: rgba(32, 100, 32);
+}
+
+#tips.error {
+    border-bottom-color: #f44336;
+    background: rgba(100, 32, 32);
+}
+
+#tips.warning {
+    border-bottom-color: #ff9800;
+    background: rgba(100, 80, 32);
+}
+
+#tips.info {
+    border-bottom-color: var(--main-color);
+    background: rgba(32, 80, 100);
+}
+
+/* 自定义滚动条 */
 .bookmark-grid::-webkit-scrollbar {
     width: 6px;
 }
@@ -332,7 +371,7 @@ body {
     border-radius: 10px;
 }
 
-/* 暗色主题适配 (Electron 支持 prefers-color-scheme) */
+/* 暗色主题 */
 @media (prefers-color-scheme: dark) {
     :root {
         --card-bg: rgba(30, 35, 45, 0.7);
@@ -394,5 +433,25 @@ body {
     .card-buttons button:last-child {
         background: #3a4050;
         color: #fff;
+    }
+
+    #tips {
+        background: rgb(45, 45, 45);
+    }
+
+    #tips.success {
+        background: rgb(40, 100, 40);
+    }
+
+    #tips.error {
+        background: rgb(110, 35, 35);
+    }
+
+    #tips.warning {
+        background: rgb(110, 85, 35);
+    }
+
+    #tips.info {
+        background: rgb(35, 85, 110);
     }
 }

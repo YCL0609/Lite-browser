@@ -14,28 +14,20 @@
         <header class="topbar">
             <h1 data-langId="@.title">选择要注入的JavaScript文件</h1>
 
-            <button class="menu-toggle">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 7H20M4 12H20M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                </svg>
+            <button class="menu-toggle" aria-label="menu">
+                ☰
             </button>
         </header>
 
-        <section class="status-card">
-            <div class="status-item">
-                <span data-langId="@.subtitle.winid">窗口ID</span>
-                <b id="id">-1</b>
-            </div>
+        <section class="statusbar">
+            <span data-langId="@.subtitle.winid">窗口ID：</span>
+            <b id="id">-1</b>
 
-            <div class="status-item">
-                <span data-langId="@.subtitle.gettime">获取时间</span>
-                <b id="time">--:--:--</b>
-            </div>
+            <span data-langId="@.subtitle.gettime">获取时间：</span>
+            <b id="time">--:--:--</b>
 
-            <div class="status-item">
-                <span data-langId="@.subtitle.used">耗时</span>
-                <b id="used">0ms</b>
-            </div>
+            <span data-langId="@.subtitle.used">耗时：</span>
+            <b id="used">0ms</b>
         </section>
 
         <section class="panel">

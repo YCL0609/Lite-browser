@@ -8,19 +8,19 @@
   "license": "MIT",
   "scripts": {
     "getlibs": "node getlibs.js",
-    "start": "electron . --gtk-version=3",
+    "start": "electron . --gtk-version=3 --trace-warnings",
     "build": "npm run getlibs && electron-forge make"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^8.0.0-alpha.8",
-    "@electron-forge/maker-zip": "^8.0.0-alpha.8",
-    "@electron-forge/plugin-fuses": "^8.0.0-alpha.8",
+    "@electron-forge/cli": "^8.0.0-alpha.9",
+    "@electron-forge/maker-zip": "^8.0.0-alpha.9",
+    "@electron-forge/plugin-fuses": "^8.0.0-alpha.9",
     "@electron/fuses": "^2.1.1",
-    "electron": "^42.1.0"
+    "electron": "^42.2.0"
   },
   "dependencies": {
-    "dompurify": "^3.4.3",
-    "katex": "^0.16.46",
-    "marked": "^18.0.3"
+    "dompurify": "^3.4.5",
+    "katex": "^0.16.47",
+    "marked": "^18.0.4"
   }
 }

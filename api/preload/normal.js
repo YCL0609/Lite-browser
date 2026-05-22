@@ -29,7 +29,6 @@ if (cfg.topMenu) api.switchTopMenu = () => {
 // JS 注入
 if (cfg.insertjs) api.registerWindow = () => ipcRenderer.send('insertjs-register-window');
 
-
 // 右键菜单
 if (cfg.contentMenu) api.switchContextMenu = () => contextmenu = !contextmenu;
 
@@ -39,9 +38,7 @@ contextBridge.exposeInMainWorld('litebrowser', api);
 // 页面加载完成事件
 window.addEventListener('DOMContentLoaded', () => {
   // 自动化 JS 注入
-  if (cfg.insertjs) {
-    ipcRenderer.send('insertjs-auto-js-insert');
-  }
+  if (cfg.insertjs) ipcRenderer.send('insertjs-auto-js-insert');
 
   // 右键菜单事件
   if (cfg.contentMenu) {

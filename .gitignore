@@ -1,9 +1,10 @@
+html/tools/common/katex
 extrares/license/
 node_modules/
-html/tools/common
 resources/
 .vscode/
 out/
 
 html/tools/markdown/marked.min.js
+html/tools/common/purify.min.js
 *.bdic

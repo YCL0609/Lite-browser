@@ -1,0 +1,196 @@
+:root {
+    color-scheme: light dark;
+
+    --bg: #f3f3f3;
+    --panel: #ffffff;
+    --border: #d0d0d0;
+    --text: #111111;
+    --sub: #666666;
+    --primary: #2d6cdf;
+    --selected: #d9e8ff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-width: 320px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+}
+
+body {
+    padding: 10px;
+}
+
+.app {
+    width: 100%;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.menu-toggle {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+}
+
+.statusbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+}
+
+.statusbar span {
+    color: var(--sub);
+}
+
+.panel {
+    border: 1px solid var(--border);
+    background: var(--panel);
+}
+
+.panel-header {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 15px;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.tool-btn,
+.primary-btn,
+.overlay-actions button {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    padding: 6px 10px;
+    cursor: pointer;
+    min-height: 32px;
+}
+
+.tool-btn.activated {
+    background: var(--selected);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.primary-btn {
+    width: calc(100% - 20px);
+    margin: 10px;
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.jslist {
+    padding: 10px;
+}
+
+.jsrow {
+    padding: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    cursor: pointer;
+    background: #fff;
+}
+
+.jsrow.selected {
+    background: var(--selected);
+    border-color: var(--primary);
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.overlay-box {
+    width: calc(100% - 24px);
+    max-width: 320px;
+    padding: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+}
+
+.overlay-box b {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.overlay-box input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+}
+
+.overlay-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1a1a1a;
+        --panel: #242424;
+        --border: #3a3a3a;
+        --text: #f2f2f2;
+        --sub: #b0b0b0;
+        --primary: #4a8cff;
+        --selected: #20385f;
+    }
+
+    .tool-btn,
+    .primary-btn,
+    .overlay-actions button,
+    .menu-toggle,
+    .jsrow,
+    .overlay-box input {
+        background: #2b2b2b;
+        color: var(--text);
+    }
+}

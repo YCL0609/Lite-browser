@@ -1,0 +1,185 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #d8e4f5;
+    font-family: sans-serif;
+    color: #222;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 搜索 */
+
+.search-bar {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+#search-input {
+    flex: 1;
+    height: 40px;
+    border: 1px solid #aaa;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+#search-button {
+    width: 70px;
+    border: none;
+    background: #55cfd8;
+    cursor: pointer;
+}
+
+/* 工具栏 */
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+.toolbar-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.toolbar button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #aaa;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* 书签 */
+
+.bookmark-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(180px, 1fr));
+
+    gap: 8px;
+}
+
+.bookmark-item {
+    background: #ffffffcc;
+    border: 1px solid #bbb;
+
+    padding: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bookmark-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    cursor: pointer;
+}
+
+.bookmark-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.bookmark-actions button {
+    width: 24px;
+    height: 24px;
+
+    border: 1px solid #aaa;
+    background: #f5f5f5;
+
+    cursor: pointer;
+}
+
+/* 弹窗 */
+
+.dialog-mask {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,0.4);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+}
+
+.dialog-mask.active {
+    display: flex;
+}
+
+.dialog {
+    width: 320px;
+
+    background: #fff;
+
+    padding: 16px;
+}
+
+.dialog h3 {
+    margin-bottom: 10px;
+}
+
+.dialog input {
+    width: 100%;
+    height: 36px;
+
+    margin-bottom: 10px;
+    padding: 0 10px;
+
+    border: 1px solid #aaa;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.dialog-buttons button {
+    padding: 6px 12px;
+}
+
+/* 深色模式 */
+
+@media (prefers-color-scheme: dark) {
+
+    body {
+        background: #222;
+        color: #eee;
+    }
+
+    #search-input,
+    .dialog input,
+    .toolbar button,
+    .bookmark-actions button {
+        background: #333;
+        color: #fff;
+        border-color: #555;
+    }
+
+    .bookmark-item {
+        background: #2d2d2d;
+        border-color: #444;
+    }
+
+    .dialog {
+        background: #2b2b2b;
+    }
+}

@@ -2,7 +2,7 @@
     "Info": {
         "lang": "zh",
         "langLong": "zh-CN",
-        "version": "2026-01-21"
+        "version": "2026-05-21"
     },
     "public": {
         "cancelBtn": "取消",
@@ -45,7 +45,6 @@
         "boxTitle": "文件列表",
         "boxTitleAuto": "文件列表 (自动注入模式)",
         "menu": {
-            "title": "菜单",
             "add": "添加",
             "delete": "删除",
             "rename": "重命名",
