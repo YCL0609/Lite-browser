@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LiteBrowser 设置</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="title" data-langId="@.title">LiteBrowser 设置</div>
+        <!-- 主程序设置 -->
+        <div class="card">
+            <h2 data-langId="@.app.title">主程序设置</h2>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.hwLimit">硬件受限模式</span>
+                    <small data-langId="@.app.hwLimitTip">开启后将禁用硬件加速并切换到低性能UI</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="hwLimitMode">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.useGPU">启用 GPU</span>
+                    <small data-langId="@.app.useGPUTip">是否使用硬件加速</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="useGPU">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.topMenu">顶部菜单</span>
+                    <small data-langId="@.app.topMenuTip">关闭会同时禁用键盘快捷键</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="topMenu">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.contentMenu">右键菜单</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="contentMenu">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.toolBox">工具箱</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="toolBox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.history">历史记录</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="history">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="item">
+                <div class="label">
+                    <span data-langId="@.app.insertjs">JavaScript 注入</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="insertjs">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- 主页面设置 -->
+        <div class="card">
+            <h2 data-langId="@.mainWin.title">主页面设置</h2>
+            <div style="margin-bottom:16px;">
+                <div style="margin-bottom:8px;" data-langId="@.mainWin.searchUrl">搜索引擎 URL</div>
+                <input id="searchUrl" class="input" placeholder="https://www.bing.com/search?q=%s" />
+            </div>
+            <div>
+                <div style="margin-bottom:8px;" data-langId="@.mainWin.backgroundImg">背景图片</div>
+                <input type="file" id="backgroundFile"
+                    accept="image/gif,image/png,image/jpeg,image/webp,image/avif,image/apng,image/svg+xml," />
+                <img id="preview" class="preview" />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="saveBtn" data-langId="@.saveSetting">保存设置</button>
+            <button class="secondary" id="reloadBtn" data-langId="@.refreshSetting">重新读取</button>
+        </div>
+    </div>
+
+    <script src="./index.js"></script>
+</body>
+
+</html>

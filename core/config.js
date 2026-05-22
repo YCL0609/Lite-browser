@@ -50,7 +50,6 @@ const defaultSetting = {
     },
     mainWin: {
         searchUrl: 'https://www.bing.com/search?q=%s',
-        custom: { js: false, css: false },
         background: '',
     },
 };

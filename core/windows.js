@@ -72,7 +72,32 @@ function openInsertJS() {
     childWindow.loadFile(path.join(AppPath, 'html', settings.app.normalMode ? 'normal' : 'limited', 'insert', 'index.html'));
 }
 
+/**
+ * 打开一个独立的配置修改页面
+ * @returns {void}
+ */
+function openSettings() {
+    debugLog('info', `Opening settings window.`);
+    const newwin = new BrowserWindow({
+        width: 600,
+        height: 600,
+        icon: IconPath,
+        webPreferences: {
+            sandbox: true,
+            spellcheck: false,
+            webSecurity: true,
+            nodeIntegration: false,
+            contextIsolation: true,
+            session: _getNomenuSession(),
+            preload: path.join(AppPath, 'api', 'preload', 'setting.js'),
+        }
+    });
+    newwin.setMenu(debugMenu);
+    newwin.loadURL(pathToFileURL(path.join(AppPath, 'html', settings.app.normalMode ? 'normal' : 'limited', 'setting', 'index.html')).href);
+}
+
 export {
     openInsertJS,
+    openSettings,
     openToolsWindow,
 }

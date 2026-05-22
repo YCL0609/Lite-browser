@@ -35,6 +35,32 @@
             "urlTip": "输入Url (以 [协议头]:// 开头)"
         }
     },
+    "settingsChange": {
+        "title": "LiteBrowser 设置",
+        "saveSetting": "保存设置",
+        "refreshSetting": "重新读取",
+        "unsupprrtMIME": "不支持的MIME图片格式!",
+        "fileError": "文件读取失败: ",
+        "urlInvalid": "搜索引擎URL不合法!",
+        "app": {
+            "title": "主程序设置",
+            "hwLimit": "硬件受限模式",
+            "hwLimitTip": "开启后将禁用硬件加速并切换到低性能UI",
+            "useGPU": "启用 GPU",
+            "useGPUTip": "是否使用硬件加速",
+            "topMenu": "顶部菜单",
+            "topMenuTip": "关闭会同时禁用键盘快捷键",
+            "contentMenu": "右键菜单",
+            "toolBox": "工具箱",
+            "history": "历史记录",
+            "insertjs": "JavaScript 注入"
+        },
+        "mainWin": {
+            "title": "主页面设置",
+            "searchUrl": "搜索引擎 URL",
+            "backgroundImg": "背景图片"
+        }
+    },
     "jsinsert": {
         "title": "选择要注入的JavaScript文件",
         "subtitle": {
@@ -202,15 +228,9 @@
             }
         },
         "setting": {
-            "change": {
-                "errorTitle": "配置修改错误"
-            },
-            "changeImg": {
-                "errorTitle": "图片配置修改错误",
-                "unknowMIME": "未知MIME类型: ",
-                "title": "旧图片删除警告",
-                "message": "旧图片删除失败, 可尝试手动删除\n文件路径:"
-            }
+            "get": "配置文件读取错误",
+            "set": "配置文件修改错误",
+            "message": "配置文件保存成功!"
         },
         "tools": {
             "notepad": {

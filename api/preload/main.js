@@ -44,14 +44,15 @@ contextBridge.exposeInMainWorld('litebrowser', {
   dataDirAccess: { R: accessR, W: accessW },
   // 新建窗口
   newWindow: (url) => ipcRenderer.send('window-open', url),
+  // 打开设置
+  openSetings: () => ipcRenderer.send('settings-open-windows'),
   // 书签相关
   getBookmarks: () => ipcRenderer.invoke('bookmarks-get'),
-  setBookmark: (data) => ipcRenderer.send('bookmarks-set', data),
+  setBookmarks: (data) => ipcRenderer.send('bookmarks-set', data),
   // 获取翻译文件
   getLang: () => ipcRenderer.invoke('languageJson-get'),
   // 获取文件
   getFile: (name, type) => ipcRenderer.invoke('localFile-get', name, type),
-  setFile: (name, base64) => ipcRenderer.invoke('localFile-get', name, base64),
   // 动态api
   ...api,
 });

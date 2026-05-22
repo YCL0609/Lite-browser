@@ -17,6 +17,5 @@ contextBridge.exposeInMainWorld('litebrowser', {
     insertJS: (winID, jsIDs) => ipcRenderer.send('insertjs-insert-js', winID, jsIDs),
     getAutoJS: (winID) => ipcRenderer.invoke('insertjs-get-auto-js', winID),
     changeAutoJS: (winID, jsIDs) => ipcRenderer.send('insertjs-change-auto-js', winID, jsIDs),
-    dataDirPermission: () => ipcRenderer.invoke('dataDir-permission'),
     getLang: () => ipcRenderer.invoke('languageJson-get')
 });

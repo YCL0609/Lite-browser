@@ -35,6 +35,31 @@
             "urlTip": "Enter URL (must start with [protocol]://)"
         }
     },
+    "settingsChange": {
+        "title": "LiteBrowser Settings",
+        "saveSetting": "Save",
+        "refreshSetting": "Reload",
+        "unsupprrtMIME": "Unsupported MIME image format!",
+        "urlInvalid": "Search engine URL is invalid!",
+        "app": {
+            "title": "Main Application Settings",
+            "hwLimit": "Hardware Limited Mode",
+            "hwLimitTip": "Enabling will disable hardware acceleration and switch to low-performance UI",
+            "useGPU": "Enable GPU",
+            "useGPUTip": "Whether to use hardware acceleration",
+            "topMenu": "Top Menu",
+            "topMenuTip": "Turning off will also disable keyboard shortcuts",
+            "contentMenu": "Context Menu",
+            "toolBox": "Toolbox",
+            "history": "History",
+            "insertjs": "JavaScript Injection"
+        },
+        "mainWin": {
+            "title": "Main Page Settings",
+            "searchUrl": "Search Engine URL",
+            "backgroundImg": "Background Image"
+        }
+    },
     "jsinsert": {
         "title": "Select JavaScript files to inject",
         "subtitle": {
@@ -202,15 +227,9 @@
             }
         },
         "setting": {
-            "change": {
-                "errorTitle": "Configuration modification error"
-            },
-            "changeImg": {
-                "errorTitle": "Image configuration modification error",
-                "unknowMIME": "Unknown MIME type: ",
-                "title": "Old image delete warning",
-                "message": "Failed to delete old image, you may try deleting it manually\nFile path:"
-            }
+            "get": "Configuration file read error",
+            "set": "Configuration file modification error",
+            "message": "Configuration file saved successfully!"
         },
         "tools": {
             "notepad": {

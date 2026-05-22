@@ -168,7 +168,7 @@ document.getElementById('bookmark-card-okBtn').addEventListener('click', () => {
 
     bookmarks[editID] = { name, url };
     showBookmark(editID, bookmarks[editID]);
-    litebrowser.setBookmark(bookmarks);
+    litebrowser.setBookmarks(bookmarks);
 
     editID = null;
     card.classList.remove('active');
@@ -178,4 +178,4 @@ document.getElementById('bookmark-card-okBtn').addEventListener('click', () => {
 });
 
 // 设置页面按钮
-document.getElementById('settings-open').addEventListener('click', () => alert('a?'));
+document.getElementById('settings-open').addEventListener('click', litebrowser.openSetings);

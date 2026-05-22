@@ -120,11 +120,11 @@ document.getElementById('bookmark-card-okBtn').addEventListener('click', () => {
     const old = document.getElementById('bookmark-' + editID);
     if (old) old.remove();
     bookmarks[editID] = { name, url };
-    litebrowser.setBookmark(bookmarks);
+    litebrowser.setBookmarks(bookmarks);
     showBookmark(editID, bookmarks[editID]);
     editID = null;
     card.classList.remove('active');
 });
 
 // 设置页面
-document.getElementById('settings-open').addEventListener('click', () => alert('settings'));
+document.getElementById('settings-open').addEventListener('click', litebrowser.openSetings);

@@ -7,7 +7,7 @@ const lang = langRaw.ipc.file;
 
 // 获取文件
 ipcMain.handle('localFile-get', (_, name, type) => {
-    if (!DataPath.access.R) return null;
+    if (!DataPath.access.R || !name || !type) return '';
     try {
         const file = path.join(DataPath.basic, name);
         debugLog('info', `Getting file ${name} using mode '${type}'`)
@@ -15,12 +15,13 @@ ipcMain.handle('localFile-get', (_, name, type) => {
     } catch (err) {
         debugLog('error', 'Failed to get file:', err.message);
         dialog.showErrorBox(lang.get.errorTitle, err.message);
-        return null;
+        return '';
     }
 });
 
 // 设置文件
-ipcMain.on('localFile-set', (_, name, base64) => {
+ipcMain.handle('localFile-set', (_, name, base64) => {
+    if (!DataPath.access.W || !name || !base64) return;
     try {
         if (!DataPath.access.W) throw new Error(lang.add.errorInfo);
         const buffer = Buffer.from(base64, 'base64');
