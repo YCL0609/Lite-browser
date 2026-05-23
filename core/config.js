@@ -64,8 +64,8 @@ const _defaultDataPath = (() => {
         if (process.platform === 'darwin') {
             const pwd = path.normalize(AppPath).toLowerCase();
             const homeDir = os.homedir();
-            const systemApps = path.normalize('/Applications') + '/';
-            const userApps = path.join(homeDir, 'Applications').toLowerCase() + '/';
+            const systemApps = path.normalize('/applications') + '/';
+            const userApps = path.join(homeDir, 'applications').toLowerCase() + '/';
             if (pwd.startsWith(systemApps) || pwd.startsWith(userApps)) {
                 // 位于系统或用户的 Applications 目录下 (使用 ~/Library/Application Support/LiteBrowser 文件夹)
                 return path.join(homeDir, 'Library', 'Application Support', 'LiteBrowser');

@@ -19,9 +19,20 @@ app.setPath('userData', DataPath.userData);
 
 // GPU加速禁用
 if (!settings?.app.useGPU) {
+  // 调用electron官方API
   app.disableHardwareAcceleration();
+
+  // 关闭Chromium图形渲染管线与光栅化
   app.commandLine.appendSwitch('disable-gpu');
-  app.commandLine.appendSwitch('disable-software-rasterizer'); // 禁用软件光栅化，防止 CPU 爆炸
+  app.commandLine.appendSwitch('disable-software-rasterizer');
+  app.commandLine.appendSwitch('disable-gpu-compositing');
+
+  // 屏蔽特定底层的驱动探测 (禁用 WebGPU、Vulkan、硬件视频解码以及 3D 物理沙盒的驱动访问)
+  app.commandLine.appendSwitch('disable-features', 'Vulkan,Dawn,UseChromeOSDirectVideoDecoder,WebGPU');
+  app.commandLine.appendSwitch('disable-gpu-sandbox');
+
+  // 强制Chromium使用纯软件方案进行必要渲染
+  app.commandLine.appendSwitch('use-gl', 'swiftshader'); 
 }
 
 // 日志输出

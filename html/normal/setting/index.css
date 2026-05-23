@@ -153,3 +153,12 @@ button:hover {
     color: #9ad38f;
     font-size: 14px;
 }
+
+.reset  {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.reset:hover {
+    text-decoration: none;
+}

@@ -23,7 +23,7 @@ const filesCopy = [
     to: 'html/tools/markdown/marked.min.js'
   },
   {
-    from: 'node_modules/marked/LICENSE.md',
+    from: 'node_modules/marked/LICENSE',
     to: 'extrares/license/Marked License.txt'
   },
   // KaTeX

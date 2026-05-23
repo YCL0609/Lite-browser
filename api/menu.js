@@ -6,7 +6,7 @@ const lang = getLocale();
 const settings = getSettings();
 
 // 工具菜单
-const toolsMenu = settings?.app.toolBox ? {
+const toolsMenu = settings.app.toolsBox ? {
   label: lang.menu.tools.index,
   submenu: toolList.map((id, index) => ({
     label: lang.tools.name[index],

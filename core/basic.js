@@ -187,7 +187,7 @@ function getSettings() {
   } else { _settings = defaultSetting }
 
   // 命令行参数处理
-  const hwLimitMode = app.commandLine.hasSwitch('app-hw-limit');
+  const hwLimitMode = app.commandLine.hasSwitch('app-hw-limit-mode');
   const noGPUMode = hwLimitMode || app.commandLine.hasSwitch('app-disable-gpu');
   const toolsBox = app.commandLine.hasSwitch('app-disable-toolbox');
   const history = app.commandLine.hasSwitch('app-disable-history-file');

@@ -1,120 +1,117 @@
 # Lite Browser
-中文版: [README_ZH.md](README_ZH.md)<br><br>
-<b><i>If the Chinese and English versions differ in meaning, the Chinese version takes precedence.</i></b><br>
-A browser suitable for lightweight network environments or certain web debugging needs, built on the Electron framework.<br>
-The default background image for the home page: [Pixiv ID: 76545259](https://www.pixiv.net/artworks/76545259)
 
-## Runtime Data
-The default data storage path DATA_DIR is the resources folder at the same level as app.asar (on macOS, it's the resources folder in the root of the LiteBrowser.app folder). All systems can override this using the `LB_DATA_PATH` environment variable.Electron web data at runtime is stored in `DATA_DIR/userData/` by default, user-defined JavaScript files are stored in `DATA_DIR/insertjs/`, tool pages are stored locally in `DATA_DIR/tools/`, and other files are stored in `DATA_DIR/` by default.
+**中文版: [README_ZH.md](README_ZH.md)**<br><br>
+***If the Chinese and English versions differ in meaning, the Chinese version takes precedence.***<br>
 
-## Language Files and Switching Logic
-The program retrieves the user's preferred language list during initialization and takes the first preference. If it's not in the supported list, English is used as the primary language. All systems can override this using the `LITE_BROWSER_LANG` environment variable. All supported language IDs are stored in the `supportLang` variable in `libs/config.js`, and language files are stored in `lang/{lang}.json`. You can add language files and repackage as needed.
+A browser designed for lightweight network environments. The project is primarily built with Electron and can run on Windows, Linux, and macOS.<br>
 
-## Home Page Settings
-Home page settings are stored in `DATA_DIR/setting.json`.<br>
-Settings can be modified or retrieved by calling the IPC module exposed in the preload script through page JavaScript to send to the renderer process.
+* The application includes several built-in HTML tools to assist with daily tasks;
+* The application can inject JavaScript into web pages to perform custom operations (Tampermonkey APIs are not supported);
+* Through command-line arguments or configuration files, the program can enter a "hardware performance limited mode" and switch to a low-performance UI;
+* By default, the program uses a portable setup where all data is stored in the same directory as the executable. * On macOS, when the app is placed in the Applications folder, the default Apple user data directory will be used instead.
+
+## Project Dependencies
+
+* Electron - Core project dependency - [https://github.com/electron/electron](https://github.com/electron/electron)
+* KaTeX - Math formula rendering library for tools - [https://github.com/KaTeX/KaTeX](https://github.com/KaTeX/KaTeX)
+* DOMPurify - HTML sanitization library for tools - [https://github.com/cure53/DOMPurify](https://github.com/cure53/DOMPurify)
+* Marked - Markdown rendering library for tools - [https://github.com/markedjs/marked](https://github.com/markedjs/marked)
+
+## Run and Build
+
+```bash
+git clone https://github.com/YCL0609/Lite-browser
+cd Lite-browser
+npm i
+
+## Run from command line
+npm run getlibs
+npm run start
+
+## Build
+npm run build
+```
+
+## Command Line Arguments and Environment Variables
+
+### Command Line Arguments
+
+|   Command Line Argument    |    Corresponding Config Key     |               Description                |
+| :------------------------: | :-----------------------------: | :--------------------------------------: |
+|    --app-hw-limit-mode     |         !app.normalMode         | Enable hardware performance limited mode |
+|     --app-disable-gpu      |           app.useGPU            |      Disable hardware acceleration       |
+|   --app-disable-toolbox    |           app.toolBox           |             Disable toolbox              |
+| --app-disable-history-file |           app.history           |      Disable URL history recording       |
+|  --app-disable-insert-js   |          app.insertjs           |       Disable JavaScript injection       |
+|   --app-disable-menu-all   | app.topMenu and app.contentMenu |            Disable all menus             |
+|   --app-disable-menu-top   |           app.topMenu           |             Disable top menu             |
+| --app-disable-menu-content |         app.contentMenu         |           Disable context menu           |
+
+During initialization, the program retrieves the user's preferred language list and uses the first preferred language. If the language is not supported, English will be used as the primary language. You can override this behavior using the `LB_LANG` environment variable. The list of supported language IDs is stored in the `supportLang` variable in `core/config.js`. Language files are stored in `lang/{lang}.json`. You can add custom language files and rebuild the application.
+
+### Environment Variables
+
+|  Variable Name   | Default Value |               Description                |
+| :--------------: | :-----------: | :--------------------------------------: |
+|      LB_LOG      |       0       |           Output runtime logs            |
+|     LB_DEBUG     |       0       |            Enable debug mode             |
+|  LB_DEBUG_TRACE  |       0       |         Print call stack traces          |
+|   LB_DATA_PATH   |       *       |  Set application main storage directory  |
+| LB_USERDATA_PATH |      **       | Set Chromium user data storage directory |
+
+*** By default, the DATA_DIR storage path is located in the `Data` folder beside the executable on Linux/Windows. On macOS, it is stored in the `Data` folder beside the `.app` directory.**<br>
+**** Chromium user data is stored in `DATA_DIR/userData` by default.**
+
+### Main Page Settings
+
+|     Config Key     |                            Default Value                             |                    Description                     |
+| :----------------: | :------------------------------------------------------------------: | :------------------------------------------------: |
+| mainWin.searchUrl  | [https://www.bing.com/search?q=%s](https://www.bing.com/search?q=%s) |        Search engine used on the main page         |
+| mainWin.background |                            (empty string)                            | Main page background filename (disabled if empty)* |
+
+*** Background images are disabled when "hardware performance limited mode" is enabled.**
+
+## JavaScript Injection
+User-defined JavaScript files are stored in the `DATA_DIR/insertjs` directory with filenames in the format `{32-character-random-string}.js`. The mapping between the generated filenames and original filenames is stored in `DATA_DIR/insertjs/name.json`, while automatic injection logic is stored in `DATA_DIR/insertjs/auto.json`.
+
+You can enter the JavaScript injection window by clicking the `JavaScript Injection` menu button (on macOS: `"Control..." => "JavaScript Injection"`) or pressing the **F1** key. After selecting scripts, click the `Inject` button to inject all selected JavaScript files. In automatic injection mode, clicking `Apply List` records the current list as the automatic injection list for the current domain.
+
+### Manual Injection into Pages
+When the injection window is opened, the main process uses the `win.webContents.executeJavaScriptInIsolatedWorld()` function to execute the `litebrowser.registerWindow()` function exposed by the preload script in the currently focused window. This function registers the current window object in the renderer process and passes the current window ID to the selection window. When the user clicks apply, the selected JavaScript files are injected into the target window using the same function.
+
 ```javascript
-/* api/preload/main.js */
-contextBridge.exposeInMainWorld('litebrowser', {
+/* core/windows.js */
+function openInsertJS() {
   // ....
-  getSetting: (isimg) => ipcRenderer.invoke('setting-get', isimg), // Get settings
-  setSetting: (json) => ipcRenderer.send('setting-change', json), // Modify settings
-  imgSetting: (type, base64) => ipcRenderer.send('setting-change-image', type, base64) // Get or set image
-})
-```
-setting.json file structure:
-```json
-{
-    "search": { // Search engine related
-        "id": 1, // Search engine ID, -1 for custom
-        "url": "" // Custom search engine URL
-    },
-    "theme": { // Theme related
-        "color": { // Theme colors
-            "main": "#60eeee", // Main page color, with 0.77 transparency applied on load
-            "text": "#000000" // Page text color
-        },
-        "background": "background.jpg" // Background image path, null for default, other files in DATA_DIR folder
-    }
-}
-```
-
-## Bookmark Settings
-Bookmark settings are stored in `DATA_DIR/bookmark.json`.<br>
-Modifications or retrievals are still done by calling the IPC module exposed in the preload script through page JavaScript to send to the renderer process.
-```javascript
-/* api/preload/main.js */
-contextBridge.exposeInMainWorld('litebrowser', {
-  // ....
-  getBookmarks: () => ipcRenderer.invoke('bookmarks-get'), // Get bookmarks
-  addBookmark: (name, url, time) => ipcRenderer.send('bookmarks-add', name, url, time), // Add bookmark
-  delBookmark: (name) => ipcRenderer.send('bookmarks-del', name), // Delete bookmark
-  // ....
-})
-```
-bookmarks.json file structure:
-```json
-{
-    // ....
-    "1748138860808": { // Bookmark ID is the timestamp when added
-        "title": "Test Project", // Bookmark name
-        "url": "https://www.example.com/" // Bookmark URL
-    },
-    // ....
-}
-```
-
-## Page JavaScript Injection
-User-defined JavaScript files are stored in the `DATA_DIR/insertjs/` directory with filenames as {32-character random string}.js, and name.json records the correspondence with the original filename. Click the `JavaScript Injection` button in the menu (on macOS: `"Control..." => "JavaScript Injection"`) or press <b>F1</b> to select a JavaScript file to inject.<br><br>
-When injecting a JavaScript file, the program first executes the `litebrowser.registerWindow()` method exposed in the preload script through the `executeJavaScriptInIsolatedWorld` function in the currently focused window to register a window object in the renderer process, then waits and injects the user-selected JavaScript file into the currently focused window through executeJavaScript.
-```javascript
-/* libs/functions.js */
-function insertJS() {
-  const mainWindow = BrowserWindow.getFocusedWindow();
   mainWindow.webContents.executeJavaScriptInIsolatedWorld('litebrowser.registerWindow()') // Register window object in main process
   const childWindow = new BrowserWindow({
     // ....
     webPreferences: {
-      additionalArguments: [`--parent-window-id=${mainWindow.id}`], // Pass the ID of the window to be injected to the JavaScript file selection child window
+      additionalArguments: [`--parent-window-id=${mainWindow.id}`], // Pass target window ID to child selection window
       // ....
     }
   });
   // ....
-  ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // Listen and inject the selected JavaScript file content
+  ipcMain.once('send-data-back', (_, data) => mainWindow.webContents.executeJavaScript(data)); // Listen and inject selected JS content
 }
 ```
-When the JavaScript file selection child window is loaded, it reads the parent window's ID and obtains the list of available files through IPC communication exposed in the preload script. Users can click on this page to select the script to modify or delete. After double-clicking a JavaScript entry, the file content is sent to the parent window and injected into the page by the parent window for execution.
-```javascript
-/* api/preload/insertjs.js */
 
-// Get parent window ID
-const arg = process.argv.find(arg => arg.startsWith('--parent-window-id='));
-const parentID = arg ? parseInt(arg.split('=')[1], 10) : null;
+### Automatic Injection into Pages
+Whenever a page in the default session loads, the preload script executes `ipcRenderer.send('insertjs-auto-js-insert')` to send an automatic injection signal to the backend. The backend checks whether the current domain exists in the `hosts` array of the configuration file. If matched, it loads the corresponding domain configuration, filters unnecessary logic, and injects the remaining scripts into the sender window in sequence.
 
-contextBridge.exposeInMainWorld('litebrowser', {
-    parentID: parentID, // Parent window ID
-    getList: () => ipcRenderer.invoke('insertjs-get-jslist'), // Get script list
-    addJS: () => ipcRenderer.send('insertjs-add-js'), // Add script
-    removeJS: (name) => ipcRenderer.send('insertjs-remove-js', name), // Delete script
-    openDir: () => ipcRenderer.send('insertjs-open-dir'), // Open script directory
-    insertJS: (id, js) => ipcRenderer.send('insertjs-insert-js', id, js) // Inject script
-})
-```
-
-### Automatic JavaScript Injection
-When each page loads, the preload script executes `ipcRenderer.send('insertjs-auto-js-insert')` to send an auto-injection signal to the backend. After receiving it, the backend obtains the triggered URL and checks if there is any auto-injection logic for this domain. After filtering out useless logic, it performs auto-injection. If there are changes to the injection configuration, they are saved to a file and cached in the `autoJSCache` local variable. All rules are in the `DATA_DIR/insertjs/auto.json` file.
 ```javascript
 /* api/ipc/insertjs.js */
 
-// Auto-inject scripts
+// Auto injection script
 ipcMain.on('insertjs-auto-js-insert', (event) => {
     // ......
-    // Get the script list for the host
+    // Get script list for current host
     const host = (urlObj.host === '') ? -1 : urlObj.host;
     if (host === -1) return;
     if (autoJSCache == null) autoJSCache = JSON.parse(getFile(jsonPath_auto, defaultJson_auto));
     let changed = false;
-    // Check if files exist, remove if not
+
+    // Remove missing files
     if (autoJSCache.hosts.includes(host)) {
       const jsList = autoJSCache[host];
       for (let i = jsList.length - 1; i >= 0; i--) {
@@ -125,37 +122,38 @@ ipcMain.on('insertjs-auto-js-insert', (event) => {
           changed = true;
         }
       }
-      // Inject remaining existing scripts
+
+      // Inject remaining scripts
       for (const jsid of jsList) {
         const filepath = path.join(DataPath, 'insertjs', jsid + '.js');
         const content = fs.readFileSync(filepath, 'utf-8');
         win.webContents.executeJavaScript(content); // Inject script
       }
-      // Save if list has changed
+
+      // Save if the list changed
       if (changed) {
-        if (jsList.length === 0) {
-          delete autoJSCache[host];
-          autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(host), 1);
-        }
-        fs.writeFileSync(path.join(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8'));
+          if (jsList.length === 0) {
+              delete autoJSCache[host];
+              autoJSCache.hosts.splice(autoJSCache.hosts.indexOf(host), 1);
+          }
+          fs.writeFileSync(jsonPath_auto, JSON.stringify(autoJSCache, null, 2), 'utf-8');
       }
     }
  //......
 });
 ```
-auto.json file structure:
+
+Structure of the `auto.json` file:
 ```json
 {
-  "hosts": [ // All website domains that will auto-execute
+  "hosts": [
     "example.net",
     "www.example.com"
-    // ...
   ],
-  "example.net": [ // Specific configuration for example.net domain
-    "fnuplcuj0hbhheceb3std5w9gnr1cp9d", // ID of the JavaScript file to be injected
+  "example.net": [
+    "fnuplcuj0hbhheceb3std5w9gnr1cp9d",
     "6df4zk44ub5mo1w59ix49yurcpwvfx8y",
     "eu9olax01oib7pwvjdxzjleabbc9w46o"
   ]
-  // ...
 }
 ```

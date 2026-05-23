@@ -57,7 +57,8 @@
         "mainWin": {
             "title": "Main Page Settings",
             "searchUrl": "Search Engine URL",
-            "backgroundImg": "Background Image"
+            "backgroundImg": "Background Image",
+            "resetBackground": "Reset Background"
         }
     },
     "jsinsert": {

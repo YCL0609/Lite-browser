@@ -87,6 +87,15 @@ document.getElementById('backgroundFile').addEventListener('change', async (e) =
 
 });
 
+// 重置背景图片
+document.getElementById('backgroundReset').addEventListener('click', () => {
+    // 清空选择框并使用1像素透明图片替代    
+    document.getElementById('preview').src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxIDEiPjwvc3ZnPg==';
+    document.getElementById('backgroundFile').value = '';
+    currentSettings.mainWin.background = '';
+    bgFileName = '';
+})
+
 // 保存配置
 document.getElementById('saveBtn').addEventListener('click', async () => {
     const data = {

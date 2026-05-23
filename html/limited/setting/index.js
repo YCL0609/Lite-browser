@@ -79,6 +79,14 @@ document.getElementById('backgroundFile').addEventListener('change', async (e) =
     reader.readAsDataURL(file);
 });
 
+// 重置背景图片
+document.getElementById('backgroundReset').addEventListener('click', () => {
+    // 清空选择框
+    document.getElementById('backgroundFile').value = '';
+    currentSettings.mainWin.background = '';
+    bgFileName = '';
+})
+
 // 保存配置
 document.getElementById('saveBtn').addEventListener('click', async () => {
     const data = {

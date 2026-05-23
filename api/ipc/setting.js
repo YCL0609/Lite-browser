@@ -35,6 +35,10 @@ ipcMain.on('settings-set', (_, data) => {
             fs.unlinkSync(path.join(DataPath.basic, currentImgName));
             currentImgName = json.mainWin.background;
         }
+        debugLog('info', 'New app setting received:')
+        debugLog('table', json.app);
+        debugLog('info', 'New main windows setting received:')
+        debugLog('table', json.mainWin);
         dialog.showMessageBox({
             type: 'info',
             title: 'Lite Browser',

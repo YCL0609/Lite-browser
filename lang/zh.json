@@ -58,7 +58,8 @@
         "mainWin": {
             "title": "主页面设置",
             "searchUrl": "搜索引擎 URL",
-            "backgroundImg": "背景图片"
+            "backgroundImg": "背景图片",
+            "resetBackground": "重置背景"
         }
     },
     "jsinsert": {
